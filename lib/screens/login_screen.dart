@@ -34,27 +34,26 @@ class _LoginScreenState extends State<LoginScreen> {
           final userData = jsonDecode(response.body);
           final role = userData['role'];
 
-          // Navigate based on user role
-          late Widget homeScreen;
           switch (role) {
             case 'admin':
-              homeScreen = const HomeAdminScreen();
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(context, '/admin');
               break;
             case 'user':
-              homeScreen = HomeUserScreen(userId: userData['id']);
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(
+                context,
+                '/user',
+                arguments: {'userId': userData['id']},
+              );
               break;
             case 'shipper':
-              homeScreen = const HomeShipperScreen();
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(context, '/shipper');
               break;
             default:
               throw Exception('Invalid role');
           }
-
-          // Replace the login screen with appropriate home screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => homeScreen),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login failed')),
@@ -100,11 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const RegisterScreen()),
-                  );
+                  Navigator.pushNamed(context, '/register');
                 },
                 child: const Text('Don\'t have an account? Register'),
               ),

@@ -45,11 +45,28 @@ const initializeDatabase = async () => {
 const pool = await initializeDatabase();
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-// Add routes
+// Configure CORS
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Accept']
+}));
+
+app.use(express.json());
 app.use('/auth', authRoutes);
+
+// Add error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something broke!' });
+});
+
+// Add 404 handler
+app.use((req, res) => {
+  console.log('404 for:', req.method, req.url);
+  res.status(404).json({ error: 'Not found' });
+});
 
 // Start server
 const PORT = 3000;

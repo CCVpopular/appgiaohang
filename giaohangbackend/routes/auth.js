@@ -1,5 +1,6 @@
 import express from 'express';
 import bcrypt from 'bcrypt';
+import cors from 'cors';
 import pool from '../index.js';
 
 const router = express.Router();
@@ -71,6 +72,39 @@ router.get('/user/:id', async (req, res) => {
     });
   } catch (error) {
     res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+router.put('/user/:id', cors(), async (req, res) => {
+  try {
+    console.log('PUT request received:', {
+      url: req.url,
+      params: req.params,
+      body: req.body
+    });
+
+    const { id } = req.params;
+    const { fullName, phoneNumber } = req.body;
+    
+    if (!fullName || !phoneNumber) {
+      return res.status(400).json({ error: 'Full name and phone number are required' });
+    }
+
+    const [result] = await pool.query(
+      'UPDATE users SET full_name = ?, phone_number = ? WHERE id = ?',
+      [fullName, phoneNumber, id]
+    );
+
+    console.log('Update result:', result);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'Profile updated successfully' });
+  } catch (error) {
+    console.error('Update user error:', error);
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 });
 
