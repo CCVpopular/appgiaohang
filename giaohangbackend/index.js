@@ -4,10 +4,11 @@ import cors from 'cors';
 import { createTables } from './database/tables.js';
 import authRoutes from './routes/auth.js';
 
+//Cau hinh ket noi database
 const dbConfig = {
   host: 'localhost',
   user: 'root',
-  password: '', // add your password here
+  password: '', 
   database: 'giaohang_db'
 };
 
