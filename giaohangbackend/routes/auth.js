@@ -47,4 +47,31 @@ router.post('/login', async (req, res) => {
   }
 });
 
+
+//Hàm lấy ra thông tin user dựa vào id
+router.get('/user/:id', async (req, res) => {
+  try {
+    const { id } = req.params; // Lấy id từ URL
+    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [id]);
+
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const user = users[0];
+    // Chỉ trả về các thông tin cần thiết (ẩn mật khẩu)
+    res.json({
+      id: user.id,
+      email: user.email,
+      fullName: user.full_name,
+      phoneNumber: user.phone_number,
+      role: user.role,
+      createdAt: user.created_at,
+      updatedAt: user.updated_at,
+    });
+  } catch (error) {
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
 export default router;

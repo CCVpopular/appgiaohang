@@ -35,13 +35,13 @@ class _LoginScreenState extends State<LoginScreen> {
           final role = userData['role'];
 
           // Navigate based on user role
-          Widget homeScreen;
+          late Widget homeScreen;
           switch (role) {
             case 'admin':
               homeScreen = const HomeAdminScreen();
               break;
             case 'user':
-              homeScreen = const HomeUserScreen();
+              homeScreen = HomeUserScreen(userId: userData['id']);
               break;
             case 'shipper':
               homeScreen = const HomeShipperScreen();
@@ -102,7 +102,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const RegisterScreen()),
                   );
                 },
                 child: const Text('Don\'t have an account? Register'),

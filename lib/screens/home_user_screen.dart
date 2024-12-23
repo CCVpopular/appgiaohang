@@ -5,7 +5,8 @@ import 'user/notifications_page.dart';
 import 'user/profile_page.dart';
 
 class HomeUserScreen extends StatefulWidget {
-  const HomeUserScreen({super.key});
+  final int userId;
+  const HomeUserScreen({super.key, required this.userId});
 
   @override
   State<HomeUserScreen> createState() => _HomeUserScreenState();
@@ -14,12 +15,18 @@ class HomeUserScreen extends StatefulWidget {
 class _HomeUserScreenState extends State<HomeUserScreen> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    HomePage(),
-    OrdersPage(),
-    NotificationsPage(),
-    ProfilePage(),
-  ];
+  late final List<Widget> _pages;
+
+  @override
+  void initState() {
+    super.initState();
+    _pages = [
+      const HomePage(),
+      const OrdersPage(),
+      const NotificationsPage(),
+      ProfilePage(userId: widget.userId),
+    ];
+  }
 
   void _onItemTapped(int index) {
     setState(() {

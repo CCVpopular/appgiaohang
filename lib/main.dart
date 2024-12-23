@@ -11,7 +11,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const LoginScreen(),
+      home: LoginScreen(),
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
