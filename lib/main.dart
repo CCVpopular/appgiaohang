@@ -4,9 +4,13 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/store_detail_page.dart';
+import 'screens/user/store_registration_page.dart';
 import 'screens/user/user_settings_page.dart';
 import 'screens/settings_admin_screen.dart';
 import 'providers/auth_provider.dart';
+import 'screens/user/user_store_page.dart';
+import 'screens/store_approval_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -62,6 +66,13 @@ class MainApp extends StatelessWidget {
         '/user_home': (context) => const HomeUserScreen(),
         '/user_settings': (context) => const UserSettingsPage(),
         '/admin_settings': (context) => const SettingsAdminScreen(),
+        '/my-store': (context) => const UserStorePage(),
+        '/register-store': (context) => const StoreRegistrationPage(),
+        '/store-detail': (context) {
+          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return StoreDetailPage(store: store);
+        },
+        '/store-approval': (context) => const StoreApprovalScreen(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

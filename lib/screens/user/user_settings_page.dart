@@ -125,6 +125,15 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               },
             ),
           ],
+          const Divider(),
+          ListTile(
+            title: const Text('My Store'),
+            leading: const Icon(Icons.store),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.pushNamed(context, '/my-store');
+            },
+          ),
           if (showLogout) ...[
             const Divider(),
             ListTile(
