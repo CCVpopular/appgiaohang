@@ -22,7 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://26.113.132.145:3000/auth/login'),
+          Uri.parse('http://26.24.143.103:3000/auth/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,
@@ -34,27 +34,26 @@ class _LoginScreenState extends State<LoginScreen> {
           final userData = jsonDecode(response.body);
           final role = userData['role'];
 
-          // Navigate based on user role
-          Widget homeScreen;
           switch (role) {
             case 'admin':
-              homeScreen = const HomeAdminScreen();
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(context, '/admin');
               break;
             case 'user':
-              homeScreen = const HomeUserScreen();
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(
+                context,
+                '/user',
+                arguments: {'userId': userData['id']},
+              );
               break;
             case 'shipper':
-              homeScreen = const HomeShipperScreen();
+              if (!mounted) return;
+              Navigator.pushReplacementNamed(context, '/shipper');
               break;
             default:
               throw Exception('Invalid role');
           }
-
-          // Replace the login screen with appropriate home screen
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => homeScreen),
-          );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Login failed')),
@@ -100,10 +99,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
               TextButton(
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const RegisterScreen()),
-                  );
+                  Navigator.pushNamed(context, '/register');
                 },
                 child: const Text('Don\'t have an account? Register'),
               ),
