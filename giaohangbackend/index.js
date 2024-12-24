@@ -54,6 +54,8 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Ensure auth routes are properly registered
 app.use('/auth', authRoutes);
 
 // Add error handling middleware

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../utils/shared_prefs.dart';
 import 'register_screen.dart';
 import 'home_admin_screen.dart';
 import 'home_user_screen.dart';
@@ -33,6 +34,7 @@ class _LoginScreenState extends State<LoginScreen> {
         if (response.statusCode == 200) {
           final userData = jsonDecode(response.body);
           final role = userData['role'];
+          await SharedPrefs.saveUserId(userData['id']); // Add this line
 
           switch (role) {
             case 'admin':
@@ -102,6 +104,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   Navigator.pushNamed(context, '/register');
                 },
                 child: const Text('Don\'t have an account? Register'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pushNamed(context, '/forgot-password');
+                },
+                child: const Text('Forgot Password?'),
               ),
             ],
           ),

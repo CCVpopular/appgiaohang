@@ -1,13 +1,15 @@
 import nodemailer from 'nodemailer';
 
+//đăng ký tài khoàn sử dụng dịch vụ gửi email của google
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: 'hienxadoi2020@gmail.com', // Replace with your email
-    pass: 'awhm hoti qatg qihf' // Replace with your app password
+    user: 'hienxadoi2020@gmail.com', 
+    pass: 'awhm hoti qatg qihf' 
   }
 });
 
+//Form gửi email
 export const sendOTP = async (email, otp) => {
   const mailOptions = {
     from: 'Delivery Service',
