@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'settings_admin_screen.dart';
 
 class HomeAdminScreen extends StatefulWidget {
   const HomeAdminScreen({super.key});
@@ -20,7 +21,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
     const Center(child: Text('Dashboard')),
     const Center(child: Text('Manage Users')),
     const Center(child: Text('Reports')),
-    const Center(child: Text('Settings')),
+    const SettingsAdminScreen(),
   ];
 
   @override

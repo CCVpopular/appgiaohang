@@ -4,6 +4,8 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/user_settings_page.dart';
+import 'screens/settings_admin_screen.dart';
 import 'providers/auth_provider.dart';
 
 void main() {
@@ -58,6 +60,8 @@ class MainApp extends StatelessWidget {
         '/admin': (context) => const HomeAdminScreen(),
         '/shipper': (context) => const HomeShipperScreen(),
         '/user_home': (context) => const HomeUserScreen(),
+        '/user_settings': (context) => const UserSettingsPage(),
+        '/admin_settings': (context) => const SettingsAdminScreen(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

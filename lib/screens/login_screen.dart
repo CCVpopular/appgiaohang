@@ -30,27 +30,32 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           final userData = jsonDecode(response.body);
-          
+
+          // Save user data
           await AuthProvider.saveUserData(userData);
-          
+
           if (!mounted) return;
 
-          if (Navigator.canPop(context)) {
-            Navigator.pop(context, true);
-          } else {
-            switch (userData['role']) {
-              case 'admin':
-                Navigator.pushReplacementNamed(context, '/admin');
-                break;
-              case 'user':
-                Navigator.pushReplacementNamed(context, '/user_home');
-                break;
-              case 'shipper':
-                Navigator.pushReplacementNamed(context, '/shipper');
-                break;
-              default:
-                throw Exception('Invalid role');
-            }
+          // Check if we can pop back to previous screen
+
+          // If no previous screen, navigate based on role
+          switch (userData['role']) {
+            case 'admin':
+              Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+              break;
+            case 'user':
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context, true);
+              } 
+              else {
+                Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
+              }
+              break;
+            case 'shipper':
+              Navigator.pushNamedAndRemoveUntil(context, '/shipper', (route) => false);
+              break;
+            default:
+              throw Exception('Invalid role');
           }
         } else {
           if (!mounted) return;
