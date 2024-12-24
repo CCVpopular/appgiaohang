@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../config/config.dart';
 import 'user_settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,7 +25,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<Map<String, dynamic>> getUserById(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://26.24.143.103:3000/auth/user/$userId'),
+        Uri.parse('${Config.baseurl}/auth/user/$userId'),
         headers: {
           'Accept': 'application/json',
         },
@@ -108,7 +109,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       try {
                         final url = Uri.parse(
-                            'http://26.24.143.103:3000/auth/user/${widget.userId}');
+                            '${Config.baseurl}/auth/user/${widget.userId}');
                         print('Sending PUT request to: $url'); // Debug log
 
                         final response = await http.put(

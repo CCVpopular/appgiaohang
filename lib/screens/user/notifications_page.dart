@@ -6,7 +6,7 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: 10, // Replace with actual notifications count
+      itemCount: 10,
       itemBuilder: (context, index) {
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),

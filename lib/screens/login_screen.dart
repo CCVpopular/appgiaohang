@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../config/config.dart';
 import 'register_screen.dart';
 import 'home_admin_screen.dart';
 import 'home_user_screen.dart';
@@ -22,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://26.24.143.103:3000/auth/login'),
+          Uri.parse('${Config.baseurl}/auth/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,
