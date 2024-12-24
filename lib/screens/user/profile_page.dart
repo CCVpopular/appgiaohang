@@ -2,24 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
+import '../../providers/auth_provider.dart';
 import 'user_settings_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
-  final int userId;
-  const ProfilePage({super.key, required this.userId});
+  const ProfilePage({super.key});
 
   @override
   State<ProfilePage> createState() => _ProfilePageState();
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  late Future<Map<String, dynamic>> _userFuture;
+  Future<Map<String, dynamic>?> _userFuture = Future.value(null);
 
   @override
   void initState() {
     super.initState();
-    _userFuture = getUserById(widget.userId);
+    _initializeUser();
+  }
+
+  Future<void> _initializeUser() async {
+    final userId = await AuthProvider.getUserId();
+    if (userId != null && mounted) {
+      setState(() {
+        _userFuture = getUserById(userId);
+      });
+    }
   }
 
   Future<Map<String, dynamic>> getUserById(int userId) async {
@@ -42,9 +51,9 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _editProfile() async {
     final userData = await _userFuture;
     final TextEditingController nameController =
-        TextEditingController(text: userData['fullName'] ?? '');
+            TextEditingController(text: userData?['fullName'] ?? '');
     final TextEditingController phoneController =
-        TextEditingController(text: userData['phoneNumber'] ?? '');
+        TextEditingController(text: userData?['phoneNumber'] ?? '');
     bool isLoading = false;
 
     await showDialog(
@@ -109,7 +118,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       try {
                         final url = Uri.parse(
-                            '${Config.baseurl}/auth/user/${widget.userId}');
+                            '${Config.baseurl}/auth/user/${userData?['id'] ?? ''}');
                         print('Sending PUT request to: $url'); // Debug log
 
                         final response = await http.put(
@@ -133,7 +142,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           if (!mounted) return;
                           Navigator.pop(context);
                           setState(() {
-                            _userFuture = getUserById(widget.userId);
+                            _userFuture = getUserById(userData?['id'] ?? '');
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -192,6 +201,42 @@ class _ProfilePageState extends State<ProfilePage> {
     Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
   }
 
+  Widget _buildLoginCard() {
+    return Center(
+      child: Card(
+        margin: const EdgeInsets.all(16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.account_circle,
+                size: 80,
+                color: Colors.grey,
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'You are not logged in',
+                style: TextStyle(fontSize: 18),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final result = await Navigator.pushNamed(context, '/login');
+                  if (result == true && mounted) {
+                    _initializeUser(); // Reload user data after successful login
+                  }
+                },
+                child: const Text('Login'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -211,11 +256,15 @@ class _ProfilePageState extends State<ProfilePage> {
           ),
         ],
       ),
-      body: FutureBuilder<Map<String, dynamic>>(
+      body: FutureBuilder<Map<String, dynamic>?>(
         future: _userFuture,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (snapshot.data == null) {
+            return _buildLoginCard();
           }
 
           if (snapshot.hasError) {
@@ -263,14 +312,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ElevatedButton(
                   onPressed: _editProfile,
                   child: const Text('Edit Profile'),
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _logout,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.red,
-                  ),
-                  child: const Text('Logout'),
                 ),
               ],
             ),

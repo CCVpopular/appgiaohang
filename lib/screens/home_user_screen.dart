@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
+import '../providers/auth_provider.dart';
 import 'user/home_page.dart';
 import 'user/orders_page.dart';
 import 'user/notifications_page.dart';
 import 'user/profile_page.dart';
 
 class HomeUserScreen extends StatefulWidget {
-  final int userId;
-  const HomeUserScreen({super.key, required this.userId});
+  const HomeUserScreen({super.key});
 
   @override
   State<HomeUserScreen> createState() => _HomeUserScreenState();
@@ -24,7 +24,7 @@ class _HomeUserScreenState extends State<HomeUserScreen> {
       const HomePage(),
       const OrdersPage(),
       const NotificationsPage(),
-      ProfilePage(userId: widget.userId),
+      ProfilePage(),
     ];
   }
 
@@ -37,7 +37,6 @@ class _HomeUserScreenState extends State<HomeUserScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('User Dashboard')),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

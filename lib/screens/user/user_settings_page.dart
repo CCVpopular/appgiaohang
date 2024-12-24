@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import '../login_screen.dart';
+import '../../providers/auth_provider.dart';
+import '../home_user_screen.dart';
 
 class UserSettingsPage extends StatefulWidget {
   const UserSettingsPage({super.key});
@@ -12,6 +13,20 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   bool notificationsEnabled = true;
   bool darkModeEnabled = false;
   String selectedLanguage = 'English';
+  bool showLogout = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserId();
+  }
+
+  Future<void> _checkUserId() async {
+    final userId = await AuthProvider.getUserId();
+    setState(() {
+      showLogout = userId != null;
+    });
+  }
 
   Future<void> _showLogoutDialog() async {
     return showDialog(
@@ -27,12 +42,13 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             ),
             TextButton(
               child: const Text('Logout'),
-              onPressed: () {
-                // Add your logout logic here
+              onPressed: () async {
+                await AuthProvider.logout();
+                if (!mounted) return;
                 Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false, // This removes all previous routes
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const HomeUserScreen()),
                 );
               },
             ),
@@ -100,12 +116,14 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               // Navigate to terms of service
             },
           ),
-          const Divider(),
-          ListTile(
-            title: const Text('Logout'),
-            leading: const Icon(Icons.logout, color: Colors.red),
-            onTap: _showLogoutDialog,
-          ),
+          if (showLogout) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Logout'),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              onTap: _showLogoutDialog,
+            ),
+          ],
         ],
       ),
     );

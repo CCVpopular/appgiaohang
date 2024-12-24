@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/config.dart';
-import 'register_screen.dart';
-import 'home_admin_screen.dart';
-import 'home_user_screen.dart';
-import 'home_shipper_screen.dart';
+import '../providers/auth_provider.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,36 +30,44 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           final userData = jsonDecode(response.body);
-          final role = userData['role'];
+          
+          await AuthProvider.saveUserData(userData);
+          
+          if (!mounted) return;
 
-          switch (role) {
-            case 'admin':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, '/admin');
-              break;
-            case 'user':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(
-                context,
-                '/user',
-                arguments: {'userId': userData['id']},
-              );
-              break;
-            case 'shipper':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, '/shipper');
-              break;
-            default:
-              throw Exception('Invalid role');
+          if (Navigator.canPop(context)) {
+            Navigator.pop(context, true);
+          } else {
+            switch (userData['role']) {
+              case 'admin':
+                Navigator.pushReplacementNamed(context, '/admin');
+                break;
+              case 'user':
+                Navigator.pushReplacementNamed(context, '/user_home');
+                break;
+              case 'shipper':
+                Navigator.pushReplacementNamed(context, '/shipper');
+                break;
+              default:
+                throw Exception('Invalid role');
+            }
           }
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login failed')),
+            SnackBar(
+              content: Text(response.body),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }
