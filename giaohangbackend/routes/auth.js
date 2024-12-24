@@ -2,12 +2,63 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pool from '../index.js';
+import { sendOTP } from '../utils/emailService.js';
 
 const router = express.Router();
 
+// Store OTPs temporarily (in production, use Redis or similar)
+const otpStore = new Map();
+
+router.post('/send-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    
+    // Store OTP with 5 minute expiry
+    otpStore.set(email, {
+      otp,
+      expiry: Date.now() + 5 * 60 * 1000
+    });
+    
+    await sendOTP(email, otp);
+    res.json({ message: 'OTP sent successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+router.post('/verify-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+    const storedOTPData = otpStore.get(email);
+    
+    if (!storedOTPData || storedOTPData.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid OTP' });
+    }
+    
+    if (Date.now() > storedOTPData.expiry) {
+      otpStore.delete(email);
+      return res.status(400).json({ error: 'OTP expired' });
+    }
+    
+    otpStore.delete(email);
+    res.json({ message: 'OTP verified successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Modify the existing register endpoint
 router.post('/register', async (req, res) => {
   try {
-    const { email, password, fullName, phoneNumber } = req.body;
+    const { email, password, fullName, phoneNumber, otp } = req.body;
+    
+    // Verify OTP
+    const storedOTPData = otpStore.get(email);
+    if (!storedOTPData || storedOTPData.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+    
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const [result] = await pool.query(
@@ -15,6 +66,7 @@ router.post('/register', async (req, res) => {
       [email, hashedPassword, fullName, phoneNumber]
     );
     
+    otpStore.delete(email); // Clear OTP after successful registration
     res.status(201).json({ message: 'User registered successfully', userId: result.insertId });
   } catch (error) {
     res.status(400).json({ error: error.message });

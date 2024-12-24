@@ -16,6 +16,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _fullNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  final _otpController = TextEditingController();
+  bool _isOTPSent = false;
+
+  Future<void> _sendOTP() async {
+    try {
+      final response = await http.post(
+        Uri.parse('http://26.24.143.103:3000/auth/send-otp'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'email': _emailController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() => _isOTPSent = true);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('OTP sent to your email')),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to send OTP')),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: $e')),
+      );
+    }
+  }
 
   Future<void> _register() async {
     if (_formKey.currentState!.validate()) {
@@ -28,6 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             'password': _passwordController.text,
             'fullName': _fullNameController.text,
             'phoneNumber': _phoneController.text,
+            'otp': _otpController.text,
           }),
         );
 
@@ -68,10 +98,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  suffixIcon: !_isOTPSent
+                      ? IconButton(
+                          icon: const Icon(Icons.send),
+                          onPressed: _sendOTP,
+                        )
+                      : const Icon(Icons.check, color: Colors.green),
+                ),
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter email' : null,
               ),
+              if (_isOTPSent)
+                TextFormField(
+                  controller: _otpController,
+                  decoration: const InputDecoration(labelText: 'Enter OTP'),
+                  validator: (value) =>
+                      value?.isEmpty ?? true ? 'Please enter OTP' : null,
+                ),
               TextFormField(
                 controller: _passwordController,
                 decoration: const InputDecoration(labelText: 'Password'),
@@ -81,7 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
               TextFormField(
                 controller: _confirmPasswordController,
-                decoration: const InputDecoration(labelText: 'Confirm Password'),
+                decoration:
+                    const InputDecoration(labelText: 'Confirm Password'),
                 obscureText: true,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
@@ -120,6 +166,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _confirmPasswordController.dispose();
+    _otpController.dispose();
     super.dispose();
   }
 }
