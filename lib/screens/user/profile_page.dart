@@ -24,7 +24,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<Map<String, dynamic>> getUserById(int userId) async {
     try {
       final response = await http.get(
-        Uri.parse('http://26.24.143.103:3000/auth/user/$userId'),
+        Uri.parse('http://192.168.10.120:3000/auth/user/$userId'),
         headers: {
           'Accept': 'application/json',
         },
@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
                       try {
                         final url = Uri.parse(
-                            'http://26.24.143.103:3000/auth/user/${widget.userId}');
+                            'http://192.168.10.120:3000/auth/user/${widget.userId}');
                         print('Sending PUT request to: $url'); // Debug log
 
                         final response = await http.put(

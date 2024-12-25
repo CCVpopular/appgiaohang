@@ -105,7 +105,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                 
                 try {
                   final response = await http.post(
-                    Uri.parse('http://26.24.143.103:3000/auth/change-password'),
+                    Uri.parse('http://192.168.10.120:3000/auth/change-password'),
                     headers: {'Content-Type': 'application/json'},
                     body: jsonEncode({
                       'userId': userId,

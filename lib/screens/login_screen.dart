@@ -23,7 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://26.24.143.103:3000/auth/login'),
+          Uri.parse('http://192.168.10.120:3000/auth/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,

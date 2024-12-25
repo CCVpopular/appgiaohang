@@ -22,7 +22,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _sendOTP() async {
     try {
       final response = await http.post(
-        Uri.parse('http://26.24.143.103:3000/auth/send-otp'),
+        Uri.parse('http://192.168.10.120:3000/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,
@@ -50,7 +50,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://26.24.143.103:3000/auth/register'),
+          Uri.parse('http://192.168.10.120:3000/auth/register'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,

@@ -21,7 +21,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendOTP() async {
     try {
       final response = await http.post(
-        Uri.parse('http://26.24.143.103:3000/auth/send-otp'),
+        Uri.parse('http://192.168.10.120:3000/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': _emailController.text}),
       );
@@ -48,7 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       print('Sending reset password request...'); // Debug log
       final response = await http.post(
-        Uri.parse('http://26.24.143.103:3000/auth/password/reset'), // Updated path
+        Uri.parse('http://192.168.10.120:3000/auth/password/reset'), // Updated path
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,
