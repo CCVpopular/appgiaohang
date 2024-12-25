@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          '/store-detail',
+                          '/food-store',
                           arguments: store,
                         );
                       },

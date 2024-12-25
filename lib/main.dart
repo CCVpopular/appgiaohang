@@ -15,6 +15,7 @@ import 'screens/settings_admin_screen.dart';
 import 'providers/auth_provider.dart';
 import 'screens/user/user_store_page.dart';
 import 'screens/store_approval_screen.dart';
+import 'screens/user/food_store_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -89,6 +90,10 @@ class MainApp extends StatelessWidget {
         '/food-management': (context) {
           final storeId = ModalRoute.of(context)!.settings.arguments as int;
           return StoreFoodManagement(storeId: storeId);
+        },
+        '/food-store': (context) {
+          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return FoodStorePage(store: store);
         },
       },
       theme: ThemeData(
