@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import { createTables } from './database/tables.js';
 import authRoutes from './routes/auth.js';
+import storesRoutes from './routes/stores.js';  // Add this import
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -55,6 +56,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/auth', authRoutes);
+app.use('/stores', storesRoutes);
 
 // Add error handling middleware
 app.use((err, req, res, next) => {

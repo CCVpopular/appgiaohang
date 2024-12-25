@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../login_screen.dart';
+import '../../providers/auth_provider.dart';
 
 class UserSettingsPage extends StatefulWidget {
   const UserSettingsPage({super.key});
@@ -12,6 +12,23 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   bool notificationsEnabled = true;
   bool darkModeEnabled = false;
   String selectedLanguage = 'English';
+  bool showLogout = false;
+  bool isAdmin = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUserStatus();
+  }
+
+  Future<void> _checkUserStatus() async {
+    final userId = await AuthProvider.getUserId();
+    final userRole = await AuthProvider.getUserRole();
+    setState(() {
+      showLogout = userId != null;
+      isAdmin = userRole == 'admin';
+    });
+  }
 
   Future<void> _showLogoutDialog() async {
     return showDialog(
@@ -27,13 +44,11 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             ),
             TextButton(
               child: const Text('Logout'),
-              onPressed: () {
-                // Add your logout logic here
-                Navigator.of(context).pop(); // Close dialog
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false, // This removes all previous routes
-                );
+              onPressed: () async {
+                await AuthProvider.logout();
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacementNamed('/login');
               },
             ),
           ],
@@ -100,12 +115,33 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               // Navigate to terms of service
             },
           ),
+          if (isAdmin) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Switch to Admin View'),
+              leading: const Icon(Icons.admin_panel_settings),
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+              },
+            ),
+          ],
           const Divider(),
           ListTile(
-            title: const Text('Logout'),
-            leading: const Icon(Icons.logout, color: Colors.red),
-            onTap: _showLogoutDialog,
+            title: const Text('My Store'),
+            leading: const Icon(Icons.store),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.pushNamed(context, '/my-store');
+            },
           ),
+          if (showLogout) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Logout'),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              onTap: _showLogoutDialog,
+            ),
+          ],
         ],
       ),
     );
