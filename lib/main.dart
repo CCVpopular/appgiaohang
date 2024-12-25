@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
@@ -62,6 +63,7 @@ class MainApp extends StatelessWidget {
       routes: {
         '/login': (context) => const LoginScreen(),
         '/register': (context) => const RegisterScreen(),
+        '/forgot-password': (context) => const ForgotPasswordScreen(),
         '/admin': (context) => const HomeAdminScreen(),
         '/shipper': (context) => const HomeShipperScreen(),
         '/user_home': (context) => const HomeUserScreen(),

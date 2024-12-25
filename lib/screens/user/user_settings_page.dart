@@ -100,8 +100,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             },
           ),
           const Divider(),
-          ListTile(
-            title: const Text('Privacy Policy'),
+          ListTile(title: const Text('Privacy Policy'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () {
               // Navigate to privacy policy

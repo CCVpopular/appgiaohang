@@ -160,4 +160,97 @@ router.put('/user/:id', cors(), async (req, res) => {
   }
 });
 
+// Update the route path to match the frontend request
+router.post('/password/reset', async (req, res) => {
+  try {
+    console.log('Received reset password request:', req.body); // Debug log
+    const { email, otp, newPassword } = req.body;
+    
+    // Validate input
+    if (!email || !otp || !newPassword) {
+      console.log('Missing required fields:', { email, otp, newPassword }); // Debug log
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    // Verify OTP
+    const storedOTPData = otpStore.get(email);
+    console.log('Stored OTP data:', storedOTPData); // Debug log
+    
+    if (!storedOTPData || storedOTPData.otp !== otp) {
+      return res.status(400).json({ error: 'Invalid or expired OTP' });
+    }
+
+    // Check if user exists
+    const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    
+    const [result] = await pool.query(
+      'UPDATE users SET password = ? WHERE email = ?',
+      [hashedPassword, email]
+    );
+
+    if (result.affectedRows === 0) {
+      throw new Error('Failed to update password');
+    }
+    
+    otpStore.delete(email);
+    console.log('Password reset successful'); // Debug log
+    res.json({ message: 'Password reset successfully' });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+router.post('/change-password', async (req, res) => {
+  try {
+    console.log('Received change password request');
+    const { userId, currentPassword, newPassword } = req.body;
+    
+    if (!userId || !currentPassword || !newPassword) {
+      console.log('Missing required fields');
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    console.log('Fetching user with ID:', userId);
+    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    
+    if (users.length === 0) {
+      console.log('User not found');
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
+    const user = users[0];
+    const validPassword = await bcrypt.compare(currentPassword, user.password);
+    
+    if (!validPassword) {
+      console.log('Invalid current password');
+      return res.status(401).json({ error: 'Current password is incorrect' });
+    }
+    
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    console.log('Updating password for user:', userId);
+    
+    const [result] = await pool.query(
+      'UPDATE users SET password = ? WHERE id = ?',
+      [hashedPassword, userId]
+    );
+
+    if (result.affectedRows === 0) {
+      console.log('Password update failed');
+      return res.status(500).json({ error: 'Failed to update password' });
+    }
+    
+    console.log('Password changed successfully');
+    res.json({ message: 'Password changed successfully' });
+  } catch (error) {
+    console.error('Error changing password:', error);
+    res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
 export default router;
