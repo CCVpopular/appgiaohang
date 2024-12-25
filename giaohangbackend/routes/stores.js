@@ -38,7 +38,6 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// Toggle store status
 router.patch('/:id/status', async (req, res) => {
   try {
     const { is_active } = req.body;
@@ -52,13 +51,28 @@ router.patch('/:id/status', async (req, res) => {
   }
 });
 
-// Get user's stores - without authentication
 router.get('/user', async (req, res) => {
   try {
     const [stores] = await pool.query(
-      'SELECT * FROM food_stores'  // Removed WHERE clause to get all stores
+      'SELECT * FROM food_stores WHERE status = "approved" AND is_active = true'
     );
-    console.log('Fetched all stores:', stores);
+    console.log('Fetched approved stores:', stores);
+    res.json(stores);
+  } catch (error) {
+    console.error('Error fetching stores:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get user's stores
+router.get('/user/:userId', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const [stores] = await pool.query(
+      'SELECT * FROM food_stores WHERE owner_id = ?',
+      [userId]
+    );
+    console.log('Fetched user stores:', stores);
     res.json(stores);
   } catch (error) {
     console.error('Error fetching stores:', error);

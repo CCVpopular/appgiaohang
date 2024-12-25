@@ -43,8 +43,11 @@ class StoreProvider {
   }
 
   static Future<List<Map<String, dynamic>>> getUserStores() async {
+    final userId = await AuthProvider.getUserId();
+    if (userId == null) throw Exception('User not logged in');
+    
     final response = await http.get(
-      Uri.parse('${Config.baseurl}/stores/user'),
+      Uri.parse('${Config.baseurl}/stores/user/$userId'),
       headers: {'Content-Type': 'application/json'},
     );
     
@@ -52,6 +55,6 @@ class StoreProvider {
       final List<dynamic> data = json.decode(response.body);
       return List<Map<String, dynamic>>.from(data);
     }
-    throw Exception('Failed to fetch stores: ${response.statusCode}');
+    throw Exception('Failed to fetch stores');
   }
 }
