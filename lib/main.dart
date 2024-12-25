@@ -5,8 +5,10 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/add_food_page.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
+import 'screens/user/store_food_management.dart';
 import 'screens/user/store_registration_page.dart';
 import 'screens/user/user_settings_page.dart';
 import 'screens/settings_admin_screen.dart';
@@ -80,6 +82,14 @@ class MainApp extends StatelessWidget {
           return StoreDetailInfo(store: store);
         },
         '/store-approval': (context) => const StoreApprovalScreen(),
+        '/add-food': (context) {
+          final storeId = ModalRoute.of(context)!.settings.arguments as int;
+          return AddFoodPage(storeId: storeId);
+        },
+        '/food-management': (context) {
+          final storeId = ModalRoute.of(context)!.settings.arguments as int;
+          return StoreFoodManagement(storeId: storeId);
+        },
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
