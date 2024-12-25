@@ -6,6 +6,7 @@ import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
 import 'screens/user/add_food_page.dart';
+import 'screens/user/cart_page.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
@@ -95,6 +96,7 @@ class MainApp extends StatelessWidget {
           final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
           return FoodStorePage(store: store);
         },
+        '/cart': (context) => const CartPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

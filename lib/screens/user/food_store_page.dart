@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
+import '../../models/cart_item.dart';
+import '../../providers/cart_provider.dart';
 
 class FoodStorePage extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -47,6 +48,12 @@ class _FoodStorePageState extends State<FoodStorePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.store['name']),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.shopping_cart),
+            onPressed: () => Navigator.pushNamed(context, '/cart'),
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -72,7 +79,28 @@ class _FoodStorePageState extends State<FoodStorePage> {
                       child: ListTile(
                         title: Text(food['name']),
                         subtitle: Text(food['description'] ?? ''),
-                        trailing: Text('\$${food['price']}'),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('\$${food['price']}'),
+                            IconButton(
+                              icon: const Icon(Icons.add_shopping_cart),
+                              onPressed: () async {
+                                final cartItem = CartItem(
+                                  foodId: food['id'],
+                                  name: food['name'],
+                                  price: double.parse(food['price'].toString()),
+                                  storeId: widget.store['id'],
+                                  storeName: widget.store['name'],
+                                );
+                                await CartProvider.addToCart(cartItem);
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Added to cart')),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   },
