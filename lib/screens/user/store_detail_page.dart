@@ -1,151 +1,62 @@
-
 import 'package:flutter/material.dart';
-import '../../providers/store_provider.dart';
+import './store_detail_info.dart';
 
-class StoreDetailPage extends StatefulWidget {
+class StoreDetailPage extends StatelessWidget {
   final Map<String, dynamic> store;
   
   const StoreDetailPage({super.key, required this.store});
-
-  @override
-  State<StoreDetailPage> createState() => _StoreDetailPageState();
-}
-
-class _StoreDetailPageState extends State<StoreDetailPage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _nameController;
-  late TextEditingController _addressController;
-  late TextEditingController _phoneController;
-  bool _isLoading = false;
-  bool _isEditing = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.store['name']);
-    _addressController = TextEditingController(text: widget.store['address']);
-    _phoneController = TextEditingController(text: widget.store['phone_number']);
-  }
-
-  Future<void> _updateStore() async {
-    if (!_formKey.currentState!.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    try {
-      final storeData = {
-        'name': _nameController.text,
-        'address': _addressController.text,
-        'phone_number': _phoneController.text,
-      };
-
-      await StoreProvider.updateStore(widget.store['id'], storeData);
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Store updated successfully')),
-      );
-      setState(() => _isEditing = false);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update store')),
-      );
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  Future<void> _toggleStoreStatus() async {
-    final newStatus = !(widget.store['is_active'] ?? true);
-    
-    try {
-      await StoreProvider.toggleStoreStatus(widget.store['id'], newStatus);
-      if (!mounted) return;
-      
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(newStatus ? 'Store activated' : 'Store deactivated'),
-        ),
-      );
-      Navigator.pop(context, true);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update store status')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Store Details'),
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.save : Icons.edit),
-            onPressed: _isEditing ? _updateStore : () => setState(() => _isEditing = true),
-          ),
-        ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Store Name'),
-                      enabled: _isEditing,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter store name' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _addressController,
-                      decoration: const InputDecoration(labelText: 'Store Address'),
-                      enabled: _isEditing,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter address' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone Number'),
-                      enabled: _isEditing,
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter phone number' : null,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: _toggleStoreStatus,
-                      icon: Icon(widget.store['is_active'] ?? true
-                          ? Icons.visibility_off
-                          : Icons.visibility),
-                      label: Text(widget.store['is_active'] ?? true
-                          ? 'Deactivate Store'
-                          : 'Activate Store'),
-                      style: ElevatedButton.styleFrom(
-                        foregroundColor: widget.store['is_active'] ?? true
-                            ? Colors.red
-                            : Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Card(
+          child: InkWell(
+            onTap: () {
+              Navigator.pushNamed(
+                context,
+                '/store-detail-info',
+                arguments: store,
+              );
+            },
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    store['name'] ?? '',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    store['address'] ?? '',
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    store['phone_number'] ?? '',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: const [
+                      Text('Tap to view details'),
+                      Icon(Icons.arrow_forward_ios),
+                    ],
+                  ),
+                ],
               ),
             ),
+          ),
+        ),
+      ),
     );
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
-    super.dispose();
   }
 }
