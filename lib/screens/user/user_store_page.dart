@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../providers/auth_provider.dart';
 import '../../providers/store_provider.dart';
 
 class UserStorePage extends StatefulWidget {

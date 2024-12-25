@@ -4,10 +4,6 @@ import 'dart:convert';
 import '../config/config.dart';
 import '../providers/auth_provider.dart';
 import '../utils/shared_prefs.dart';
-import 'register_screen.dart';
-import 'home_admin_screen.dart';
-import 'home_user_screen.dart';
-import 'home_shipper_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +31,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
         if (response.statusCode == 200) {
           final userData = jsonDecode(response.body);
-          final role = userData['role'];
           await SharedPrefs.saveUserId(userData['id']); // Add this line
 
           // Save user data

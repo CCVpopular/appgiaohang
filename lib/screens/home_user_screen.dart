@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../providers/auth_provider.dart';
 import 'user/home_page.dart';
 import 'user/orders_page.dart';
 import 'user/notifications_page.dart';
