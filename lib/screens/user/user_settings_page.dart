@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../providers/auth_provider.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import '../login_screen.dart';
+import '../../utils/shared_prefs.dart';
 
 class UserSettingsPage extends StatefulWidget {
   const UserSettingsPage({super.key});
@@ -14,6 +18,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   String selectedLanguage = 'English';
   bool showLogout = false;
   bool isAdmin = false;
+  int? userId; // Add this line
 
   @override
   void initState() {
@@ -27,6 +32,14 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     setState(() {
       showLogout = userId != null;
       isAdmin = userRole == 'admin';
+    // Get userId from shared preferences or your auth state management
+    _loadUserId();
+  }
+
+  Future<void> _loadUserId() async {
+    final id = await SharedPrefs.getUserId();
+    setState(() {
+      userId = id;
     });
   }
 
@@ -49,6 +62,84 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
                 if (!mounted) return;
                 Navigator.of(context).pop();
                 Navigator.of(context).pushReplacementNamed('/login');
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _showChangePasswordDialog() async {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Change Password'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: currentPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                ),
+              ),
+              TextField(
+                controller: newPasswordController,
+                obscureText: true,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              child: const Text('Change'),
+              onPressed: () async {
+                if (userId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('User not authenticated')),
+                  );
+                  return;
+                }
+                
+                try {
+                  final response = await http.post(
+                    Uri.parse('http://192.168.10.120:3000/auth/change-password'),
+                    headers: {'Content-Type': 'application/json'},
+                    body: jsonEncode({
+                      'userId': userId,
+                      'currentPassword': currentPasswordController.text,
+                      'newPassword': newPasswordController.text,
+                    }),
+                  );
+
+                  if (response.statusCode == 200) {
+                    if (!mounted) return;
+                    Navigator.of(context).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Password changed successfully')),
+                    );
+                  } else {
+                    final errorData = jsonDecode(response.body);
+                    throw Exception(errorData['error'] ?? 'Failed to change password');
+                  }
+                } catch (e) {
+                  if (!mounted) return;
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Error: ${e.toString()}')),
+                  );
+                }
               },
             ),
           ],
@@ -133,6 +224,15 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             onTap: () {
               Navigator.pushNamed(context, '/my-store');
             },
+            title: const Text('Change Password'),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () => _showChangePasswordDialog(),
+          ),
+          const Divider(),
+          ListTile(
+            title: const Text('Logout'),
+            leading: const Icon(Icons.logout, color: Colors.red),
+            onTap: _showLogoutDialog,
           ),
           if (showLogout) ...[
             const Divider(),
