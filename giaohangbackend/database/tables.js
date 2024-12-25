@@ -12,6 +12,21 @@ export const createTables = async (pool) => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS food_stores (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        name VARCHAR(100) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        owner_id INT,
+        phone_number VARCHAR(15),
+        status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
+        is_active BOOLEAN DEFAULT true,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (owner_id) REFERENCES users(id)
+      )
+    `);
     console.log('Tables created successfully');
   } catch (error) {
     console.error('Error creating tables:', error);

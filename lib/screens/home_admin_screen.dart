@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'settings_admin_screen.dart';
+import 'store_approval_screen.dart';
 
 class HomeAdminScreen extends StatefulWidget {
   const HomeAdminScreen({super.key});
@@ -19,8 +21,9 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   final List<Widget> _pages = [
     const Center(child: Text('Dashboard')),
     const Center(child: Text('Manage Users')),
+    const StoreApprovalScreen(),
     const Center(child: Text('Reports')),
-    const Center(child: Text('Settings')),
+    const SettingsAdminScreen(),
   ];
 
   @override
@@ -33,6 +36,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
+          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Stores'),
           BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Reports'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],

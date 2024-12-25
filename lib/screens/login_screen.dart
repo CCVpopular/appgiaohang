@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../config/config.dart';
+import '../providers/auth_provider.dart';
 import '../utils/shared_prefs.dart';
 import 'register_screen.dart';
 import 'home_admin_screen.dart';
@@ -23,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.10.120:3000/auth/login'),
+          Uri.parse('${Config.baseurl}/auth/login'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,
@@ -36,34 +38,48 @@ class _LoginScreenState extends State<LoginScreen> {
           final role = userData['role'];
           await SharedPrefs.saveUserId(userData['id']); // Add this line
 
-          switch (role) {
+          // Save user data
+          await AuthProvider.saveUserData(userData);
+
+          if (!mounted) return;
+
+          // Check if we can pop back to previous screen
+
+          // If no previous screen, navigate based on role
+          switch (userData['role']) {
             case 'admin':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, '/admin');
+              Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
               break;
             case 'user':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(
-                context,
-                '/user',
-                arguments: {'userId': userData['id']},
-              );
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context, true);
+              } 
+              else {
+                Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
+              }
               break;
             case 'shipper':
-              if (!mounted) return;
-              Navigator.pushReplacementNamed(context, '/shipper');
+              Navigator.pushNamedAndRemoveUntil(context, '/shipper', (route) => false);
               break;
             default:
               throw Exception('Invalid role');
           }
         } else {
+          if (!mounted) return;
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login failed')),
+            SnackBar(
+              content: Text(response.body),
+              backgroundColor: Colors.red,
+            ),
           );
         }
       } catch (e) {
+        if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     }

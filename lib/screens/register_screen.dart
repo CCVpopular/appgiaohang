@@ -1,3 +1,4 @@
+import 'package:appgiaohang/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -22,7 +23,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _sendOTP() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.10.120:3000/auth/send-otp'),
+        Uri.parse('${Config.baseurl}/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,
@@ -50,7 +51,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_formKey.currentState!.validate()) {
       try {
         final response = await http.post(
-          Uri.parse('http://192.168.10.120:3000/auth/register'),
+          Uri.parse('${Config.baseurl}/auth/register'),
           headers: {'Content-Type': 'application/json'},
           body: jsonEncode({
             'email': _emailController.text,
@@ -62,7 +63,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
 
         if (response.statusCode == 201) {
-          // Show success message and navigate back to login
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Registration successful!')),
           );

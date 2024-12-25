@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../providers/auth_provider.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../login_screen.dart';
@@ -15,11 +16,22 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   bool notificationsEnabled = true;
   bool darkModeEnabled = false;
   String selectedLanguage = 'English';
+  bool showLogout = false;
+  bool isAdmin = false;
   int? userId; // Add this line
 
   @override
   void initState() {
     super.initState();
+    _checkUserStatus();
+  }
+
+  Future<void> _checkUserStatus() async {
+    final userId = await AuthProvider.getUserId();
+    final userRole = await AuthProvider.getUserRole();
+    setState(() {
+      showLogout = userId != null;
+      isAdmin = userRole == 'admin';
     // Get userId from shared preferences or your auth state management
     _loadUserId();
   }
@@ -46,12 +58,10 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             TextButton(
               child: const Text('Logout'),
               onPressed: () async {
-                await SharedPrefs.clearUserId(); // Add this line
+                await AuthProvider.logout();
                 if (!mounted) return;
-                Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                  (route) => false, // This removes all previous routes
-                );
+                Navigator.of(context).pop();
+                Navigator.of(context).pushReplacementNamed('/login');
               },
             ),
           ],
@@ -196,8 +206,24 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               // Navigate to terms of service
             },
           ),
+          if (isAdmin) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Switch to Admin View'),
+              leading: const Icon(Icons.admin_panel_settings),
+              onTap: () {
+                Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+              },
+            ),
+          ],
           const Divider(),
           ListTile(
+            title: const Text('My Store'),
+            leading: const Icon(Icons.store),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.pushNamed(context, '/my-store');
+            },
             title: const Text('Change Password'),
             trailing: const Icon(Icons.arrow_forward_ios),
             onTap: () => _showChangePasswordDialog(),
@@ -208,6 +234,14 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             leading: const Icon(Icons.logout, color: Colors.red),
             onTap: _showLogoutDialog,
           ),
+          if (showLogout) ...[
+            const Divider(),
+            ListTile(
+              title: const Text('Logout'),
+              leading: const Icon(Icons.logout, color: Colors.red),
+              onTap: _showLogoutDialog,
+            ),
+          ],
         ],
       ),
     );
