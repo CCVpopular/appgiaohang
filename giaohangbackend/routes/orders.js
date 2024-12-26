@@ -66,4 +66,32 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
+// Get pending orders - make sure this is properly exposed
+router.get('/pending', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT o.*, 
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'foodId', oi.food_id,
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'storeId', oi.store_id
+          )
+        ) as items
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      WHERE o.status = 'pending'
+      GROUP BY o.id
+      ORDER BY o.created_at DESC`
+    );
+    
+    console.log('Fetched pending orders:', orders); // Add logging
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching pending orders:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;
