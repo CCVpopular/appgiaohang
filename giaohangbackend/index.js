@@ -3,10 +3,10 @@ import express from 'express';
 import cors from 'cors';
 import { createTables } from './database/tables.js';
 import authRoutes from './routes/auth.js';
-import storesRoutes from './routes/stores.js';  // Add this import
-import foodsRoutes from './routes/foods.js';  // Add this import at the top
+import storesRoutes from './routes/stores.js';
+import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
-import ordersRoutes from './routes/orders.js';
+import ordersRoutes from './routes/orders.js';  // Add this import
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -68,9 +68,9 @@ app.use((req, res, next) => {
 // Ensure auth routes are properly registered
 app.use('/auth', authRoutes);
 app.use('/stores', storesRoutes);
-app.use('/foods', foodsRoutes); // Add this line with other route registrations
+app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
-app.use('/orders', ordersRoutes);
+app.use('/orders', ordersRoutes);  // Add this line with other route registrations
 
 // Update error handling middleware to include more details
 app.use((err, req, res, next) => {
