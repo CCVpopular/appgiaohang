@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../config/config.dart';
 
 class HomeShipperScreen extends StatefulWidget {
   const HomeShipperScreen({super.key});
@@ -9,6 +12,14 @@ class HomeShipperScreen extends StatefulWidget {
 
 class _HomeShipperScreenState extends State<HomeShipperScreen> {
   int _selectedIndex = 0;
+  List<dynamic> availableOrders = [];
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchAvailableOrders();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -41,6 +52,60 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
     );
   }
 
+  Future<void> fetchAvailableOrders() async {
+    try {
+      final response = await http.get(
+        Uri.parse('${Config.baseurl}/orders/pending'),
+      );
+
+      if (response.statusCode == 200) {
+        setState(() {
+          availableOrders = json.decode(response.body);
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => isLoading = false);
+      // Handle error
+    }
+  }
+
+  Widget _buildAvailableOrdersPage() {
+    if (isLoading) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (availableOrders.isEmpty) {
+      return const Center(child: Text('No available orders'));
+    }
+
+    return ListView.builder(
+      itemCount: availableOrders.length,
+      itemBuilder: (context, index) {
+        final order = availableOrders[index];
+        return Card(
+          margin: const EdgeInsets.all(8.0),
+          child: ListTile(
+            title: Text('Order #${order['id']}'),
+            subtitle: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Delivery to: ${order['address']}'),
+                Text('Total: \$${order['total_amount']}'),
+              ],
+            ),
+            trailing: ElevatedButton(
+              onPressed: () {
+                // Handle accept order
+              },
+              child: const Text('Accept'),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   final List<Widget> _pages = [
     const Center(child: Text('Available Orders')),
     const Center(child: Text('My Deliveries')),
@@ -61,7 +126,15 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          _buildAvailableOrdersPage(),
+          const Center(child: Text('My Deliveries')),
+          const Center(child: Text('Earnings')),
+          const Center(child: Text('Profile')),
+        ],
+      ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const [

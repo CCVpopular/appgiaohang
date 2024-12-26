@@ -66,4 +66,100 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
+// Get pending orders - make sure this is properly exposed
+router.get('/pending', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT o.*, 
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'foodId', oi.food_id,
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'storeId', oi.store_id
+          )
+        ) as items
+      FROM orders o
+      LEFT JOIN order_items oi ON o.id = oi.order_id
+      WHERE o.status = 'pending'
+      GROUP BY o.id
+      ORDER BY o.created_at DESC`
+    );
+    
+    console.log('Fetched pending orders:', orders); // Add logging
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching pending orders:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get store orders
+router.get('/store/:storeId', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT o.*, 
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'foodId', oi.food_id,
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'storeId', oi.store_id
+          )
+        ) as items
+      FROM orders o
+      INNER JOIN order_items oi ON o.id = oi.order_id
+      WHERE oi.store_id = ?
+      GROUP BY o.id, o.user_id, o.address, o.total_amount, o.status,
+               o.payment_method, o.note, o.created_at, o.updated_at
+      ORDER BY o.created_at DESC`,
+      [req.params.storeId]
+    );
+
+    console.log('Store orders query result:', orders);
+    
+    res.json(orders || []);
+  } catch (error) {
+    console.error('Error fetching store orders:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Store reviews order
+router.put('/:orderId/review', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const { status } = req.body;
+    const orderId = req.params.orderId;
+
+    // Update order status based on store's decision
+    const newStatus = status === 'accepted' ? 'confirmed' : 'cancelled';
+    
+    await connection.query(
+      'UPDATE orders SET status = ? WHERE id = ?',
+      [newStatus, orderId]
+    );
+
+    if (status === 'accepted') {
+      // Create notification for shippers only if accepted
+      await connection.query(
+        'INSERT INTO shipper_notifications (order_id, status) VALUES (?, "pending")',
+        [orderId]
+      );
+    }
+
+    await connection.commit();
+    res.json({ 
+      message: 'Order review updated successfully',
+      newStatus: newStatus 
+    });
+  } catch (error) {
+    await connection.rollback();
+    res.status(500).json({ error: error.message });
+  } finally {
+    connection.release();
+  }
+});
+
 export default router;

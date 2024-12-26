@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../providers/store_provider.dart';
+import 'store_orders_screen.dart';
 
 class UserStorePage extends StatefulWidget {
   const UserStorePage({super.key});
@@ -95,29 +96,66 @@ class _UserStorePageState extends State<UserStorePage> {
         return Card(
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-          child: ListTile(
-            title: Text(
-              store['name'],
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 4),
-                Text('📍 ${store['address']}'),
-                Text('📞 ${store['phone_number']}'),
-                Text(_getStatusColor(store['status'])),
-              ],
-            ),
-            isThreeLine: true,
-            onTap: () {
-              // TODO: Navigate to store detail/edit page
-              Navigator.pushNamed(
-                context, 
-                '/store-detail',
-                arguments: store,
-              );
-            },
+          child: Column(
+            children: [
+              ListTile(
+                title: Text(
+                  store['name'],
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 4),
+                    Text('📍 ${store['address']}'),
+                    Text('📞 ${store['phone_number']}'),
+                    Text(_getStatusColor(store['status'])),
+                  ],
+                ),
+                isThreeLine: true,
+                onTap: () {
+                  Navigator.pushNamed(
+                    context, 
+                    '/store-detail',
+                    arguments: store,
+                  );
+                },
+              ),
+              if (store['status'] == 'approved')
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StoreOrdersScreen(
+                                storeId: store['id'],
+                              ),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.shopping_bag),
+                        label: const Text('View Orders'),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/food-management',
+                            arguments: store['id'],
+                          );
+                        },
+                        icon: const Icon(Icons.restaurant_menu),
+                        label: const Text('Manage Foods'),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
           ),
         );
       },
