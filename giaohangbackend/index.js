@@ -56,14 +56,33 @@ app.use(cors({
 
 app.use(express.json());
 
+// Add logging middleware to debug routes
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // Ensure auth routes are properly registered
 app.use('/auth', authRoutes);
 app.use('/stores', storesRoutes);
 
-// Add error handling middleware
+// Update error handling middleware to include more details
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ error: 'Something broke!' });
+  console.error('Error:', {
+    method: req.method,
+    url: req.url,
+    error: err
+  });
+  
+  if (err.code === 'ER_DUP_ENTRY') {
+    return res.status(400).json({ 
+      error: 'Email already registered' 
+    });
+  }
+  
+  res.status(500).json({ 
+    error: err.message || 'Something went wrong!' 
+  });
 });
 
 // Add 404 handler

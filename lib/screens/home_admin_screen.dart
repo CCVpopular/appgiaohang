@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'admin/shipper_management_screen.dart';
 import 'settings_admin_screen.dart';
 import 'store_approval_screen.dart';
 
@@ -22,6 +23,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
     const Center(child: Text('Dashboard')),
     const Center(child: Text('Manage Users')),
     const StoreApprovalScreen(),
+    const ShipperManagementScreen(), // Add this line
     const Center(child: Text('Reports')),
     const SettingsAdminScreen(),
   ];
@@ -37,6 +39,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
           BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
           BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Stores'),
+          BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shippers'),  // Add this line
           BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Reports'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],

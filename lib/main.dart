@@ -5,6 +5,7 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/shipper/shipper_registration_screen.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_registration_page.dart';
@@ -71,6 +72,7 @@ class MainApp extends StatelessWidget {
         '/admin_settings': (context) => const SettingsAdminScreen(),
         '/my-store': (context) => const UserStorePage(),
         '/register-store': (context) => const StoreRegistrationPage(),
+        '/shipper-registration': (context) => const ShipperRegistrationScreen(),
         '/store-detail': (context) {
           final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
           return StoreDetailPage(store: store);
