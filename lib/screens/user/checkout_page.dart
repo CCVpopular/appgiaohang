@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../utils/shared_prefs.dart';
 
 class CheckoutPage extends StatefulWidget {
   final List<CartItem> cartItems;
@@ -21,6 +25,42 @@ class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedAddress = '';
   final _noteController = TextEditingController();
   String _paymentMethod = 'cash';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSelectedAddress();
+  }
+
+  Future<void> _loadSelectedAddress() async {
+    try {
+      final userId = await SharedPrefs.getUserId();
+      if (userId == null) return;
+
+      final response = await http.get(
+        Uri.parse('${Config.baseurl}/addresses/user/$userId'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> addresses = json.decode(response.body);
+        final selectedAddress = addresses.firstWhere(
+          (addr) => addr['is_selected'] == 1,
+          orElse: () => {'address': ''},
+        );
+        
+        setState(() {
+          _selectedAddress = selectedAddress['address'];
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error loading address: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +68,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       appBar: AppBar(
         title: const Text('Thanh toán'),
       ),
-      body: SingleChildScrollView(
+      body: _isLoading 
+        ? const Center(child: CircularProgressIndicator())
+        : SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
