@@ -23,6 +23,8 @@ class CheckoutPage extends StatefulWidget {
 
 class _CheckoutPageState extends State<CheckoutPage> {
   String _selectedAddress = '';
+  double? _latitude;
+  double? _longitude;
   final _noteController = TextEditingController();
   String _paymentMethod = 'cash';
   bool _isLoading = true;
@@ -46,11 +48,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
         final List<dynamic> addresses = json.decode(response.body);
         final selectedAddress = addresses.firstWhere(
           (addr) => addr['is_selected'] == 1,
-          orElse: () => {'address': ''},
+          orElse: () => {'address': '', 'latitude': null, 'longitude': null},
         );
         
         setState(() {
           _selectedAddress = selectedAddress['address'];
+          _latitude = selectedAddress['latitude'];
+          _longitude = selectedAddress['longitude'];
           _isLoading = false;
         });
       }
@@ -180,7 +184,37 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     try {
-      // Here you would typically send the order to your backend
+      final userId = await SharedPrefs.getUserId();
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+
+      final orderData = {
+        'userId': userId,
+        'address': _selectedAddress,
+        'latitude': _latitude,
+        'longitude': _longitude,
+        'items': widget.cartItems.map((item) => {
+          'foodId': item.foodId,
+          'quantity': item.quantity,
+          'price': item.price,
+          'storeId': item.storeId,
+        }).toList(),
+        'totalAmount': widget.total,
+        'paymentMethod': _paymentMethod,
+        'note': _noteController.text,
+      };
+
+      final response = await http.post(
+        Uri.parse('${Config.baseurl}/orders'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(orderData),
+      );
+
+      if (response.statusCode != 201) {
+        throw Exception('Failed to create order');
+      }
+
       await CartProvider.clearCart();
       if (!mounted) return;
       
