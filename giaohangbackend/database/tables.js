@@ -72,6 +72,38 @@ export const createTables = async (pool) => {
         FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS orders (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        address TEXT NOT NULL,
+        latitude DOUBLE,
+        longitude DOUBLE,
+        total_amount DECIMAL(10,2) NOT NULL,
+        status ENUM('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled') DEFAULT 'pending',
+        payment_method VARCHAR(50) NOT NULL,
+        note TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS order_items (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        order_id INT NOT NULL,
+        food_id INT NOT NULL,
+        quantity INT NOT NULL,
+        price DECIMAL(10,2) NOT NULL,
+        store_id INT NOT NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (food_id) REFERENCES foods(id),
+        FOREIGN KEY (store_id) REFERENCES food_stores(id)
+      )
+    `);
     
     console.log('Tables created successfully');
   } catch (error) {
