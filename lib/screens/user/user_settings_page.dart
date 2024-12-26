@@ -133,6 +133,15 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               Navigator.pushNamed(context, '/my-store');
             },
           ),
+          const Divider(),
+          ListTile(
+            title: const Text('Become a Shipper'),
+            leading: const Icon(Icons.delivery_dining),
+            trailing: const Icon(Icons.arrow_forward_ios),
+            onTap: () {
+              Navigator.pushNamed(context, '/shipper-registration');
+            },
+          ),
           if (showLogout) ...[
             const Divider(),
             ListTile(
