@@ -1,6 +1,10 @@
+import 'package:appgiaohang/config/config.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class AddAddressPage extends StatefulWidget {
   const AddAddressPage({super.key});
@@ -12,55 +16,66 @@ class AddAddressPage extends StatefulWidget {
 class _AddAddressPageState extends State<AddAddressPage> {
   final _formKey = GlobalKey<FormState>();
   final _addressController = TextEditingController();
-  final _detailsController = TextEditingController();
   bool _isLoading = false;
+  GoogleMapController? _mapController;
+  LatLng _center = const LatLng(10.8231, 106.6297); // Default to HCMC
+  LatLng? _currentMapPosition;
 
-  Future<void> _getCurrentLocation() async {
-    setState(() => _isLoading = true);
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+  }
+
+  void _onCameraMove(CameraPosition position) {
+    _currentMapPosition = position.target;
+  }
+
+  Future<void> _getAddressFromLatLng(double lat, double lng) async {
     try {
-      // Request permission
-      LocationPermission permission = await Geolocator.requestPermission();
-      if (permission == LocationPermission.denied) {
-        throw Exception('Location permission denied');
-      }
-
-      // Get current position
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.high,
-      );
-
-      // Convert position to address
-      List<Placemark> placemarks = await placemarkFromCoordinates(
-        position.latitude,
-        position.longitude,
-      );
-
+      List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks[0];
         List<String> addressParts = [];
         
-        // Add street name first (tên đường)
         if (place.street?.isNotEmpty == true) {
           addressParts.add(place.street!);
         }
-        // Add ward/commune (phường/xã)
         if (place.subLocality?.isNotEmpty == true) {
-          addressParts.add("${place.subLocality}");
+          addressParts.add(place.subLocality!);
         }
-        // Add district (quận/huyện)
         if (place.subAdministrativeArea?.isNotEmpty == true) {
-          addressParts.add("${place.subAdministrativeArea}");
+          addressParts.add(place.subAdministrativeArea!);
         }
-        // Add city/province (tỉnh/thành phố)
         if (place.administrativeArea?.isNotEmpty == true) {
           addressParts.add(place.administrativeArea!);
         }
 
         String address = addressParts.join(', ');
-        _addressController.text = address;
-        // Clear details field since street is now in main address
-        _detailsController.clear();
+        setState(() {
+          _addressController.text = address;
+        });
       }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    setState(() => _isLoading = true);
+    try {
+      LocationPermission permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        throw Exception('Location permission denied');
+      }
+
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
+
+      final LatLng newPosition = LatLng(position.latitude, position.longitude);
+      _mapController?.animateCamera(CameraUpdate.newLatLng(newPosition));
+      await _getAddressFromLatLng(position.latitude, position.longitude);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Lỗi: ${e.toString()}')),
@@ -70,10 +85,60 @@ class _AddAddressPageState extends State<AddAddressPage> {
     }
   }
 
+  Future<void> _searchAddress(String address) async {
+    try {
+      if (address.isEmpty) return;
+      
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        final LatLng newPosition = LatLng(
+          locations[0].latitude,
+          locations[0].longitude,
+        );
+        _mapController?.animateCamera(CameraUpdate.newLatLng(newPosition));
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Không tìm thấy địa chỉ')),
+      );
+    }
+  }
+
+  Future<void> _saveAddress() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    try {
+      final response = await http.post(
+        Uri.parse('${Config.baseurl}/addresses'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userId': 1, // Replace with actual user ID from your auth system
+          'address': _addressController.text,
+          'latitude': _currentMapPosition?.latitude,
+          'longitude': _currentMapPosition?.longitude,
+        }),
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        final responseData = jsonDecode(response.body);
+        Navigator.pop(context, {
+          'address': _addressController.text,
+          'addressId': responseData['addressId'],
+          'isUpdate': response.statusCode == 200,
+        });
+      } else {
+        throw Exception('Failed to save address');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi khi lưu địa chỉ: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   void dispose() {
     _addressController.dispose();
-    _detailsController.dispose();
     super.dispose();
   }
 
@@ -85,59 +150,72 @@ class _AddAddressPageState extends State<AddAddressPage> {
       ),
       body: Form(
         key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
+        child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    controller: _addressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Tỉnh/Thành Phố, Quận/Huyện, Phường/Xã',
-                      hintText: '',
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  GoogleMap(
+                    onMapCreated: _onMapCreated,
+                    initialCameraPosition: CameraPosition(
+                      target: _center,
+                      zoom: 15,
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Vui lòng nhập địa chỉ';
-                      }
-                      return null;
-                    },
+                    onCameraMove: _onCameraMove,
+                    myLocationButtonEnabled: false,
+                    zoomControlsEnabled: false,
                   ),
-                ),
-                IconButton(
-                  icon: _isLoading 
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(Icons.my_location),
-                  onPressed: _isLoading ? null : _getCurrentLocation,
-                  tooltip: 'Lấy vị trí hiện tại',
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _detailsController,
-              decoration: const InputDecoration(
-                labelText: 'Thông tin bổ sung',
-                hintText: '',
+                  const Icon(
+                    Icons.location_on,
+                    size: 36,
+                    color: Colors.red,
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  String fullAddress = _addressController.text;
-                  if (_detailsController.text.isNotEmpty) {
-                    fullAddress += ', ${_detailsController.text}';
-                  }
-                  Navigator.pop(context, fullAddress);
-                }
-              },
-              child: const Text('Lưu Địa Chỉ'),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextFormField(
+                          controller: _addressController,
+                          decoration: const InputDecoration(
+                            labelText: 'Địa chỉ',
+                            hintText: 'Tỉnh/Thành Phố, Quận/Huyện, Phường/Xã',
+                          ),
+                          onChanged: (value) => _searchAddress(value),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Vui lòng nhập địa chỉ';
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        icon: _isLoading
+                            ? const SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Icon(Icons.my_location),
+                        onPressed: _isLoading ? null : _getCurrentLocation,
+                        tooltip: 'Lấy vị trí hiện tại',
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: _saveAddress,
+                    child: const Text('Lưu Địa Chỉ'),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

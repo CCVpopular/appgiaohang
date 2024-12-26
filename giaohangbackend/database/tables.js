@@ -41,6 +41,21 @@ export const createTables = async (pool) => {
         FOREIGN KEY (store_id) REFERENCES food_stores(id)
       )
     `);
+    
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_addresses (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        address TEXT NOT NULL,
+        latitude DOUBLE,
+        longitude DOUBLE,
+        is_selected BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
+      )
+    `);
+    
     console.log('Tables created successfully');
   } catch (error) {
     console.error('Error creating tables:', error);
