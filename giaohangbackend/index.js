@@ -6,6 +6,7 @@ import authRoutes from './routes/auth.js';
 import storesRoutes from './routes/stores.js';  // Add this import
 import foodsRoutes from './routes/foods.js';  // Add this import at the top
 import addressesRoutes from './routes/addresses.js';
+import ordersRoutes from './routes/orders.js';
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -69,6 +70,7 @@ app.use('/auth', authRoutes);
 app.use('/stores', storesRoutes);
 app.use('/foods', foodsRoutes); // Add this line with other route registrations
 app.use('/addresses', addressesRoutes);
+app.use('/orders', ordersRoutes);
 
 // Update error handling middleware to include more details
 app.use((err, req, res, next) => {
