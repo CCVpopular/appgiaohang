@@ -23,6 +23,7 @@ import 'screens/user/user_store_page.dart';
 import 'screens/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
 import 'screens/user/address_list_page.dart';
+import 'screens/user/store_orders_screen.dart';
 
 void main() {
   runApp(const MainApp());
@@ -81,6 +82,7 @@ class MainApp extends StatelessWidget {
         '/user_settings': (context) => const UserSettingsPage(),
         '/admin_settings': (context) => const SettingsAdminScreen(),
         '/my-store': (context) => const UserStorePage(),
+        '/store-orders': (context) => const UserStorePage(),
         '/register-store': (context) => const StoreRegistrationPage(),
         '/shipper-registration': (context) => const ShipperRegistrationScreen(),
         '/store-detail': (context) {
@@ -114,6 +116,10 @@ class MainApp extends StatelessWidget {
         },
         '/address-list': (context) => const AddressListPage(),
         '/add-address': (context) => const AddAddressPage(),
+        '/store-orders': (context) {
+          final storeId = ModalRoute.of(context)!.settings.arguments as int;
+          return StoreOrdersScreen(storeId: storeId);
+        },
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,
