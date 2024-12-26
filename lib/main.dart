@@ -1,3 +1,5 @@
+import 'package:appgiaohang/firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
@@ -5,8 +7,10 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/add_address_page.dart';
 import 'screens/user/add_food_page.dart';
 import 'screens/user/cart_page.dart';
+import 'screens/user/checkout_page.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
@@ -17,6 +21,7 @@ import 'providers/auth_provider.dart';
 import 'screens/user/user_store_page.dart';
 import 'screens/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
+import 'screens/user/address_list_page.dart';
 
 void main() {
   runApp(const MainApp());
@@ -28,6 +33,7 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: FutureBuilder<bool>(
         future: AuthProvider.isLoggedIn(),
         builder: (context, snapshot) {
@@ -97,6 +103,15 @@ class MainApp extends StatelessWidget {
           return FoodStorePage(store: store);
         },
         '/cart': (context) => const CartPage(),
+        '/checkout': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return CheckoutPage(
+            cartItems: args['cartItems'],
+            total: args['total'],
+          );
+        },
+        '/address-list': (context) => const AddressListPage(),
+        '/add-address': (context) => const AddAddressPage(),
       },
       theme: ThemeData(
         primarySwatch: Colors.blue,

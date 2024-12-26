@@ -1,10 +1,12 @@
-
 import 'dart:convert';
+import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart_item.dart';
 
 class CartProvider {
   static const String _cartKey = 'shopping_cart';
+  static final _cartController = StreamController<int>.broadcast();
+  static Stream<int> get cartStream => _cartController.stream;
 
   static Future<List<CartItem>> getCart() async {
     final prefs = await SharedPreferences.getInstance();
@@ -51,9 +53,15 @@ class CartProvider {
     await prefs.remove(_cartKey);
   }
 
+  static Future<int> getCartCount() async {
+    final cart = await getCart();
+    return cart.fold<int>(0, (sum, item) => sum + item.quantity as int);
+  }
+
   static Future<void> _saveCart(List<CartItem> cart) async {
     final prefs = await SharedPreferences.getInstance();
     final cartJson = json.encode(cart.map((item) => item.toJson()).toList());
     await prefs.setString(_cartKey, cartJson);
+    _cartController.add(cart.fold(0, (sum, item) => sum + item.quantity));
   }
 }

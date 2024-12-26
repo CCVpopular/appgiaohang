@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -96,7 +95,14 @@ class _CartPageState extends State<CartPage> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle checkout
+                      Navigator.pushNamed(
+                        context,
+                        '/checkout',
+                        arguments: {
+                          'cartItems': cartItems,
+                          'total': total,
+                        },
+                      );
                     },
                     child: const Text('Checkout'),
                   ),
