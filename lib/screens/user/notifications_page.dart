@@ -15,8 +15,8 @@ class NotificationsPage extends StatelessWidget {
               backgroundColor: Colors.blue,
               child: Icon(Icons.notifications, color: Colors.white),
             ),
-            title: Text('Notification ${index + 1}'),
-            subtitle: Text('This is a notification message for item $index'),
+            title: Text('Thông báo ${index + 1}'),
+            subtitle: Text('Nội dung thông báo cho mục $index'),
             trailing: Text('${DateTime.now().hour}:${DateTime.now().minute}'),
             onTap: () {
               // Handle notification tap

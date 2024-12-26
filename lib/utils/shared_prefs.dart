@@ -17,4 +17,17 @@ class SharedPrefs {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(userIdKey);
   }
+
+  // Add methods to save and get selected address
+  static const String selectedAddressKey = 'selectedAddress';
+
+  static Future<void> saveSelectedAddress(String address) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(selectedAddressKey, address);
+  }
+
+  static Future<String?> getSelectedAddress() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(selectedAddressKey);
+  }
 }

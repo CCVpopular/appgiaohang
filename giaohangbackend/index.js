@@ -4,6 +4,8 @@ import cors from 'cors';
 import { createTables } from './database/tables.js';
 import authRoutes from './routes/auth.js';
 import storesRoutes from './routes/stores.js';  // Add this import
+import foodsRoutes from './routes/foods.js';  // Add this import at the top
+import addressesRoutes from './routes/addresses.js';
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -65,6 +67,8 @@ app.use((req, res, next) => {
 // Ensure auth routes are properly registered
 app.use('/auth', authRoutes);
 app.use('/stores', storesRoutes);
+app.use('/foods', foodsRoutes); // Add this line with other route registrations
+app.use('/addresses', addressesRoutes);
 
 // Update error handling middleware to include more details
 app.use((err, req, res, next) => {

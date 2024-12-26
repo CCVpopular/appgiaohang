@@ -48,14 +48,14 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Available Stores',
+            'Danh sách cửa hàng',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 20),
           if (isLoading)
             const Center(child: CircularProgressIndicator())
           else if (stores.isEmpty)
-            const Center(child: Text('No approved stores available'))
+            const Center(child: Text('Không có cửa hàng nào'))
           else
             Expanded(
               child: ListView.builder(
@@ -70,7 +70,7 @@ class _HomePageState extends State<HomePage> {
                       onTap: () {
                         Navigator.pushNamed(
                           context,
-                          '/store-detail',
+                          '/food-store',
                           arguments: store,
                         );
                       },
