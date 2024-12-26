@@ -16,8 +16,8 @@ class _OrdersPageState extends State<OrdersPage> {
         children: [
           const TabBar(
             tabs: [
-              Tab(text: 'Active Orders'),
-              Tab(text: 'Order History'),
+              Tab(text: 'Đơn hàng hiện tại'),
+              Tab(text: 'Lịch sử đơn hàng'),
             ],
           ),
           Expanded(
@@ -31,8 +31,8 @@ class _OrdersPageState extends State<OrdersPage> {
                       margin: const EdgeInsets.all(8.0),
                       child: ListTile(
                         leading: const Icon(Icons.delivery_dining),
-                        title: Text('Order #${index + 1}'),
-                        subtitle: const Text('Order Status: In Progress'),
+                        title: Text('Đơn hàng #${index + 1}'),
+                        subtitle: const Text('Trạng thái: Đang xử lý'),
                         trailing: const Text('\$25.00'),
                         onTap: () {
                           // Handle order tap
@@ -49,8 +49,8 @@ class _OrdersPageState extends State<OrdersPage> {
                       margin: const EdgeInsets.all(8.0),
                       child: ListTile(
                         leading: const Icon(Icons.history),
-                        title: Text('Order #${index + 1}'),
-                        subtitle: const Text('Completed'),
+                        title: Text('Đơn hàng #${index + 1}'),
+                        subtitle: const Text('Đã hoàn thành'),
                         trailing: const Text('\$30.00'),
                         onTap: () {
                           // Handle history item tap

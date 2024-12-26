@@ -15,7 +15,6 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _otpController = TextEditingController();
   final _newPasswordController = TextEditingController();
   bool _otpSent = false;
-  bool _otpVerified = false;
   bool _isLoading = false;
 
   Future<void> _sendOTP() async {
