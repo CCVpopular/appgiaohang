@@ -6,10 +6,10 @@ const router = express.Router();
 // Create new store
 router.post('/', async (req, res) => {
   try {
-    const { name, address, phone_number, owner_id } = req.body;
+    const { name, address, phone_number, owner_id, latitude, longitude } = req.body;
     const [result] = await pool.query(
-      'INSERT INTO food_stores (name, address, phone_number, owner_id, status) VALUES (?, ?, ?, ?, "pending")',
-      [name, address, phone_number, owner_id]
+      'INSERT INTO food_stores (name, address, phone_number, owner_id, status, latitude, longitude) VALUES (?, ?, ?, ?, "pending", ?, ?)',
+      [name, address, phone_number, owner_id, latitude, longitude]
     );
     res.status(201).json({ 
       id: result.insertId,
@@ -17,7 +17,9 @@ router.post('/', async (req, res) => {
       address,
       phone_number,
       owner_id,
-      status: 'pending'
+      status: 'pending',
+      latitude,
+      longitude
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
