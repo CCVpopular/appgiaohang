@@ -26,7 +26,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Checkout'),
+        title: const Text('Thanh toán'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -34,14 +34,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Delivery Address',
+              'Địa chỉ giao hàng',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Card(
               child: ListTile(
                 title: Text(_selectedAddress.isEmpty 
-                  ? 'Select delivery address' 
+                  ? 'Chọn địa chỉ giao hàng' 
                   : _selectedAddress),
                 trailing: const Icon(Icons.arrow_forward_ios),
                 onTap: () async {
@@ -57,32 +57,32 @@ class _CheckoutPageState extends State<CheckoutPage> {
             ),
             const SizedBox(height: 16),
             const Text(
-              'Note',
+              'Ghi chú',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _noteController,
               decoration: const InputDecoration(
-                hintText: 'Add note for delivery (optional)',
+                hintText: 'Thêm ghi chú cho đơn hàng (không bắt buộc)',
                 border: OutlineInputBorder(),
               ),
               maxLines: 2,
             ),
             const SizedBox(height: 16),
             const Text(
-              'Payment Method',
+              'Phương thức thanh toán',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             RadioListTile(
-              title: const Text('Cash on Delivery'),
+              title: const Text('Thanh toán khi nhận hàng'),
               value: 'cash',
               groupValue: _paymentMethod,
               onChanged: (value) => setState(() => _paymentMethod = value!),
             ),
             const SizedBox(height: 16),
             const Text(
-              'Order Summary',
+              'Tổng quan đơn hàng',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -123,7 +123,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),
-          child: const Text('Place Order'),
+          child: const Text('Đặt hàng'),
         ),
       ),
     );
@@ -132,7 +132,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   Future<void> _placeOrder() async {
     if (_selectedAddress.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select delivery address')),
+        const SnackBar(content: Text('Vui lòng chọn địa chỉ giao hàng')),
       );
       return;
     }
@@ -144,12 +144,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
       
       Navigator.popUntil(context, (route) => route.isFirst);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Order placed successfully!')),
+        const SnackBar(content: Text('Đặt hàng thành công!')),
       );
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error placing order: $e')),
+        SnackBar(content: Text('Lỗi đặt hàng: $e')),
       );
     }
   }

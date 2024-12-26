@@ -112,14 +112,14 @@ class _FoodStorePageState extends State<FoodStorePage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Menu',
+                'Thực đơn',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
               if (isLoading)
                 const Center(child: CircularProgressIndicator())
               else if (foods.isEmpty)
-                const Center(child: Text('No foods available'))
+                const Center(child: Text('Không có món ăn nào'))
               else
                 Expanded(
                   child: ListView.builder(
@@ -146,7 +146,7 @@ class _FoodStorePageState extends State<FoodStorePage> {
                                   );
                                   await CartProvider.addToCart(cartItem);
                                   ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Added to cart')),
+                                    const SnackBar(content: Text('Đã thêm vào giỏ hàng')),
                                   );
                                 },
                               ),

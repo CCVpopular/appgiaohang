@@ -32,7 +32,7 @@ class _CartPageState extends State<CartPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: const Text('Giỏ hàng'),
         actions: [
           if (cartItems.isNotEmpty)
             IconButton(
@@ -45,14 +45,14 @@ class _CartPageState extends State<CartPage> {
         ],
       ),
       body: cartItems.isEmpty
-          ? const Center(child: Text('Your cart is empty'))
+          ? const Center(child: Text('Giỏ hàng trống'))
           : ListView.builder(
               itemCount: cartItems.length,
               itemBuilder: (context, index) {
                 final item = cartItems[index];
                 return ListTile(
                   title: Text(item.name),
-                  subtitle: Text('From: ${item.storeName}'),
+                  subtitle: Text('Từ: ${item.storeName}'),
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -104,7 +104,7 @@ class _CartPageState extends State<CartPage> {
                         },
                       );
                     },
-                    child: const Text('Checkout'),
+                    child: const Text('Thanh toán'),
                   ),
                 ],
               ),

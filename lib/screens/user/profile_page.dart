@@ -68,18 +68,18 @@ class _ProfilePageState extends State<ProfilePage> {
               TextFormField(
                 controller: nameController,
                 decoration: const InputDecoration(
-                  labelText: 'Full Name',
+                  labelText: 'Họ và Tên',
                   prefixIcon: Icon(Icons.person),
                 ),
                 enabled: !isLoading,
                 validator: (value) =>
-                    value?.isEmpty ?? true ? 'Name cannot be empty' : null,
+                    value?.isEmpty ?? true ? 'Vui lòng nhập họ tên' : null,
               ),
               const SizedBox(height: 16),
               TextFormField(
                 controller: phoneController,
                 decoration: const InputDecoration(
-                  labelText: 'Phone Number',
+                  labelText: 'Số Điện Thoại',
                   prefixIcon: Icon(Icons.phone),
                 ),
                 enabled: !isLoading,
@@ -217,7 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
               ),
               const SizedBox(height: 16),
               const Text(
-                'You are not logged in',
+                'Bạn chưa đăng nhập',
                 style: TextStyle(fontSize: 18),
               ),
               const SizedBox(height: 16),
@@ -228,7 +228,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     _initializeUser(); // Reload user data after successful login
                   }
                 },
-                child: const Text('Login'),
+                child: const Text('Đăng nhập'),
               ),
             ],
           ),
@@ -241,7 +241,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Profile'),
+        title: const Text('Hồ sơ'),
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
@@ -290,7 +290,7 @@ class _ProfilePageState extends State<ProfilePage> {
                     children: [
                       ListTile(
                         leading: const Icon(Icons.person),
-                        title: const Text('Full Name'),
+                        title: const Text('Họ và Tên'),
                         subtitle: Text(userData['fullName'] ?? ''),
                       ),
                       const Divider(),
@@ -302,7 +302,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       const Divider(),
                       ListTile(
                         leading: const Icon(Icons.phone),
-                        title: const Text('Phone'),
+                        title: const Text('Số điện thoại'),
                         subtitle: Text(userData['phoneNumber'] ?? ''),
                       ),
                     ],
@@ -311,7 +311,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _editProfile,
-                  child: const Text('Edit Profile'),
+                  child: const Text('Chỉnh sửa hồ sơ'),
                 ),
               ],
             ),
