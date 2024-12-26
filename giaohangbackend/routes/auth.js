@@ -2,7 +2,7 @@ import express from 'express';
 import bcrypt from 'bcrypt';
 import cors from 'cors';
 import pool from '../index.js';
-import { sendOTP } from '../utils/emailService.js';
+import { sendOTP, sendShipperStatusNotification } from '../utils/emailService.js';
 
 const router = express.Router();
 
@@ -83,6 +83,21 @@ router.post('/login', async (req, res) => {
     }
     
     const user = users[0];
+
+    // Check account status
+    if (user.status === 'pending') {
+      return res.status(403).json({ error: 'Account is pending approval. Please wait for administrator review.' });
+    }
+
+    if (user.status === 'rejected') {
+      return res.status(403).json({ error: 'Account registration was rejected. Please contact support.' });
+    }
+
+    // Check if account is active
+    if (!user.is_active) {
+      return res.status(403).json({ error: 'Account is inactive. Please contact support.' });
+    }
+    
     const validPassword = await bcrypt.compare(password, user.password);
     
     if (!validPassword) {
@@ -93,13 +108,13 @@ router.post('/login', async (req, res) => {
       id: user.id,
       email: user.email,
       fullName: user.full_name,
-      role: user.role
+      role: user.role,
+      status: user.status
     });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
 });
-
 
 //Hàm lấy ra thông tin user dựa vào id
 router.get('/user/:id', async (req, res) => {
@@ -250,6 +265,137 @@ router.post('/change-password', async (req, res) => {
   } catch (error) {
     console.error('Error changing password:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// Add shipper registration endpoint
+router.post('/shipper/register', async (req, res) => {
+  try {
+    const { user, shipper } = req.body;
+    
+    // Start transaction
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Create user with pending status
+      const hashedPassword = await bcrypt.hash(user.password, 10);
+      const [userResult] = await connection.query(
+        'INSERT INTO users (email, password, full_name, phone_number, role, status) VALUES (?, ?, ?, ?, ?, ?)',
+        [user.email, hashedPassword, user.name, shipper.phone, 'shipper', 'pending']
+      );
+
+      // Create shipper profile
+      await connection.query(
+        'INSERT INTO shipper_profiles (user_id, vehicle_type, license_plate) VALUES (?, ?, ?)',
+        [userResult.insertId, shipper.vehicleType, shipper.licensePlate]
+      );
+
+      // Commit transaction
+      await connection.commit();
+      
+      // TODO: Send email notification to admin about new shipper registration
+      
+      res.status(201).json({
+        message: 'Shipper registration submitted successfully',
+        userId: userResult.insertId
+      });
+    } catch (error) {
+      // Rollback on error
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Shipper registration error:', error);
+    res.status(400).json({
+      error: error.message || 'Failed to register shipper'
+    });
+  }
+});
+
+// Add endpoint to approve/reject shipper registration
+router.put('/shipper/:userId/status', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { status } = req.body;
+    
+    if (!['approved', 'rejected'].includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      // Get user details first
+      const [users] = await connection.query(
+        'SELECT email, full_name FROM users WHERE id = ?',
+        [userId]
+      );
+
+      if (users.length === 0) {
+        throw new Error('User not found');
+      }
+
+      const user = users[0];
+
+      // Update user status and set account as inactive if rejected
+      await connection.query(
+        'UPDATE users SET status = ?, is_active = ? WHERE id = ? AND role = ?',
+        [status, status === 'rejected' ? 0 : 1, userId, 'shipper']
+      );
+
+      // Update shipper profile status
+      await connection.query(
+        'UPDATE shipper_profiles SET status = ? WHERE user_id = ?',
+        [status, userId]
+      );
+
+      // Send email notification
+      await sendShipperStatusNotification(
+        user.email,
+        status,
+        user.full_name
+      );
+
+      await connection.commit();
+
+      res.json({
+        message: `Shipper registration ${status}`,
+        userId
+      });
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Update shipper status error:', error);
+    res.status(400).json({
+      error: error.message || 'Failed to update shipper status'
+    });
+  }
+});
+
+// Add endpoint to get pending shipper registrations
+router.get('/shippers/pending', async (req, res) => {
+  try {
+    const [shippers] = await pool.query(`
+      SELECT u.*, sp.vehicle_type, sp.license_plate 
+      FROM users u 
+      JOIN shipper_profiles sp ON u.id = sp.user_id 
+      WHERE u.role = 'shipper' AND u.status = 'pending'
+    `);
+    
+    res.json({ shippers });
+  } catch (error) {
+    console.error('Error fetching pending shippers:', error);
+    res.status(500).json({
+      error: error.message || 'Failed to fetch pending shippers'
+    });
   }
 });
 

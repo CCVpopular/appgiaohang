@@ -123,6 +123,12 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
               TextButton(
                 onPressed: () {
+                  Navigator.pushNamed(context, '/shipper-registration');
+                },
+                child: const Text('Register as Shipper'),
+              ),
+              TextButton(
+                onPressed: () {
                   Navigator.pushNamed(context, '/forgot-password');
                 },
                 child: const Text('Forgot Password?'),
