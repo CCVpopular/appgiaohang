@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../config/config.dart';
+import '../providers/auth_provider.dart';
 import 'shipper/settings_page.dart';
+import 'shipper/order_list_page.dart';
+import 'shipper/active_deliveries_page.dart';
 
 class HomeShipperScreen extends StatefulWidget {
   const HomeShipperScreen({super.key});
@@ -10,6 +16,18 @@ class HomeShipperScreen extends StatefulWidget {
 
 class _HomeShipperScreenState extends State<HomeShipperScreen> {
   int _selectedIndex = 0;
+  final List<Widget> _pages = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _pages.addAll([
+      OrderListPage(),
+      ActiveDeliveriesPage(),
+      const Center(child: Text('Earnings')),
+      const SettingsPage(),
+    ]);
+  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -23,13 +41,7 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
       appBar: AppBar(
         title: const Text('Shipper Dashboard'),
       ),
-      body: IndexedStack(
-        index: _selectedIndex,
-        children: const [
-          Center(child: Text('Earnings')),
-          SettingsPage(),
-        ],
-      ),
+      body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         items: const [

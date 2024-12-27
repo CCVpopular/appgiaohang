@@ -29,6 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }),
         );
 
+        print(response.statusCode);
         if (response.statusCode == 200) {
           final userData = jsonDecode(response.body);
           await SharedPrefs.saveUserId(userData['id']); // Add this line
@@ -43,18 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
           // If no previous screen, navigate based on role
           switch (userData['role']) {
             case 'admin':
-              Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/admin', (route) => false);
               break;
             case 'user':
               if (Navigator.canPop(context)) {
                 Navigator.pop(context, true);
-              } 
-              else {
-                Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
+              } else {
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/user_home', (route) => false);
               }
               break;
             case 'shipper':
-              Navigator.pushNamedAndRemoveUntil(context, '/shipper', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                  context, '/shipper', (route) => false);
               break;
             default:
               throw Exception('Invalid role');
