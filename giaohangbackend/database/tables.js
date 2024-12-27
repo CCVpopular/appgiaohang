@@ -39,6 +39,8 @@ export const createTables = async (pool) => {
         phone_number VARCHAR(15),
         status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
         is_active BOOLEAN DEFAULT true,
+        latitude DOUBLE,
+        longitude DOUBLE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (owner_id) REFERENCES users(id)
