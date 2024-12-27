@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_zalopay_sdk/flutter_zalopay_sdk.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -33,6 +34,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   void initState() {
     super.initState();
     _loadSelectedAddress();
+    _loadPaymentMethod();
   }
 
   Future<void> _loadSelectedAddress() async {
@@ -62,6 +64,55 @@ class _CheckoutPageState extends State<CheckoutPage> {
       setState(() => _isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading address: $e')),
+      );
+    }
+  }
+
+  Future<void> _loadPaymentMethod() async {
+    _paymentMethod = await SharedPrefs.getPaymentMethod();
+    setState(() {});
+  }
+
+  Future<void> _handleZaloPayment() async {
+    try {
+      // Get ZaloPay token from backend
+      final response = await http.post(
+        Uri.parse('${Config.baseurl}/orders/create-zalopay-order'),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode({
+          'amount': widget.total.round(),
+        }),
+      );
+
+      if (response.statusCode != 200) {
+        throw Exception('Failed to get ZaloPay token');
+      }
+
+      final paymentData = json.decode(response.body);
+      
+      // ZaloPay SDK returns:
+      // 1: Success
+      // -1: Failure
+      // 2: User canceled
+      final zpResult = await FlutterZaloPaySdk.payOrder(
+        zpToken: paymentData['zp_trans_token'],
+      );
+      
+      if (zpResult == 1) { // Payment successful
+        await _placeOrder();
+      } else {
+        if (!mounted) return;
+        String message = zpResult == 2 
+          ? 'Thanh toán đã bị hủy'
+          : 'Thanh toán thất bại';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(message)),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Lỗi thanh toán: $e')),
       );
     }
   }
@@ -124,7 +175,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
               title: const Text('Thanh toán khi nhận hàng'),
               value: 'cash',
               groupValue: _paymentMethod,
-              onChanged: (value) => setState(() => _paymentMethod = value!),
+              onChanged: (value) => setState(() {
+                _paymentMethod = value!;
+                SharedPrefs.savePaymentMethod(value);
+              }),
+            ),
+            RadioListTile(
+              title: const Text('ZaloPay'),
+              value: 'zalopay',
+              groupValue: _paymentMethod,
+              onChanged: (value) => setState(() {
+                _paymentMethod = value!;
+                SharedPrefs.savePaymentMethod(value);
+              }),
             ),
             const SizedBox(height: 16),
             const Text(
@@ -165,7 +228,13 @@ class _CheckoutPageState extends State<CheckoutPage> {
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         child: ElevatedButton(
-          onPressed: _placeOrder,
+          onPressed: () {
+            if (_paymentMethod == 'zalopay') {
+              _handleZaloPayment();
+            } else {
+              _placeOrder();
+            }
+          },
           style: ElevatedButton.styleFrom(
             padding: const EdgeInsets.symmetric(vertical: 16),
           ),

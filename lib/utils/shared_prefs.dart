@@ -30,4 +30,16 @@ class SharedPrefs {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(selectedAddressKey);
   }
+
+  static const String paymentMethodKey = 'paymentMethod';
+
+  static Future<void> savePaymentMethod(String method) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(paymentMethodKey, method);
+  }
+
+  static Future<String> getPaymentMethod() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(paymentMethodKey) ?? 'cash';
+  }
 }
