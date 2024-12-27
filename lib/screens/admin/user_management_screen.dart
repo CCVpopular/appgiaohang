@@ -312,14 +312,6 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text('Role: ${user['role']}'),
-                                Chip(
-                                  label: Text(user['status']),
-                                  backgroundColor: user['status'] == 'approved'
-                                      ? Colors.green[100]
-                                      : user['status'] == 'rejected'
-                                          ? Colors.red[100]
-                                          : Colors.orange[100],
-                                ),
                               ],
                             ),
                             const SizedBox(height: 8),
