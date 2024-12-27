@@ -22,27 +22,6 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Update user status
-router.put('/:id/status', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { status } = req.body;
-    
-    const [result] = await pool.query(
-      'UPDATE users SET status = ? WHERE id = ?',
-      [status, id]
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json({ message: 'User status updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
 // Update user active status
 router.put('/:id/active', async (req, res) => {
   try {

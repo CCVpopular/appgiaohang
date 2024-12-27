@@ -285,7 +285,6 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
           margin: const EdgeInsets.all(8.0),
           child: ListTile(
             title: Text('Order #${delivery['id']}'),
-            subtitle: Text('Status: ${delivery['status']}'),
             trailing: Text('\$${delivery['total_amount']}'),
           ),
         );
