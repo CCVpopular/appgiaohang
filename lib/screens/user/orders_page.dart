@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
+import '../chat_screen.dart';
 
 class Order {
   final int id;
@@ -156,6 +157,23 @@ class _OrdersPageState extends State<OrdersPage> {
               'Ngày đặt: ${_formatDate(order.createdAt)}',
               style: const TextStyle(color: Colors.grey),
             ),
+            if (order.status == 'delivering' && order.items.isNotEmpty)
+              IconButton(
+                icon: const Icon(Icons.chat),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        orderId: order.id,
+                        currentUserId: 1, // Replace with actual user ID
+                        otherUserId: order.items.first.storeId,
+                        otherUserName: 'Shipper', // Replace with actual shipper name
+                      ),
+                    ),
+                  );
+                },
+              ),
           ],
         ),
       ),
