@@ -1,6 +1,6 @@
 export const createTables = async (pool) => {
   try {
-    // Users table with updated status and is_active fields
+    // Users table without the status field
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -9,7 +9,6 @@ export const createTables = async (pool) => {
         full_name VARCHAR(100),
         phone_number VARCHAR(15),
         role ENUM('admin', 'user', 'shipper') DEFAULT 'user',
-        status ENUM('pending', 'approved', 'rejected') DEFAULT 'approved',
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP

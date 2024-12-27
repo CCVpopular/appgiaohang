@@ -44,12 +44,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);  // Get the theme mode from provider
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.themeMode,  // Set themeMode to Light/Dark based on the provider
-      theme: lightTheme,  // Light theme configuration
-      darkTheme: darkTheme,  // Dark theme configuration
+      themeMode: themeProvider.themeMode,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: FutureBuilder<bool>(
         future: AuthProvider.isLoggedIn(),
         builder: (context, snapshot) {
@@ -136,9 +136,6 @@ class MainApp extends StatelessWidget {
         },
         '/store-address-map': (context) => const StoreAddressMapPage(),
       },
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      // ),
     );
   }
 }
