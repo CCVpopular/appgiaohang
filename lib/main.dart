@@ -1,6 +1,7 @@
 import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'providers/theme_provider.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -24,9 +25,17 @@ import 'screens/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
 import 'screens/user/address_list_page.dart';
 import 'screens/user/store_orders_screen.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MainApp());
+import 'theme/themes.dart';
+
+void main() async {
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => ThemeProvider(),
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -34,8 +43,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);  // Get the theme mode from provider
     return MaterialApp(
       debugShowCheckedModeBanner: false,
+      themeMode: themeProvider.themeMode,  // Set themeMode to Light/Dark based on the provider
+      theme: lightTheme,  // Light theme configuration
+      darkTheme: darkTheme,  // Dark theme configuration
       home: FutureBuilder<bool>(
         future: AuthProvider.isLoggedIn(),
         builder: (context, snapshot) {
@@ -121,9 +134,9 @@ class MainApp extends StatelessWidget {
           return StoreOrdersScreen(storeId: storeId);
         },
       },
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      // theme: ThemeData(
+      //   primarySwatch: Colors.blue,
+      // ),
     );
   }
 }
