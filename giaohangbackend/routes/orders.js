@@ -215,7 +215,7 @@ router.post('/:orderId/accept', async (req, res) => {
 
     // First check if shipper exists and has correct role
     const [shipperCheck] = await connection.query(
-      'SELECT id, role, status FROM users WHERE id = ?',
+      'SELECT id, role FROM users WHERE id = ?',
       [shipperId]
     );
 
