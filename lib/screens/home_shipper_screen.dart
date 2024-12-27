@@ -55,7 +55,7 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
   Future<void> fetchAvailableOrders() async {
     try {
       final response = await http.get(
-        Uri.parse('${Config.baseurl}/orders/pending'),
+        Uri.parse('${Config.baseurl}/orders/confirmed'),
       );
 
       if (response.statusCode == 200) {
@@ -66,7 +66,9 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
       }
     } catch (e) {
       setState(() => isLoading = false);
-      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to load orders')),
+      );
     }
   }
 
@@ -76,29 +78,123 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
     }
 
     if (availableOrders.isEmpty) {
-      return const Center(child: Text('No available orders'));
+      return const Center(child: Text('No orders available for delivery'));
     }
 
     return ListView.builder(
       itemCount: availableOrders.length,
       itemBuilder: (context, index) {
         final order = availableOrders[index];
+        final items = List<dynamic>.from(order['items'] ?? []);
+        
         return Card(
           margin: const EdgeInsets.all(8.0),
-          child: ListTile(
-            title: Text('Order #${order['id']}'),
-            subtitle: Column(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Delivery to: ${order['address']}'),
-                Text('Total: \$${order['total_amount']}'),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order #${order['id']}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    Text(
+                      '\$${order['total_amount']}',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text('Customer: ${order['customer_name'] ?? 'N/A'}'),
+                Text('Phone: ${order['customer_phone'] ?? 'N/A'}'),
+                Text('Address: ${order['address']}'),
+                const Divider(),
+                ...items.map((item) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${item['quantity']}x ${item['food_name'] ?? 'Unknown Item'}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                Text(
+                                  item['store_name'] ?? 'Unknown Store',
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            '\$${item['price'] ?? '0.00'}',
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      if ((item['store_address'] ?? '').isNotEmpty)
+                        Text(
+                          'Store Address: ${item['store_address']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      if ((item['store_phone'] ?? '').isNotEmpty)
+                        Text(
+                          'Store Phone: ${item['store_phone']}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      const Divider(),
+                    ],
+                  ),
+                )).toList(),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        // Handle accept order
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      child: const Text(
+                        'Accept Delivery',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                ),
               ],
-            ),
-            trailing: ElevatedButton(
-              onPressed: () {
-                // Handle accept order
-              },
-              child: const Text('Accept'),
             ),
           ),
         );

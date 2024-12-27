@@ -66,6 +66,44 @@ router.get('/user/:userId', async (req, res) => {
   }
 });
 
+// Get confirmed orders for shippers (Move this before other specific routes)
+router.get('/confirmed', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT 
+        o.*,
+        u.full_name as customer_name,
+        u.phone_number as customer_phone,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'food_id', f.id,
+            'food_name', f.name,
+            'store_id', fs.id,
+            'store_name', fs.name,
+            'store_address', fs.address,
+            'store_phone', fs.phone_number
+          )
+        ) as items
+      FROM orders o
+      INNER JOIN users u ON o.user_id = u.id
+      INNER JOIN order_items oi ON o.id = oi.order_id
+      INNER JOIN foods f ON oi.food_id = f.id
+      INNER JOIN food_stores fs ON oi.store_id = fs.id
+      WHERE o.status = 'confirmed'
+      GROUP BY o.id
+      ORDER BY o.created_at DESC`
+    );
+    
+    console.log('Fetched confirmed orders:', orders);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching confirmed orders:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Get pending orders - make sure this is properly exposed
 router.get('/pending', async (req, res) => {
   try {
