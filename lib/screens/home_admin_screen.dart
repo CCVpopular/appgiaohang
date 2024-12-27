@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'admin/shipper_management_screen.dart';
-import 'settings_admin_screen.dart';
+import 'admin/settings_admin_screen.dart';
 import 'store_approval_screen.dart';
 import 'admin/user_management_screen.dart';
 

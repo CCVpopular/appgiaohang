@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/config.dart';
-import 'available_orders_page.dart';
-import 'my_deliveries_page.dart';
+import 'shipper/available_orders_page.dart';
+import 'shipper/my_deliveries_page.dart';
 import 'shipper/settings_page.dart';
 
 class HomeShipperScreen extends StatefulWidget {
