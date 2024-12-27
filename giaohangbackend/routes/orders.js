@@ -8,12 +8,12 @@ router.post('/', async (req, res) => {
   try {
     await connection.beginTransaction();
 
-    const { userId, address, latitude, longitude, items, totalAmount, paymentMethod, note } = req.body;
+    const { userId, address, items, totalAmount, paymentMethod, note } = req.body;
 
-    // Create order with coordinates
+    // Create order without coordinates
     const [orderResult] = await connection.query(
-      'INSERT INTO orders (user_id, address, latitude, longitude, total_amount, payment_method, note) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId, address, latitude, longitude, totalAmount, paymentMethod, note]
+      'INSERT INTO orders (user_id, address, total_amount, payment_method, note) VALUES (?, ?, ?, ?, ?)',
+      [userId, address, totalAmount, paymentMethod, note]
     );
 
     const orderId = orderResult.insertId;
