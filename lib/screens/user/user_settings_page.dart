@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 
 class UserSettingsPage extends StatefulWidget {
   const UserSettingsPage({super.key});
@@ -10,7 +12,7 @@ class UserSettingsPage extends StatefulWidget {
 
 class _UserSettingsPageState extends State<UserSettingsPage> {
   bool notificationsEnabled = true;
-  bool darkModeEnabled = false;
+  // bool darkModeEnabled = false;
   String selectedLanguage = 'English';
   bool showLogout = false;
   bool isAdmin = false;
@@ -59,6 +61,8 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -83,11 +87,9 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
           SwitchListTile(
             title: const Text('Dark Mode'),
             subtitle: const Text('Enable or disable dark theme'),
-            value: darkModeEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                darkModeEnabled = value;
-              });
+            value: themeProvider.isDarkMode,
+            onChanged: (value) {
+              themeProvider.toggleTheme();
             },
           ),
           const Divider(),
