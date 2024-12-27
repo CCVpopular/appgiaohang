@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/config.dart';
+import 'available_orders_page.dart';
+import 'my_deliveries_page.dart';
+import 'shipper/settings_page.dart';
 
 class HomeShipperScreen extends StatefulWidget {
   const HomeShipperScreen({super.key});
@@ -141,184 +144,25 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
     }
   }
 
-  Widget _buildAvailableOrdersPage() {
-    if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (availableOrders.isEmpty) {
-      return const Center(child: Text('No orders available for delivery'));
-    }
-
-    return ListView.builder(
-      itemCount: availableOrders.length,
-      itemBuilder: (context, index) {
-        final order = availableOrders[index];
-        final items = List<dynamic>.from(order['items'] ?? []);
-
-        return Card(
-          margin: const EdgeInsets.all(8.0),
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Order #${order['id']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '\$${order['total_amount']}',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.green,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Text('Customer: ${order['customer_name'] ?? 'N/A'}'),
-                Text('Phone: ${order['customer_phone'] ?? 'N/A'}'),
-                Text('Address: ${order['address']}'),
-                const Divider(),
-                ...items
-                    .map((item) => Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 4.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          '${item['quantity']}x ${item['food_name'] ?? 'Unknown Item'}',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16,
-                                          ),
-                                        ),
-                                        Text(
-                                          item['store_name'] ?? 'Unknown Store',
-                                          style: const TextStyle(
-                                            color: Colors.blue,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Text(
-                                    '\$${item['price'] ?? '0.00'}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              if ((item['store_address'] ?? '').isNotEmpty)
-                                Text(
-                                  'Store Address: ${item['store_address']}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              if ((item['store_phone'] ?? '').isNotEmpty)
-                                Text(
-                                  'Store Phone: ${item['store_phone']}',
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                              const Divider(),
-                            ],
-                          ),
-                        ))
-                    .toList(),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    ElevatedButton(
-                      onPressed: () => acceptOrder(order['id']),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.green,
-                      ),
-                      child: const Text(
-                        'Accept Delivery',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildMyDeliveriesPage() {
-    if (myDeliveries.isEmpty) {
-      return const Center(child: Text('No active deliveries'));
-    }
-
-    return ListView.builder(
-      itemCount: myDeliveries.length,
-      itemBuilder: (context, index) {
-        final delivery = myDeliveries[index];
-        return Card(
-          margin: const EdgeInsets.all(8.0),
-          child: ListTile(
-            title: Text('Order #${delivery['id']}'),
-            trailing: Text('\$${delivery['total_amount']}'),
-          ),
-        );
-      },
-    );
-  }
-
-  final List<Widget> _pages = [
-    const Center(child: Text('Available Orders')),
-    const Center(child: Text('My Deliveries')),
-    const Center(child: Text('Earnings')),
-    const Center(child: Text('Profile')),
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Shipper Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
-            tooltip: 'Logout',
-          ),
-        ],
       ),
       body: IndexedStack(
         index: _selectedIndex,
         children: [
-          _buildAvailableOrdersPage(),
-          _buildMyDeliveriesPage(),
+          AvailableOrdersPage(
+            availableOrders: availableOrders,
+            isLoading: isLoading,
+            acceptOrder: acceptOrder,
+          ),
+          MyDeliveriesPage(
+            myDeliveries: myDeliveries,
+          ),
           const Center(child: Text('Earnings')),
-          const Center(child: Text('Profile')),
+          const SettingsPage(),
         ],
       ),
       bottomNavigationBar: BottomNavigationBar(
@@ -329,7 +173,7 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
               icon: Icon(Icons.delivery_dining), label: 'Deliveries'),
           BottomNavigationBarItem(
               icon: Icon(Icons.attach_money), label: 'Earnings'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
