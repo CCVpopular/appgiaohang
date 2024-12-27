@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/config.dart';
+import 'chat_screen.dart';
 
 class HomeShipperScreen extends StatefulWidget {
   const HomeShipperScreen({super.key});
@@ -286,7 +287,28 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
           child: ListTile(
             title: Text('Order #${delivery['id']}'),
             subtitle: Text('Status: ${delivery['status']}'),
-            trailing: Text('\$${delivery['total_amount']}'),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('\$${delivery['total_amount']}'),
+                IconButton(
+                  icon: const Icon(Icons.chat),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          orderId: delivery['id'],
+                          currentUserId: 1, // Replace with actual shipper ID
+                          otherUserId: delivery['user_id'],
+                          otherUserName: delivery['customer_name'] ?? 'Customer',
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         );
       },
