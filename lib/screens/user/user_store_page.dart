@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../providers/store_provider.dart';
 import 'store_orders_screen.dart';
 
@@ -49,8 +50,8 @@ class _UserStorePageState extends State<UserStorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Stores'),
+      appBar:const CustomAppBar(
+        title: 'My Stores',
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

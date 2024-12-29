@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../components/app_bar/custom_app_bar.dart';
 import 'admin/shipper_management_screen.dart';
 import 'admin/settings_admin_screen.dart';
 import 'store_approval_screen.dart';
@@ -32,7 +33,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Admin Dashboard')),
+      appBar:const CustomAppBar(title: 'Admin Dashboard'),
       body: _pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,

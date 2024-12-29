@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../components/app_bar/custom_app_bar.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -83,8 +85,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register'),
+      appBar: const CustomAppBar(
+        title: 'Register',
         // leading: IconButton(
         //   icon: const Icon(Icons.arrow_back),
         //   onPressed: () => Navigator.pop(context),

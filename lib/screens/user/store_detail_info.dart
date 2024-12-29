@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../providers/store_provider.dart';
 
 class StoreDetailInfo extends StatefulWidget {
@@ -83,8 +84,8 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Store Details'),
+      appBar: CustomAppBar(
+        title:  'Store Details',
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),

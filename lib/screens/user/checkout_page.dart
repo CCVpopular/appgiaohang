@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -69,8 +70,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thanh toán'),
+      appBar:const CustomAppBar(
+        title: 'Thanh toán',
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())

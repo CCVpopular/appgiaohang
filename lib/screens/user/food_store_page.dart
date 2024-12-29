@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -69,8 +70,8 @@ class _FoodStorePageState extends State<FoodStorePage> {
     return WillPopScope(
       onWillPop: _onWillPop,
       child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.store['name']),
+        appBar: CustomAppBar(
+          title: widget.store['name'],
           actions: [
             Stack(
               children: [

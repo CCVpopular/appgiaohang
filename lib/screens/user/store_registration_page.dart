@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/store_provider.dart';
 
@@ -78,7 +79,7 @@ class _StoreRegistrationPageState extends State<StoreRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Register New Store')),
+      appBar:const CustomAppBar(title:'Register New Store'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
 
@@ -91,8 +92,8 @@ class _AddressListPageState extends State<AddressListPage> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Chọn Địa Chỉ Giao Hàng'),
+        appBar: CustomAppBar(
+          title: 'Chọn Địa Chỉ Giao Hàng',
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {

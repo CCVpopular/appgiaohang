@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
 
@@ -31,8 +32,8 @@ class _CartPageState extends State<CartPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Giỏ hàng'),
+      appBar: CustomAppBar(
+        title: 'Giỏ hàng',
         actions: [
           if (cartItems.isNotEmpty)
             IconButton(
