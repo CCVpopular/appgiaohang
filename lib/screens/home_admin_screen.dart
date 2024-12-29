@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../components/app_bar/custom_app_bar.dart';
+import '../components/bottom_navigation_bar/custom_bottom_navigation_bar.dart';
 import 'admin/shipper_management_screen.dart';
 import 'admin/settings_admin_screen.dart';
 import 'store_approval_screen.dart';
@@ -35,18 +36,20 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
     return Scaffold(
       appBar:const CustomAppBar(title: 'Admin Dashboard'),
       body: _pages[_selectedIndex],
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
-          BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Stores'),
-          BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shippers'),
-          BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Reports'),
-          BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
-        ],
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
+      bottomNavigationBar: CustomBottomNavBar(
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
+            BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Stores'),
+            BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shippers'),
+            BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Reports'),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+          ],
+          currentIndex: _selectedIndex,
+          onTap: _onItemTapped,
+        ),
       ),
     );
   }

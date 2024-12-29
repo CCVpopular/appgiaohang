@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
+import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -85,7 +87,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Card(
+            CustomCard(
               child: ListTile(
                 title: Text(_selectedAddress.isEmpty 
                   ? 'Chọn địa chỉ giao hàng' 
@@ -165,12 +167,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
+        child: CustomElevatedButton(
           onPressed: _placeOrder,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: const Text('Đặt hàng'),
+          text: 'Đặt hàng',
         ),
       ),
     );

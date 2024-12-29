@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../components/switch_list_tile/custom_switch_list_tile.dart';
 import '../../providers/auth_provider.dart';
 import '../../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
@@ -63,16 +64,16 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           Card(
             child: Column(
               children: [
-                SwitchListTile(
-                  title: const Text('Dark Mode'),
-                  subtitle: const Text('Enable or disable dark theme'),
+                CustomSwitchListTile(
+                  title: 'Dark Mode',
+                  subtitle: 'Enable or disable dark theme',
                   value: themeProvider.isDarkMode,
                   onChanged: (value) {
                     themeProvider.toggleTheme();
                   },
                 ),
-                SwitchListTile(
-                  title: const Text('Notifications'),
+                CustomSwitchListTile(
+                  title: 'Notifications',
                   secondary: const Icon(Icons.notifications),
                   value: _notifications,
                   onChanged: (value) {

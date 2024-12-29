@@ -31,10 +31,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     this.borderRadius,
     this.lightBorderColor,
     this.darkBorderColor,
-    this.topBorderThickness = 4.0, // Độ dày viền trên
-    this.leftBorderThickness = 4.0, // Độ dày viền trái
-    this.rightBorderThickness = 4.0, // Độ dày viền phải
-    this.bottomBorderThickness = 8.0, // Độ dày viền dưới
+    this.topBorderThickness = 2.0, // Độ dày viền trên
+    this.leftBorderThickness = 2.0, // Độ dày viền trái
+    this.rightBorderThickness = 2.0, // Độ dày viền phải
+    this.bottomBorderThickness = 4.0, // Độ dày viền dưới
     Key? key,
   }) : super(key: key);
 
@@ -63,7 +63,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         : lightBorderColor ?? Colors.black.withOpacity(0.7);
 
     return PreferredSize(
-      preferredSize: const Size.fromHeight(kToolbarHeight + 16),
+      preferredSize: const Size.fromHeight(kToolbarHeight + 0),
       child: Container(
         decoration: BoxDecoration(
           color: backgroundColor,
@@ -98,7 +98,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             title,
             style: TextStyle(color: textColor),
           ),
-          leading: leading,
           actions: actions?.map((action) {
             // Tự động áp dụng màu icon
             if (action is IconButton) {
@@ -120,5 +119,5 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 16);
+  Size get preferredSize => const Size.fromHeight(kToolbarHeight + 0);
 }
