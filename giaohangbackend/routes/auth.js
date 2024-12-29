@@ -305,4 +305,40 @@ router.post('/shipper/register', async (req, res) => {
   }
 });
 
+// Add endpoint to get pending shippers
+router.get('/shippers/pending', async (req, res) => {
+  try {
+    const [shippers] = await pool.query(`
+      SELECT u.*, sp.* 
+      FROM users u 
+      JOIN shipper_profiles sp ON u.id = sp.user_id 
+      WHERE sp.status = 'pending'
+    `);
+    res.json({ shippers });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update shipper status
+router.put('/shipper/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+    
+    const [result] = await pool.query(
+      'UPDATE shipper_profiles SET status = ? WHERE user_id = ?',
+      [status, id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Shipper not found' });
+    }
+
+    res.json({ message: 'Shipper status updated successfully' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

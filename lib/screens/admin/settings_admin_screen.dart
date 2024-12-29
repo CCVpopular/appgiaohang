@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../providers/auth_provider.dart';
+import '../../../providers/auth_provider.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   const SettingsAdminScreen({super.key});

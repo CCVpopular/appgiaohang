@@ -6,6 +6,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../providers/auth_provider.dart';
+
 class AddAddressPage extends StatefulWidget {
   const AddAddressPage({super.key});
 
@@ -108,11 +110,16 @@ class _AddAddressPageState extends State<AddAddressPage> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
+      final userId = await AuthProvider.getUserId();
+      if (userId == null) {
+        throw Exception('User not logged in');
+      }
+
       final response = await http.post(
         Uri.parse('${Config.baseurl}/addresses'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          'userId': 1, // Replace with actual user ID from your auth system
+          'userId': userId,
           'address': _addressController.text,
           'latitude': _currentMapPosition?.latitude,
           'longitude': _currentMapPosition?.longitude,

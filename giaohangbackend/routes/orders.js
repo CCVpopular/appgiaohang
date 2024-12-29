@@ -7,19 +7,48 @@ router.post('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
+    
+    console.log('Received order data:', req.body); // Debug log
 
-    const { userId, address, latitude, longitude, items, totalAmount, paymentMethod, note } = req.body;
+    const { 
+      userId, 
+      address, 
+      latitude, 
+      longitude,
+      store_address,
+      store_latitude,
+      store_longitude,
+      items, 
+      totalAmount, 
+      paymentMethod, 
+      note 
+    } = req.body;
 
-    // Create order with coordinates
+    // Validate required fields
+    if (!userId || !address || !items || !totalAmount || !paymentMethod) {
+      throw new Error('Missing required fields');
+    }
+
+    // Create order with all coordinates
     const [orderResult] = await connection.query(
-      'INSERT INTO orders (user_id, address, latitude, longitude, total_amount, payment_method, note) VALUES (?, ?, ?, ?, ?, ?, ?)',
-      [userId, address, latitude, longitude, totalAmount, paymentMethod, note]
+      `INSERT INTO orders (
+        user_id, address, latitude, longitude,
+        store_address, store_latitude, store_longitude,
+        total_amount, payment_method, note
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+        userId, address, latitude || null, longitude || null,
+        store_address, store_latitude || null, store_longitude || null,
+        totalAmount, paymentMethod, note || null
+      ]
     );
 
     const orderId = orderResult.insertId;
+    console.log('Created order with ID:', orderId); // Debug log
 
     // Create order items
     for (const item of items) {
+      console.log('Inserting order item:', item); // Debug log
       await connection.query(
         'INSERT INTO order_items (order_id, food_id, quantity, price, store_id) VALUES (?, ?, ?, ?, ?)',
         [orderId, item.foodId, item.quantity, item.price, item.storeId]
@@ -33,6 +62,7 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
+    console.error('Error creating order:', error); // Debug log
     await connection.rollback();
     res.status(500).json({ error: error.message });
   } finally {
@@ -81,9 +111,7 @@ router.get('/confirmed', async (req, res) => {
             'food_id', f.id,
             'food_name', f.name,
             'store_id', fs.id,
-            'store_name', fs.name,
-            'store_address', fs.address,
-            'store_phone', fs.phone_number
+            'store_name', fs.name
           )
         ) as items
       FROM orders o
@@ -215,7 +243,7 @@ router.post('/:orderId/accept', async (req, res) => {
 
     // First check if shipper exists and has correct role
     const [shipperCheck] = await connection.query(
-      'SELECT id, role, status FROM users WHERE id = ?',
+      'SELECT id, role FROM users WHERE id = ?',
       [shipperId]
     );
 

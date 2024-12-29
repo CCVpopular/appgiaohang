@@ -30,4 +30,9 @@ class SharedPrefs {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString(selectedAddressKey);
   }
+
+  static Future<void> clearAllData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // This will remove all data stored in SharedPreferences
+  }
 }

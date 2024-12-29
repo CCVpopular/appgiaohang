@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'store_orders_screen.dart';
 
 class StoreDetailPage extends StatelessWidget {
   final Map<String, dynamic> store;
@@ -57,7 +58,7 @@ class StoreDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            if (store['status'] == 'approved')
+            if (store['status'] == 'approved') ...[
               Card(
                 child: ListTile(
                   leading: const Icon(Icons.restaurant_menu),
@@ -72,6 +73,24 @@ class StoreDetailPage extends StatelessWidget {
                   },
                 ),
               ),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.shopping_bag),
+                  title: const Text('View Orders'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StoreOrdersScreen(
+                          storeId: store['id'],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

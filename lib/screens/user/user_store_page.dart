@@ -121,40 +121,6 @@ class _UserStorePageState extends State<UserStorePage> {
                   );
                 },
               ),
-              if (store['status'] == 'approved')
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StoreOrdersScreen(
-                                storeId: store['id'],
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.shopping_bag),
-                        label: const Text('View Orders'),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/food-management',
-                            arguments: store['id'],
-                          );
-                        },
-                        icon: const Icon(Icons.restaurant_menu),
-                        label: const Text('Manage Foods'),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         );

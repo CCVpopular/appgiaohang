@@ -8,6 +8,17 @@ router.post('/', async (req, res) => {
   try {
     const { userId, address, latitude, longitude } = req.body;
     
+    // Validate userId
+    if (!userId) {
+      return res.status(400).json({ error: 'User ID is required' });
+    }
+
+    // Verify user exists
+    const [users] = await pool.query('SELECT id FROM users WHERE id = ?', [userId]);
+    if (users.length === 0) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    
     // Check if exact address already exists for this user
     const [existing] = await pool.query(
       'SELECT id FROM user_addresses WHERE user_id = ? AND address = ?',
