@@ -8,7 +8,7 @@ import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
-
+import chatRoutes from './routes/chat.js'
 
 //Cau hinh ket noi database
 const dbConfig = {
