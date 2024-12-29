@@ -25,6 +25,7 @@ import 'screens/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
 import 'screens/user/address_list_page.dart';
 import 'screens/user/store_orders_screen.dart';
+import 'screens/user/store_address_map_page.dart';
 import 'package:provider/provider.dart';
 
 import 'theme/themes.dart';
@@ -43,12 +44,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);  // Get the theme mode from provider
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      themeMode: themeProvider.themeMode,  // Set themeMode to Light/Dark based on the provider
-      theme: lightTheme,  // Light theme configuration
-      darkTheme: darkTheme,  // Dark theme configuration
+      themeMode: themeProvider.themeMode,
+      theme: lightTheme,
+      darkTheme: darkTheme,
       home: FutureBuilder<bool>(
         future: AuthProvider.isLoggedIn(),
         builder: (context, snapshot) {
@@ -133,10 +134,8 @@ class MainApp extends StatelessWidget {
           final storeId = ModalRoute.of(context)!.settings.arguments as int;
           return StoreOrdersScreen(storeId: storeId);
         },
+        '/store-address-map': (context) => const StoreAddressMapPage(),
       },
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      // ),
     );
   }
 }
