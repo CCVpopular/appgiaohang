@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../components/app_bar/custom_app_bar.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -42,44 +44,45 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Danh sách cửa hàng',
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 20),
-          if (isLoading)
-            const Center(child: CircularProgressIndicator())
-          else if (stores.isEmpty)
-            const Center(child: Text('Không có cửa hàng nào'))
-          else
-            Expanded(
-              child: ListView.builder(
-                itemCount: stores.length,
-                itemBuilder: (context, index) {
-                  final store = stores[index];
-                  return Card(
-                    child: ListTile(
-                      title: Text(store['name']),
-                      subtitle: Text(store['address']),
-                      trailing: const Icon(Icons.storefront),
-                      onTap: () {
-                        Navigator.pushNamed(
-                          context,
-                          '/food-store',
-                          arguments: store,
-                        );
-                      },
-                    ),
-                  );
-                },
+    return Scaffold(
+      appBar:const CustomAppBar(
+        title: 'Danh sách cửa hàng', // Thay "Danh sách cửa hàng" vào đây
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20), // Thêm khoảng cách nếu cần
+            if (isLoading)
+              const Center(child: CircularProgressIndicator())
+            else if (stores.isEmpty)
+              const Center(child: Text('Không có cửa hàng nào'))
+            else
+              Expanded(
+                child: ListView.builder(
+                  itemCount: stores.length,
+                  itemBuilder: (context, index) {
+                    final store = stores[index];
+                    return Card(
+                      child: ListTile(
+                        title: Text(store['name']),
+                        subtitle: Text(store['address']),
+                        trailing: const Icon(Icons.storefront),
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            '/food-store',
+                            arguments: store,
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
