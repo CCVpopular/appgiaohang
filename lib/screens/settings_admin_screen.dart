@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
+import '../providers/theme_provider.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   const SettingsAdminScreen({super.key});
@@ -40,6 +42,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView(
@@ -61,12 +64,10 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               children: [
                 SwitchListTile(
                   title: const Text('Dark Mode'),
-                  secondary: const Icon(Icons.dark_mode),
-                  value: _darkMode,
+                  subtitle: const Text('Enable or disable dark theme'),
+                  value: themeProvider.isDarkMode,
                   onChanged: (value) {
-                    setState(() {
-                      _darkMode = value;
-                    });
+                    themeProvider.toggleTheme();
                   },
                 ),
                 SwitchListTile(
