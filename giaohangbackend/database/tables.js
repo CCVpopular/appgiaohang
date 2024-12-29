@@ -1,6 +1,6 @@
 export const createTables = async (pool) => {
   try {
-    // Users table with updated status and is_active fields
+    // Users table without the status field
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -9,7 +9,6 @@ export const createTables = async (pool) => {
         full_name VARCHAR(100),
         phone_number VARCHAR(15),
         role ENUM('admin', 'user', 'shipper') DEFAULT 'user',
-        status ENUM('pending', 'approved', 'rejected') DEFAULT 'approved',
         is_active BOOLEAN DEFAULT true,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
@@ -39,6 +38,8 @@ export const createTables = async (pool) => {
         phone_number VARCHAR(15),
         status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
         is_active BOOLEAN DEFAULT true,
+        latitude DOUBLE,
+        longitude DOUBLE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (owner_id) REFERENCES users(id)
@@ -77,17 +78,21 @@ export const createTables = async (pool) => {
       CREATE TABLE IF NOT EXISTS orders (
         id INT PRIMARY KEY AUTO_INCREMENT,
         user_id INT NOT NULL,
+        shipper_id INT,
         address TEXT NOT NULL,
         latitude DOUBLE,
         longitude DOUBLE,
+        store_address TEXT NOT NULL,
+        store_latitude DOUBLE,
+        store_longitude DOUBLE,
         total_amount DECIMAL(10,2) NOT NULL,
         status ENUM('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled') DEFAULT 'pending',
-        store_status ENUM('pending', 'accepted', 'rejected') DEFAULT 'pending',
         payment_method VARCHAR(50) NOT NULL,
         note TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id)
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (shipper_id) REFERENCES users(id)
       )
     `);
 
@@ -113,6 +118,39 @@ export const createTables = async (pool) => {
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (food_id) REFERENCES foods(id),
         FOREIGN KEY (store_id) REFERENCES food_stores(id)
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS user_notifications (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        order_id INT NOT NULL,
+        shipper_id INT NOT NULL,
+        store_id INT NOT NULL,
+        message TEXT NOT NULL,
+        type ENUM('order_accepted', 'order_preparing', 'order_delivering', 'order_completed') NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id),
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (shipper_id) REFERENCES users(id),
+        FOREIGN KEY (store_id) REFERENCES food_stores(id)
+      )
+    `);
+
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS chat_messages (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        order_id INT NOT NULL,
+        sender_id INT NOT NULL,
+        receiver_id INT NOT NULL,
+        message TEXT NOT NULL,
+        is_read BOOLEAN DEFAULT false,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (order_id) REFERENCES orders(id),
+        FOREIGN KEY (sender_id) REFERENCES users(id),
+        FOREIGN KEY (receiver_id) REFERENCES users(id)
       )
     `);
     

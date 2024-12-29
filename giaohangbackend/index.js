@@ -6,7 +6,9 @@ import authRoutes from './routes/auth.js';
 import storesRoutes from './routes/stores.js';
 import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
-import ordersRoutes from './routes/orders.js';  // Add this import
+import ordersRoutes from './routes/orders.js';
+import usersRoutes from './routes/users.js';
+
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -65,14 +67,16 @@ app.use((req, res, next) => {
   next();
 });
 
-// Ensure auth routes are properly registered
+// Register routes in correct order - users route should come before auth
+app.use('/users', usersRoutes);
 app.use('/auth', authRoutes);
 app.use('/stores', storesRoutes);
 app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
-app.use('/orders', ordersRoutes);  // Add this line with other route registrations
+app.use('/orders', ordersRoutes);
+app.use('/chat', chatRoutes);
 
-// Update error handling middleware to include more details
+// Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
   console.error('Error:', {
     method: req.method,

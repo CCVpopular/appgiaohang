@@ -49,8 +49,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               onPressed: () async {
                 await AuthProvider.logout();
                 if (!mounted) return;
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacementNamed('/login');
+                Navigator.of(context).pushNamedAndRemoveUntil('/user_home', (route) => false);
               },
             ),
           ],
