@@ -14,7 +14,7 @@ router.use((req, res, next) => {
 router.get('/', async (req, res) => {
   try {
     const [users] = await pool.query(
-      'SELECT id, email, full_name, phone_number, role, status, is_active, created_at FROM users'
+      'SELECT id, email, full_name, phone_number, role, is_active, created_at FROM users'
     );
     res.json({ users });
   } catch (error) {
@@ -59,8 +59,8 @@ router.post('/', async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
     
     const [result] = await pool.query(
-      'INSERT INTO users (email, password, full_name, phone_number, role, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [email, hashedPassword, fullName, phoneNumber, role, 'approved']
+      'INSERT INTO users (email, password, full_name, phone_number, role) VALUES (?, ?, ?, ?, ?)',
+      [email, hashedPassword, fullName, phoneNumber, role]
     );
 
     res.status(201).json({ 

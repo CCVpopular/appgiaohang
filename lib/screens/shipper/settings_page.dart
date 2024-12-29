@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../utils/shared_prefs.dart';
+import '../../providers/auth_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -18,10 +18,10 @@ class SettingsPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                await SharedPrefs.clearUserId(); // Clear user data
-                Navigator.pop(context); // Close dialog
-                Navigator.pushReplacementNamed(
-                    context, '/user_home'); // Navigate to home user screen
+                await AuthProvider.logout();
+                Navigator.pop(context);
+                Navigator.pushNamedAndRemoveUntil(
+                    context, '/user_home', (route) => false);
               },
               child: const Text('Logout', style: TextStyle(color: Colors.red)),
             ),

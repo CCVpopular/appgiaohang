@@ -95,6 +95,25 @@ router.get('/pending', async (req, res) => {
   }
 });
 
+// Get single store details
+router.get('/:id', async (req, res) => {
+  try {
+    const [stores] = await pool.query(
+      'SELECT * FROM food_stores WHERE id = ?',
+      [req.params.id]
+    );
+    
+    if (stores.length === 0) {
+      return res.status(404).json({ error: 'Store not found' });
+    }
+
+    res.json(stores[0]);
+  } catch (error) {
+    console.error('Error fetching store details:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 // Update store approval status
 router.patch('/:id/approval', async (req, res) => {
   try {

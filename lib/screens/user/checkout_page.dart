@@ -189,11 +189,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
         throw Exception('User not logged in');
       }
 
+      // First item in cart
+      final firstItem = widget.cartItems.first;
+      
+      // Get store details
+      final storeResponse = await http.get(
+        Uri.parse('${Config.baseurl}/stores/${firstItem.storeId}'),
+      );
+
+      if (storeResponse.statusCode != 200) {
+        throw Exception('Failed to get store details');
+      }
+
+      final storeData = json.decode(storeResponse.body);
+      print('Store data: $storeData'); // Debug log
+
       final orderData = {
         'userId': userId,
         'address': _selectedAddress,
         'latitude': _latitude,
         'longitude': _longitude,
+        'store_address': storeData['address'],
+        'store_latitude': storeData['latitude'],
+        'store_longitude': storeData['longitude'],
         'items': widget.cartItems.map((item) => {
           'foodId': item.foodId,
           'quantity': item.quantity,
@@ -205,14 +223,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'note': _noteController.text,
       };
 
+      print('Order data being sent: $orderData'); // Debug log
+
       final response = await http.post(
         Uri.parse('${Config.baseurl}/orders'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(orderData),
       );
 
+      print('Order response: ${response.statusCode} - ${response.body}'); // Debug log
+
       if (response.statusCode != 201) {
-        throw Exception('Failed to create order');
+        throw Exception('Failed to create order: ${response.body}');
       }
 
       await CartProvider.clearCart();
