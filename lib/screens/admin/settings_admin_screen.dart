@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
-<<<<<<< HEAD:lib/screens/settings_admin_screen.dart
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
-import '../providers/theme_provider.dart';
-=======
 import '../../../providers/auth_provider.dart';
->>>>>>> 9ea2261df7c3e486ecd5c0351a2195932beaeb1e:lib/screens/admin/settings_admin_screen.dart
+import '../../providers/theme_provider.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   const SettingsAdminScreen({super.key});
