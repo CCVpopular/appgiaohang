@@ -31,10 +31,10 @@ class CustomTabBar extends StatelessWidget {
     this.borderRadius,
     this.lightBorderColor,
     this.darkBorderColor,
-    this.topBorderThickness = 4.0, // Độ dày viền trên
-    this.leftBorderThickness = 4.0, // Độ dày viền trái
-    this.rightBorderThickness = 4.0, // Độ dày viền phải
-    this.bottomBorderThickness = 8.0, // Độ dày viền dưới
+    this.topBorderThickness = 2.0, // Độ dày viền trên
+    this.leftBorderThickness = 2.0, // Độ dày viền trái
+    this.rightBorderThickness = 2.0, // Độ dày viền phải
+    this.bottomBorderThickness = 4.0, // Độ dày viền dưới
     this.height = kToolbarHeight, // Chiều cao mặc định là kToolbarHeight
     this.topPadding = 0.0, // Mặc định là 0
     Key? key,
@@ -101,7 +101,7 @@ class CustomTabBar extends StatelessWidget {
           labelColor: textColor,  // Màu chữ khi tab được chọn
           unselectedLabelColor: textColor.withOpacity(0.7),  // Màu chữ khi tab không được chọn
           indicatorColor: textColor,  // Màu chỉ báo dưới tab
-          indicatorWeight: 3.0,  // Độ dày của chỉ báo
+          indicatorWeight: 1.0,  // Độ dày của chỉ báo
         ),
       ),
     );
