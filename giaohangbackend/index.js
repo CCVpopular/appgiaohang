@@ -9,6 +9,7 @@ import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
 
+
 //Cau hinh ket noi database
 const dbConfig = {
   host: 'localhost',
@@ -73,6 +74,7 @@ app.use('/stores', storesRoutes);
 app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
+app.use('/chat', chatRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
