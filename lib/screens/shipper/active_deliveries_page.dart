@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
 import '../../providers/auth_provider.dart';
+import './delivery_navigation_page.dart';
 
 class ActiveDeliveriesPage extends StatefulWidget {
   @override
@@ -62,22 +63,44 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
           
           return Card(
             margin: const EdgeInsets.all(8),
-            child: ListTile(
-              title: Text('Order #${order['id']}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Status: ${order['status']}'),
-                  Text('Customer: ${order['customer_name']}'),
-                  Text('Phone: ${order['customer_phone']}'),
-                  Text('Address: ${order['address']}'),
-                  const SizedBox(height: 8),
-                  Text('Items:'),
-                  ...items.map((item) => Text(
-                    '- ${item['food_name']} x${item['quantity']} from ${item['store_name']}'
-                  )),
-                ],
-              ),
+            child: Column(
+              children: [
+                ListTile(
+                  title: Text('Order #${order['id']}'),
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Status: ${order['status']}'),
+                      Text('Customer: ${order['customer_name']}'),
+                      Text('Phone: ${order['customer_phone']}'),
+                      Text('Address: ${order['address']}'),
+                      const SizedBox(height: 8),
+                      Text('Items:'),
+                      ...items.map((item) => Text(
+                        '- ${item['food_name']} x${item['quantity']} from ${item['store_name']}'
+                      )),
+                    ],
+                  ),
+                ),
+                ButtonBar(
+                  children: [
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.navigation),
+                      label: const Text('Navigate'),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DeliveryNavigationPage(
+                              order: order,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         },

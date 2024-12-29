@@ -18,6 +18,8 @@ dependencies:
   intl: ^0.20.1
   shared_preferences: ^2.3.4
   provider: ^6.1.2
+  vietmap_flutter_navigation: ^3.3.1
+  flutter_svg: ^2.0.16
 
 dev_dependencies:
   flutter_test:
@@ -26,3 +28,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    # - assets/navigation_symbol/
+    - assets/store_marker.png
+    - assets/destination_marker.png
