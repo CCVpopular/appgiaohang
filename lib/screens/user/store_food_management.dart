@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
 import '../../providers/food_provider.dart';
 
 class StoreFoodManagement extends StatefulWidget {
@@ -146,7 +147,7 @@ class _StoreFoodManagementState extends State<StoreFoodManagement> {
             itemCount: foods.length,
             itemBuilder: (context, index) {
               final food = foods[index];
-              return Card(
+              return CustomCard(
                 child: ListTile(
                   title: Text(food['name'] ?? ''),
                   subtitle: Text('${food['description'] ?? ''}\nPrice: \$${food['price']}'),

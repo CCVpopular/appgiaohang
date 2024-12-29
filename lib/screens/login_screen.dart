@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../components/app_bar/custom_app_bar.dart';
+import '../components/buttons/custom_elevated_button.dart';
 import '../config/config.dart';
 import '../providers/auth_provider.dart';
 import '../utils/shared_prefs.dart';
@@ -109,9 +110,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     value?.isEmpty ?? true ? 'Please enter password' : null,
               ),
               SizedBox(height: 20),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: _login,
-                child: Text('Login'),
+                text: 'Login',
               ),
               SizedBox(height: 10),
               TextButton(
