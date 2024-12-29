@@ -67,6 +67,12 @@ class _HomePageState extends State<HomePage> {
                     final store = stores[index];
                     return CustomCard(
                       child: ListTile(
+                        leading: Image.asset(
+                            'assets/images/shop_food_image.png', // Đường dẫn đến hình ảnh tĩnh
+                            width: 50, // Chiều rộng của hình ảnh
+                            height: 50, // Chiều cao của hình ảnh
+                            fit: BoxFit.cover, // Cách hình ảnh hiển thị trong khung
+                        ),
                         title: Text(store['name']),
                         subtitle: Text(store['address']),
                         trailing: const Icon(Icons.storefront),
