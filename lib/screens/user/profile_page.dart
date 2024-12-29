@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
 import '../../config/config.dart';
 import '../../providers/auth_provider.dart';
 import 'user_settings_page.dart';
@@ -310,9 +311,9 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                ElevatedButton(
+                CustomElevatedButton(
                   onPressed: _editProfile,
-                  child: const Text('Chỉnh sửa hồ sơ'),
+                  text: 'Chỉnh sửa hồ sơ',
                 ),
               ],
             ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -86,7 +87,7 @@ class _FoodStorePageState extends State<FoodStorePage> {
                     child: Container(
                       padding: const EdgeInsets.all(2),
                       decoration: BoxDecoration(
-                        color: Colors.red,
+                        color: const Color.fromARGB(191, 244, 67, 54),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       constraints: const BoxConstraints(
@@ -112,7 +113,7 @@ class _FoodStorePageState extends State<FoodStorePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Thực đơn',
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
@@ -127,8 +128,14 @@ class _FoodStorePageState extends State<FoodStorePage> {
                     itemCount: foods.length,
                     itemBuilder: (context, index) {
                       final food = foods[index];
-                      return Card(
+                      return CustomCard(
                         child: ListTile(
+                          leading: Image.asset(
+                            'assets/images/food_image.png', // Đường dẫn đến hình ảnh tĩnh
+                            width: 50, // Chiều rộng của hình ảnh
+                            height: 50, // Chiều cao của hình ảnh
+                            fit: BoxFit.cover, // Cách hình ảnh hiển thị trong khung
+                          ),
                           title: Text(food['name']),
                           subtitle: Text(food['description'] ?? ''),
                           trailing: Row(

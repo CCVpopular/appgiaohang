@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -64,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                   itemCount: stores.length,
                   itemBuilder: (context, index) {
                     final store = stores[index];
-                    return Card(
+                    return CustomCard(
                       child: ListTile(
                         title: Text(store['name']),
                         subtitle: Text(store['address']),
