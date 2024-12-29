@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../components/card/custom_card.dart';
+
 class StoreApprovalScreen extends StatefulWidget {
   const StoreApprovalScreen({super.key});
 
@@ -75,7 +77,7 @@ class _StoreApprovalScreenState extends State<StoreApprovalScreen> {
       itemCount: pendingStores.length,
       itemBuilder: (context, index) {
         final store = pendingStores[index];
-        return Card(
+        return CustomCard(
           margin: const EdgeInsets.all(8.0),
           child: ListTile(
             title: Text(store['name']),

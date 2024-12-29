@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../components/card/custom_card.dart';
 import '../../components/switch_list_tile/custom_switch_list_tile.dart';
 import '../../providers/auth_provider.dart';
 import '../../../providers/auth_provider.dart';
@@ -49,7 +50,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
       padding: const EdgeInsets.all(16.0),
       child: ListView(
         children: [
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Admin Profile'),
@@ -61,7 +62,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
+          CustomCard(
             child: Column(
               children: [
                 CustomSwitchListTile(
@@ -86,7 +87,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.security),
               title: const Text('Security Settings'),
@@ -97,7 +98,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               },
             ),
           ),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.switch_account),
               title: const Text('Switch to User View'),
@@ -106,7 +107,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               },
             ),
           ),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout'),

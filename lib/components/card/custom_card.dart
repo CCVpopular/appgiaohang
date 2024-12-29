@@ -9,9 +9,11 @@ class CustomCard extends StatelessWidget {
   final EdgeInsets? borderWidth; // Độ dày viền từng mặt (trên, dưới, trái, phải)
   final BorderRadius? borderRadius; // Bo góc
   final EdgeInsetsGeometry? padding; // Padding bên trong thẻ
-  final EdgeInsetsGeometry? margin; // Margin bên ngoài thẻ
+  final EdgeInsets? margin; // Margin bên ngoài thẻ
+  final double? marginTop; // Khoảng cách phía trên riêng biệt
   final BoxShadow? lightShadow; // Bóng của thẻ cho chế độ sáng
   final BoxShadow? darkShadow; // Bóng của thẻ cho chế độ tối
+  final double? elevation; // Độ cao bóng đổ
 
   const CustomCard({
     required this.child,
@@ -23,8 +25,10 @@ class CustomCard extends StatelessWidget {
     this.borderRadius,
     this.padding,
     this.margin,
+    this.marginTop,
     this.lightShadow,
     this.darkShadow,
+    this.elevation,
     Key? key,
   }) : super(key: key);
 
@@ -39,13 +43,8 @@ class CustomCard extends StatelessWidget {
 
     // Màu viền
     final borderColor = brightness == Brightness.dark
-        ? darkBorderColor ?? const Color.fromARGB(255, 0, 0, 0)
+        ? darkBorderColor ?? const Color.fromARGB(255, 211, 155, 103).withOpacity(0.7)
         : lightBorderColor ?? const Color.fromARGB(255, 0, 0, 0);
-
-    // Bóng của thẻ
-    final boxShadow = brightness == Brightness.dark
-        ? darkShadow ?? const BoxShadow(color: Colors.black38, blurRadius: 6.0)
-        : lightShadow ?? const BoxShadow(color: Colors.grey, blurRadius: 6.0);
 
     // Viền với độ dày tùy chỉnh từng mặt
     final border = Border(
@@ -67,14 +66,18 @@ class CustomCard extends StatelessWidget {
       ),
     );
 
+    // Xử lý margin với marginTop
+    final EdgeInsets effectiveMargin = (margin ?? EdgeInsets.zero).copyWith(
+      top: marginTop ?? (margin?.top ?? 10),
+    );
+
     return Container(
-      margin: margin ?? const EdgeInsets.all(0),
+      margin: effectiveMargin,
       padding: padding ?? const EdgeInsets.all(5),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: borderRadius ?? BorderRadius.circular(12.0),
         border: border,
-        boxShadow: null,
       ),
       child: child,
     );

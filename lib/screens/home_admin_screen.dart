@@ -3,7 +3,7 @@ import '../components/app_bar/custom_app_bar.dart';
 import '../components/bottom_navigation_bar/custom_bottom_navigation_bar.dart';
 import 'admin/shipper_management_screen.dart';
 import 'admin/settings_admin_screen.dart';
-import 'store_approval_screen.dart';
+import 'admin/store_approval_screen.dart';
 import 'admin/user_management_screen.dart';
 
 class HomeAdminScreen extends StatefulWidget {
