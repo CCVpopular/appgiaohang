@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../providers/food_provider.dart';
 
 class StoreFoodManagement extends StatefulWidget {
@@ -107,8 +108,8 @@ class _StoreFoodManagementState extends State<StoreFoodManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Food Management'),
+      appBar:const CustomAppBar(
+        title: 'Food Management',
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {

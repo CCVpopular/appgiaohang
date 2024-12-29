@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
 import 'store_orders_screen.dart';
 
 class StoreDetailPage extends StatelessWidget {
@@ -9,8 +10,8 @@ class StoreDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Store Details'),
+      appBar:const CustomAppBar(
+        title: 'Store Details',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

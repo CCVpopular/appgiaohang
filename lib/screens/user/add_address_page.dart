@@ -6,6 +6,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../providers/auth_provider.dart';
 
 class AddAddressPage extends StatefulWidget {
@@ -152,8 +153,8 @@ class _AddAddressPageState extends State<AddAddressPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thêm Địa Chỉ Mới'),
+      appBar:const CustomAppBar(
+        title:'Thêm Địa Chỉ Mới',
       ),
       body: Form(
         key: _formKey,

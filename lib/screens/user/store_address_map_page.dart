@@ -3,6 +3,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../components/app_bar/custom_app_bar.dart';
+
 class StoreAddressMapPage extends StatefulWidget {
   const StoreAddressMapPage({super.key});
 
@@ -146,8 +148,8 @@ class _StoreAddressMapPageState extends State<StoreAddressMapPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Select Store Location'),
+      appBar: CustomAppBar(
+        title: 'Select Store Location',
         actions: [
           IconButton(
             icon: const Icon(Icons.check),

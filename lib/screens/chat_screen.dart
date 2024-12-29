@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../components/app_bar/custom_app_bar.dart';
 import '../config/config.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -104,8 +105,8 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.otherUserName),
+      appBar: CustomAppBar(
+        title: widget.otherUserName,
       ),
       body: Column(
         children: [
