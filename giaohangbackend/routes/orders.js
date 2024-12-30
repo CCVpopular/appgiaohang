@@ -232,11 +232,6 @@ router.put('/:orderId/review', async (req, res) => {
 router.post('/:orderId/accept', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    console.log('Accepting order:', {
-      orderId: req.params.orderId,
-      shipperId: req.body.shipperId,
-    });
-
     await connection.beginTransaction();
     const { shipperId } = req.body;
     const orderId = req.params.orderId;
@@ -288,47 +283,6 @@ router.post('/:orderId/accept', async (req, res) => {
       [shipperId, orderId]
     );
 
-    // Get order details for notification
-    const [orderDetails] = await connection.query(
-      `SELECT 
-        o.*,
-        u.id as customer_id,
-        u.full_name as customer_name,
-        (SELECT fs.id FROM order_items oi2 
-         JOIN food_stores fs ON oi2.store_id = fs.id 
-         WHERE oi2.order_id = o.id LIMIT 1) as store_id,
-        (SELECT fs.name FROM order_items oi2 
-         JOIN food_stores fs ON oi2.store_id = fs.id 
-         WHERE oi2.order_id = o.id LIMIT 1) as store_name,
-        s.full_name as shipper_name
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      JOIN users s ON s.id = ?
-      WHERE o.id = ?
-      LIMIT 1`,
-      [shipperId, orderId]
-    );
-
-    console.log('Order details:', orderDetails);
-
-    if (orderDetails.length > 0) {
-      const details = orderDetails[0];
-      
-      await connection.query(
-        `INSERT INTO user_notifications 
-        (user_id, order_id, shipper_id, store_id, message, type) 
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-          details.customer_id,
-          orderId,
-          shipperId,
-          details.store_id,
-          `Your order #${orderId} has been accepted by ${details.shipper_name} and is being prepared at ${details.store_name}`,
-          'order_accepted'
-        ]
-      );
-    }
-
     await connection.commit();
     res.json({ 
       success: true,
@@ -337,7 +291,60 @@ router.post('/:orderId/accept', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error accepting order:', error);
+    await connection.rollback();
+    res.status(400).json({ 
+      success: false,
+      error: error.message 
+    });
+  } finally {
+    connection.release();
+  }
+});
+
+// Start delivery route
+router.put('/:orderId/start-delivery', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const orderId = req.params.orderId;
+    const { shipperId } = req.body;
+
+    // Validate request
+    if (!shipperId) {
+      throw new Error('Shipper ID is required');
+    }
+
+    // Check if order exists and belongs to this shipper
+    const [orderCheck] = await connection.query(
+      'SELECT id, status, shipper_id FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    if (!orderCheck.length) {
+      throw new Error('Order not found');
+    }
+
+    if (orderCheck[0].shipper_id != shipperId) {
+      throw new Error('Unauthorized: Order belongs to different shipper');
+    }
+
+    if (orderCheck[0].status !== 'preparing') {
+      throw new Error(`Cannot start delivery. Current status: ${orderCheck[0].status}`);
+    }
+
+    // Update order status to delivering
+    await connection.query(
+      'UPDATE orders SET status = "delivering" WHERE id = ? AND shipper_id = ?',
+      [orderId, shipperId]
+    );
+
+    await connection.commit();
+    res.json({ 
+      success: true,
+      message: 'Delivery started successfully'
+    });
+
+  } catch (error) {
     await connection.rollback();
     res.status(400).json({ 
       success: false,

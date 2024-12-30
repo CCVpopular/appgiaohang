@@ -42,6 +42,37 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
     }
   }
 
+  Future<void> _startDelivery(Map<String, dynamic> order) async {
+    try {
+      final shipperId = await AuthProvider.getUserId();
+      if (shipperId == null) throw Exception('Not authenticated');
+
+      final response = await http.put(
+        Uri.parse('${Config.baseurl}/orders/${order['id']}/start-delivery'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({
+          'shipperId': shipperId
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Delivery started successfully')),
+        );
+        _loadActiveOrders();
+      } else {
+        final error = json.decode(response.body)['error'];
+        throw Exception(error ?? 'Failed to start delivery');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -84,6 +115,15 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                 ),
                 ButtonBar(
                   children: [
+                    if (order['status'] == 'preparing')
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.delivery_dining),
+                        label: const Text('Start Delivery'),
+                        onPressed: () => _startDelivery(order),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color.fromARGB(255, 168, 255, 197),
+                        ),
+                      ),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.navigation),
                       label: const Text('Navigate'),
