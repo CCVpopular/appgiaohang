@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import '../utils/shared_prefs.dart';
 
 class AuthProvider {
   static Future<bool> isLoggedIn() async {
@@ -7,8 +8,7 @@ class AuthProvider {
   }
 
   static Future<void> logout() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.remove('userId');
+    await SharedPrefs.clearAllData();
   }
 
   static Future<int?> getUserId() async {

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
 import '../../config/config.dart';
 
 class ShipperRegistrationScreen extends StatefulWidget {
@@ -76,8 +78,8 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Shipper Registration'),
+      appBar:const CustomAppBar(
+        title: 'Shipper Registration',
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -117,9 +119,9 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
                 validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: _registerShipper,
-                child: const Text('Submit Registration'),
+                text: 'Submit Registration',
               ),
             ],
           ),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/switch_list_tile/custom_switch_list_tile.dart';
 import '../../providers/auth_provider.dart';
 import '../../providers/theme_provider.dart';
 
@@ -49,8 +51,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               onPressed: () async {
                 await AuthProvider.logout();
                 if (!mounted) return;
-                Navigator.of(context).pop();
-                Navigator.of(context).pushReplacementNamed('/login');
+                Navigator.of(context).pushNamedAndRemoveUntil('/user_home', (route) => false);
               },
             ),
           ],
@@ -64,8 +65,8 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Settings'),
+      appBar: CustomAppBar(
+        title: 'Settings',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -73,9 +74,9 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
       ),
       body: ListView(
         children: [
-          SwitchListTile(
-            title: const Text('Push Notifications'),
-            subtitle: const Text('Enable or disable notifications'),
+          CustomSwitchListTile(
+            title: 'Push Notifications',
+            subtitle: 'Enable or disable notifications',
             value: notificationsEnabled,
             onChanged: (bool value) {
               setState(() {
@@ -84,9 +85,9 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             },
           ),
           const Divider(),
-          SwitchListTile(
-            title: const Text('Dark Mode'),
-            subtitle: const Text('Enable or disable dark theme'),
+          CustomSwitchListTile(
+            title: 'Dark Mode',
+            subtitle: 'Enable or disable dark theme',
             value: themeProvider.isDarkMode,
             onChanged: (value) {
               themeProvider.toggleTheme();

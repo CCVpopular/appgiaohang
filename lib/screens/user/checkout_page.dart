@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
+import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -69,8 +72,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Thanh toán'),
+      appBar:const CustomAppBar(
+        title: 'Thanh toán',
       ),
       body: _isLoading 
         ? const Center(child: CircularProgressIndicator())
@@ -84,7 +87,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Card(
+            CustomCard(
               child: ListTile(
                 title: Text(_selectedAddress.isEmpty 
                   ? 'Chọn địa chỉ giao hàng' 
@@ -164,12 +167,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
       ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
-        child: ElevatedButton(
+        child: CustomElevatedButton(
           onPressed: _placeOrder,
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-          child: const Text('Đặt hàng'),
+          text: 'Đặt hàng',
         ),
       ),
     );
@@ -189,11 +189,29 @@ class _CheckoutPageState extends State<CheckoutPage> {
         throw Exception('User not logged in');
       }
 
+      // First item in cart
+      final firstItem = widget.cartItems.first;
+      
+      // Get store details
+      final storeResponse = await http.get(
+        Uri.parse('${Config.baseurl}/stores/${firstItem.storeId}'),
+      );
+
+      if (storeResponse.statusCode != 200) {
+        throw Exception('Failed to get store details');
+      }
+
+      final storeData = json.decode(storeResponse.body);
+      print('Store data: $storeData'); // Debug log
+
       final orderData = {
         'userId': userId,
         'address': _selectedAddress,
         'latitude': _latitude,
         'longitude': _longitude,
+        'store_address': storeData['address'],
+        'store_latitude': storeData['latitude'],
+        'store_longitude': storeData['longitude'],
         'items': widget.cartItems.map((item) => {
           'foodId': item.foodId,
           'quantity': item.quantity,
@@ -205,14 +223,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'note': _noteController.text,
       };
 
+      print('Order data being sent: $orderData'); // Debug log
+
       final response = await http.post(
         Uri.parse('${Config.baseurl}/orders'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode(orderData),
       );
 
+      print('Order response: ${response.statusCode} - ${response.body}'); // Debug log
+
       if (response.statusCode != 201) {
-        throw Exception('Failed to create order');
+        throw Exception('Failed to create order: ${response.body}');
       }
 
       await CartProvider.clearCart();

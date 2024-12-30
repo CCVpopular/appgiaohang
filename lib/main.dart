@@ -18,10 +18,10 @@ import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
 import 'screens/user/store_registration_page.dart';
 import 'screens/user/user_settings_page.dart';
-import 'screens/settings_admin_screen.dart';
+import 'screens/admin/settings_admin_screen.dart';
 import 'providers/auth_provider.dart';
 import 'screens/user/user_store_page.dart';
-import 'screens/store_approval_screen.dart';
+import 'screens/admin/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
 import 'screens/user/address_list_page.dart';
 import 'screens/user/store_orders_screen.dart';
@@ -139,4 +139,3 @@ class MainApp extends StatelessWidget {
     );
   }
 }
-

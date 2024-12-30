@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
+import 'store_orders_screen.dart';
 
 class StoreDetailPage extends StatelessWidget {
   final Map<String, dynamic> store;
@@ -8,14 +11,14 @@ class StoreDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Store Details'),
+      appBar:const CustomAppBar(
+        title: 'Store Details',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            Card(
+            CustomCard(
               child: InkWell(
                 onTap: () {
                   Navigator.pushNamed(
@@ -57,8 +60,8 @@ class StoreDetailPage extends StatelessWidget {
                 ),
               ),
             ),
-            if (store['status'] == 'approved')
-              Card(
+            if (store['status'] == 'approved') ...[
+              CustomCard(
                 child: ListTile(
                   leading: const Icon(Icons.restaurant_menu),
                   title: const Text('Manage Food Items'),
@@ -72,6 +75,24 @@ class StoreDetailPage extends StatelessWidget {
                   },
                 ),
               ),
+              CustomCard(
+                child: ListTile(
+                  leading: const Icon(Icons.shopping_bag),
+                  title: const Text('View Orders'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => StoreOrdersScreen(
+                          storeId: store['id'],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ],
         ),
       ),

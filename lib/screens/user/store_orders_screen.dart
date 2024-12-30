@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
 import '../../config/config.dart';
 
 class StoreOrdersScreen extends StatefulWidget {
@@ -73,7 +74,7 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Store Orders')),
+      appBar:const CustomAppBar(title:'Store Orders'),
       body: _isLoading
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(

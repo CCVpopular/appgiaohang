@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/tab_bar/custom_tab_bar.dart';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
 import '../chat_screen.dart';
@@ -229,7 +230,9 @@ class _OrdersPageState extends State<OrdersPage> {
       length: 2,
       child: Column(
         children: [
-          const TabBar(
+          const CustomTabBar(
+          height: 100.0,  // Chiều cao tùy chỉnh cho TabBar
+          topPadding: 40.0,  // Padding phía trên
             tabs: [
               Tab(text: 'Đơn hàng hiện tại'),
               Tab(text: 'Lịch sử đơn hàng'),

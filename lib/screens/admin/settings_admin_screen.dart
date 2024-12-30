@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../components/card/custom_card.dart';
+import '../../components/switch_list_tile/custom_switch_list_tile.dart';
 import '../../providers/auth_provider.dart';
+import '../../../providers/auth_provider.dart';
+import '../../providers/theme_provider.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   const SettingsAdminScreen({super.key});
@@ -40,11 +45,12 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView(
         children: [
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Admin Profile'),
@@ -56,21 +62,19 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
+          CustomCard(
             child: Column(
               children: [
-                SwitchListTile(
-                  title: const Text('Dark Mode'),
-                  secondary: const Icon(Icons.dark_mode),
-                  value: _darkMode,
+                CustomSwitchListTile(
+                  title: 'Dark Mode',
+                  subtitle: 'Enable or disable dark theme',
+                  value: themeProvider.isDarkMode,
                   onChanged: (value) {
-                    setState(() {
-                      _darkMode = value;
-                    });
+                    themeProvider.toggleTheme();
                   },
                 ),
-                SwitchListTile(
-                  title: const Text('Notifications'),
+                CustomSwitchListTile(
+                  title: 'Notifications',
                   secondary: const Icon(Icons.notifications),
                   value: _notifications,
                   onChanged: (value) {
@@ -83,7 +87,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.security),
               title: const Text('Security Settings'),
@@ -94,7 +98,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               },
             ),
           ),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.switch_account),
               title: const Text('Switch to User View'),
@@ -103,7 +107,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
               },
             ),
           ),
-          Card(
+          CustomCard(
             child: ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
               title: const Text('Logout'),

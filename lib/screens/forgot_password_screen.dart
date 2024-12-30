@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../components/app_bar/custom_app_bar.dart';
+import '../components/buttons/custom_elevated_button.dart';
+
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
 
@@ -83,7 +86,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Forgot Password')),
+      appBar:const CustomAppBar(title: 'Forgot Password'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -117,7 +120,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               if (_isLoading)
                 const CircularProgressIndicator()
               else
-                ElevatedButton(
+                CustomElevatedButton(
                   onPressed: () {
                     if (_formKey.currentState!.validate()) {
                       if (!_otpSent) {
@@ -127,7 +130,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       }
                     }
                   },
-                  child: Text(_otpSent ? 'Reset Password' : 'Send OTP'),
+                  text: _otpSent ? 'Reset Password' : 'Send OTP',
                 ),
             ],
           ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
 import '../../providers/store_provider.dart';
 import 'store_orders_screen.dart';
 
@@ -49,8 +51,8 @@ class _UserStorePageState extends State<UserStorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('My Stores'),
+      appBar:const CustomAppBar(
+        title: 'My Stores',
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -93,7 +95,7 @@ class _UserStorePageState extends State<UserStorePage> {
       padding: const EdgeInsets.all(8),
       itemBuilder: (context, index) {
         final store = _stores[index];
-        return Card(
+        return CustomCard(
           elevation: 2,
           margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
           child: Column(
@@ -121,40 +123,6 @@ class _UserStorePageState extends State<UserStorePage> {
                   );
                 },
               ),
-              if (store['status'] == 'approved')
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 8.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => StoreOrdersScreen(
-                                storeId: store['id'],
-                              ),
-                            ),
-                          );
-                        },
-                        icon: const Icon(Icons.shopping_bag),
-                        label: const Text('View Orders'),
-                      ),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/food-management',
-                            arguments: store['id'],
-                          );
-                        },
-                        icon: const Icon(Icons.restaurant_menu),
-                        label: const Text('Manage Foods'),
-                      ),
-                    ],
-                  ),
-                ),
             ],
           ),
         );

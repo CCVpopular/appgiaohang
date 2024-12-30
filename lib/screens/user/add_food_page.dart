@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
 import '../../providers/food_provider.dart';
 
 class AddFoodPage extends StatefulWidget {
@@ -40,7 +42,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add New Food Item')),
+      appBar:const CustomAppBar(title: 'Add New Food Item'),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(
@@ -69,9 +71,9 @@ class _AddFoodPageState extends State<AddFoodPage> {
                 },
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: _submitForm,
-                child: const Text('Add Food Item'),
+                text: 'Add Food Item',
               ),
             ],
           ),
