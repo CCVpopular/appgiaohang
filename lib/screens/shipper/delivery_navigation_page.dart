@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:async';
 
 class DeliveryNavigationPage extends StatefulWidget {
   final Map<String, dynamic> order;
@@ -22,120 +23,154 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   Widget recenterButton = const SizedBox.shrink();
   RouteProgressEvent? routeProgressEvent;
 
-  bool _isOffRoute = false;
-  double _offRouteThreshold = 50.0; // meters
+  // Add new state variables
+  static const double STORE_PROXIMITY_THRESHOLD = 100; // meters
+  bool _isNavigatingToStore = true;
+  LatLng? _storeLatLng;
+  LatLng? _customerLatLng;
+  Timer? _locationCheckTimer;
 
   @override
   void initState() {
     super.initState();
     initialize();
+    _checkLocationPermission().then((_) {
+      _initializeCoordinates();
+    });
   }
 
   Future<void> initialize() async {
     if (!mounted) return;
-    
-    // Đơn giản hóa các options ban đầu
+
     _navigationOption = MapOptions(
       apiKey: '6e0f9ec74dcf745f6a0a071f50c2479030322f17f879d547',
       mapStyle: "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=6e0f9ec74dcf745f6a0a071f50c2479030322f17f879d547",
-      simulateRoute: false,
+      simulateRoute: false, 
       enableRefresh: true,
       isOptimized: true,
     );
+  }
 
-    // Kiểm tra quyền và bắt đầu navigation ngay lập tức
-    final permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      await Geolocator.requestPermission();
+  Future<void> _checkLocationPermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error('Location services are disabled.');
     }
 
-    if (permission == LocationPermission.whileInUse || 
-        permission == LocationPermission.always) {
-      final position = await Geolocator.getCurrentPosition();
-      _buildRouteWithWaypoints(LatLng(position.latitude, position.longitude));
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return Future.error('Location permissions are denied');
+      }
+    }
+    
+    if (permission == LocationPermission.deniedForever) {
+      return Future.error('Location permissions are permanently denied');
     }
   }
 
-  Future<void> _addMarkers() async {
-    final storeLatLng = LatLng(
+  Future<void> _initializeCoordinates() async {
+    _storeLatLng = LatLng(
       double.parse(widget.order['store_latitude'].toString()),
       double.parse(widget.order['store_longitude'].toString())
     );
     
-    final destinationLatLng = LatLng(
+    _customerLatLng = LatLng(
       double.parse(widget.order['latitude'].toString()),
       double.parse(widget.order['longitude'].toString())
     );
 
-    // Add store marker with red icon
+    // Start location monitoring
+    _startLocationMonitoring();
+  }
+
+  void _startLocationMonitoring() {
+    _locationCheckTimer?.cancel();
+    _locationCheckTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
+      if (!_isNavigatingToStore) return; // Only check while navigating to store
+      
+      Position currentPosition = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high
+      );
+      
+      double distanceToStore = Geolocator.distanceBetween(
+        currentPosition.latitude,
+        currentPosition.longitude,
+        _storeLatLng!.latitude,
+        _storeLatLng!.longitude
+      );
+
+      if (distanceToStore <= STORE_PROXIMITY_THRESHOLD) {
+        _isNavigatingToStore = false;
+        _showCustomerRoute(LatLng(currentPosition.latitude, currentPosition.longitude));
+      }
+    });
+  }
+
+  Future<void> _addMarkers(LatLng storeLatLng, LatLng customerLatLng) async {
     await _navigationController?.addImageMarkers([
       NavigationMarker(
-        imagePath: 'assets/store_marker.png', // Add this image to assets
+        imagePath: 'assets/store_marker.png',
         latLng: storeLatLng,
         width: 48,
         height: 48,
       ),
       NavigationMarker(
-        imagePath: 'assets/destination_marker.png', // Add this image to assets 
-        latLng: destinationLatLng,
+        imagePath: 'assets/customer_marker.png',
+        latLng: customerLatLng, 
         width: 48,
         height: 48,
       ),
     ]);
   }
 
-  // Đơn giản hóa hàm build route
-  void _buildRouteWithWaypoints(LatLng currentLocation) {
-    final deliveryLatLng = LatLng(
-      double.parse(widget.order['latitude'].toString()),
-      double.parse(widget.order['longitude'].toString())
+  Future<void> _showStoreToCustomerRoute() async {
+    Position currentPosition = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high
+    );
+    
+    final userLatLng = LatLng(
+      currentPosition.latitude,
+      currentPosition.longitude,
     );
 
-    final storeLatLng = LatLng(
-      double.parse(widget.order['store_latitude'].toString()),
-      double.parse(widget.order['store_longitude'].toString())
-    );
+    // Initially show route to store
+    await _showStoreRoute(userLatLng);
+    
+    // Add markers for both destinations
+    if (_storeLatLng != null && _customerLatLng != null) {
+      await _addMarkers(_storeLatLng!, _customerLatLng!);
+    }
+  }
 
-    _navigationController?.buildAndStartNavigation(
-      waypoints: [currentLocation, deliveryLatLng],
+  Future<void> _showStoreRoute(LatLng userLatLng) async {
+    if (_storeLatLng == null) return;
+    
+    await _navigationController?.buildAndStartNavigation(
+      waypoints: [
+        userLatLng,
+        _storeLatLng!,
+      ],
       profile: DrivingProfile.motorcycle,
     );
   }
 
-  void _checkOffRoute(RouteProgressEvent event) {
-    if (event.distanceRemaining != null && 
-        event.distanceRemaining! > _offRouteThreshold) {
-      if (!_isOffRoute) {
-        setState(() {
-          _isOffRoute = true;
-        });
-        _recalculateRoute();
-      }
-    } else {
-      setState(() {
-        _isOffRoute = false;
-      });
-    }
-  }
-
-  Future<void> _recalculateRoute() async {
-    final position = await Geolocator.getCurrentPosition();
-    final currentLocation = LatLng(position.latitude, position.longitude);
-    _buildRouteWithWaypoints(currentLocation);
+  Future<void> _showCustomerRoute(LatLng currentLocation) async {
+    if (_customerLatLng == null) return;
+    
+    await _navigationController?.buildAndStartNavigation(
+      waypoints: [
+        currentLocation,
+        _customerLatLng!,
+      ],
+      profile: DrivingProfile.motorcycle,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bản đồ điều hướng'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: () => _recalculateRoute(),
-          )
-        ],
-      ),
       body: Stack(
         children: [
           NavigationView(
@@ -143,41 +178,19 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
             onMapCreated: (controller) {
               _navigationController = controller;
             },
+            onMapRendered: () async {
+              // Show store to customer route when map is ready 
+              await _showStoreToCustomerRoute();
+            },
             onRouteProgressChange: (RouteProgressEvent event) {
               setState(() {
                 routeProgressEvent = event;
-                _checkOffRoute(event);
               });
-            },
-            onMapRendered: () {
-              setState(() {
-                recenterButton = IconButton(
-                  icon: const Icon(Icons.my_location),
-                  onPressed: () => _navigationController?.overview(),
-                );
-              });
+              _setInstructionImage(event.currentModifier, event.currentModifierType);
             },
           ),
-          Positioned(
-            right: 16,
-            bottom: 100,
-            child: Column(
-              children: [
-                FloatingActionButton(
-                  heroTag: 'recenter', 
-                  onPressed: () => _navigationController?.recenter(),
-                  child: const Icon(Icons.my_location),
-                ),
-                const SizedBox(height: 8),
-                FloatingActionButton(
-                  heroTag: 'overview',
-                  onPressed: () => _navigationController?.overview(),
-                  child: const Icon(Icons.map_outlined),
-                ),
-              ],
-            ),
-          ),
-          // if (_isOffRoute)
+
+          // Navigation instruction banner
           Positioned(
             top: 0,
             left: 0,
@@ -187,6 +200,29 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
               instructionIcon: instructionImage,
             ),
           ),
+
+          // Control buttons
+          Positioned(
+            right: 16,
+            bottom: 100,
+            child: Column(
+              children: [
+                FloatingActionButton(
+                  heroTag: 'recenter',
+                  onPressed: () => _navigationController?.recenter(),
+                  child: const Icon(Icons.my_location),
+                ),
+                const SizedBox(height: 8),
+                FloatingActionButton(
+                  heroTag: 'overview',
+                  onPressed: () => _navigationController?.overview(),
+                  child: const Icon(Icons.map_outlined), 
+                ),
+              ],
+            ),
+          ),
+
+          // Navigation info panel
           Positioned(
             bottom: 0,
             left: 0,
@@ -202,8 +238,22 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
     );
   }
 
+  void _setInstructionImage(String? modifier, String? type) {
+    if (modifier != null && type != null) {
+      List<String> data = [
+        type.replaceAll(' ', '_'),
+        modifier.replaceAll(' ', '_')
+      ];
+      String path = 'assets/navigation_symbol/${data.join('_')}.svg';
+      setState(() {
+        instructionImage = SvgPicture.asset(path, color: Colors.white);
+      });
+    }
+  }
+
   @override
   void dispose() {
+    _locationCheckTimer?.cancel();
     _navigationController?.onDispose();
     super.dispose();
   }

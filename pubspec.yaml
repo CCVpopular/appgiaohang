@@ -20,6 +20,8 @@ dependencies:
   provider: ^6.1.2
   vietmap_flutter_navigation: ^3.3.1
   flutter_svg: ^2.0.16
+  vietmap_flutter_gl: ^3.1.1
+  flutter_polyline_points: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -31,4 +33,4 @@ flutter:
   assets:
     # - assets/navigation_symbol/
     - assets/store_marker.png
-    - assets/destination_marker.png
+    - assets/customer_marker.png
