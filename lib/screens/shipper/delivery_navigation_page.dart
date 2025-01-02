@@ -23,7 +23,6 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   Widget recenterButton = const SizedBox.shrink();
   RouteProgressEvent? routeProgressEvent;
 
-  // Add new state variables
   static const double STORE_PROXIMITY_THRESHOLD = 100; // meters
   bool _isNavigatingToStore = true;
   LatLng? _storeLatLng;
@@ -46,8 +45,10 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
       apiKey: '6e0f9ec74dcf745f6a0a071f50c2479030322f17f879d547',
       mapStyle: "https://maps.vietmap.vn/api/maps/light/styles.json?apikey=6e0f9ec74dcf745f6a0a071f50c2479030322f17f879d547",
       simulateRoute: false, 
-      enableRefresh: true,
+      enableRefresh: false,
       isOptimized: true,
+      voiceInstructionsEnabled: false,
+      allowsUTurnAtWayPoints: true,
     );
   }
 
@@ -171,6 +172,25 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Đơn hàng #${widget.order['id']}',
+              style: TextStyle(fontSize: 16),
+            ),
+            Text(
+              _isNavigatingToStore ? 'Đang đến cửa hàng' : 'Đang đến khách hàng',
+              style: TextStyle(fontSize: 14),
+            ),
+          ],
+        ),
+      ),
       body: Stack(
         children: [
           NavigationView(
@@ -179,7 +199,6 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
               _navigationController = controller;
             },
             onMapRendered: () async {
-              // Show store to customer route when map is ready 
               await _showStoreToCustomerRoute();
             },
             onRouteProgressChange: (RouteProgressEvent event) {
@@ -190,7 +209,7 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
             },
           ),
 
-          // Navigation instruction banner
+          // Navigation instruction banner - Adjusted for AppBar
           Positioned(
             top: 0,
             left: 0,

@@ -80,7 +80,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
     }
 
     if (_activeOrders.isEmpty) {
-      return const Center(child: Text('No active deliveries'));
+      return const Center(child: Text('Không có đơn hàng đang giao'));
     }
 
     return RefreshIndicator(
@@ -101,14 +101,14 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Status: ${order['status']}'),
-                      Text('Customer: ${order['customer_name']}'),
-                      Text('Phone: ${order['customer_phone']}'),
-                      Text('Address: ${order['address']}'),
+                      Text('Trạng thái: ${order['status']}'),
+                      Text('Khách hàng: ${order['customer_name']}'),
+                      Text('Số điện thoại: ${order['customer_phone']}'),
+                      Text('Địa chỉ: ${order['address']}'),
                       const SizedBox(height: 8),
-                      Text('Items:'),
+                      Text('Món ăn:'),
                       ...items.map((item) => Text(
-                        '- ${item['food_name']} x${item['quantity']} from ${item['store_name']}'
+                        '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}'
                       )),
                     ],
                   ),
@@ -118,7 +118,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                     if (order['status'] == 'preparing')
                       ElevatedButton.icon(
                         icon: const Icon(Icons.delivery_dining),
-                        label: const Text('Start Delivery'),
+                        label: const Text('Bắt đầu giao'),
                         onPressed: () => _startDelivery(order),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color.fromARGB(255, 168, 255, 197),
@@ -126,7 +126,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                       ),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.navigation),
-                      label: const Text('Navigate'),
+                      label: const Text('Chỉ đường'),
                       onPressed: () {
                         Navigator.push(
                           context,

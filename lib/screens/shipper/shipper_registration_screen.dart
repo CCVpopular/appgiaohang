@@ -77,7 +77,7 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shipper Registration'),
+        title: const Text('Đăng ký tài xế'),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -87,39 +87,39 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                decoration: const InputDecoration(labelText: 'Họ và tên'),
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập họ tên' : null,
               ),
               TextFormField(
                 controller: _emailController,
                 decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập email' : null,
               ),
               TextFormField(
                 controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                decoration: const InputDecoration(labelText: 'Số điện thoại'),
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập số điện thoại' : null,
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: const InputDecoration(labelText: 'Mật khẩu'),
                 obscureText: true,
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập mật khẩu' : null,
               ),
               TextFormField(
                 controller: _vehicleTypeController,
-                decoration: const InputDecoration(labelText: 'Vehicle Type'),
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                decoration: const InputDecoration(labelText: 'Loại xe'),
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập loại xe' : null,
               ),
               TextFormField(
                 controller: _licensePlateController,
-                decoration: const InputDecoration(labelText: 'License Plate'),
-                validator: (value) => value?.isEmpty ?? true ? 'Required' : null,
+                decoration: const InputDecoration(labelText: 'Biển số xe'),
+                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập biển số xe' : null,
               ),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: _registerShipper,
-                child: const Text('Submit Registration'),
+                child: const Text('Đăng ký'),
               ),
             ],
           ),
