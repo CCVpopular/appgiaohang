@@ -35,6 +35,9 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
           _activeOrders = json.decode(response.body);
           _isLoading = false;
         });
+      } else {
+        print('Error: ${response.body}');
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       print('Error loading active orders: $e');
@@ -52,9 +55,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: json.encode({
-          'shipperId': shipperId
-        }),
+        body: json.encode({'shipperId': shipperId}),
       );
 
       if (response.statusCode == 200) {
@@ -91,7 +92,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
           final order = _activeOrders[index];
           // Fix: items is already a List<dynamic>, no need to decode
           final items = order['items'] as List<dynamic>;
-          
+
           return Card(
             margin: const EdgeInsets.all(8),
             child: Column(
@@ -108,20 +109,20 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                       const SizedBox(height: 8),
                       Text('Món ăn:'),
                       ...items.map((item) => Text(
-                        '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}'
-                      )),
+                          '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}')),
                     ],
                   ),
                 ),
-                ButtonBar(
+                OverflowBar(
                   children: [
                     if (order['status'] == 'preparing')
                       ElevatedButton.icon(
                         icon: const Icon(Icons.delivery_dining),
-                        label: const Text('Bắt đầu giao'),
+                        label: const Text('Đã nhận hàng giao'),
                         onPressed: () => _startDelivery(order),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color.fromARGB(255, 168, 255, 197),
+                          backgroundColor:
+                              const Color.fromARGB(255, 168, 255, 197),
                         ),
                       ),
                     ElevatedButton.icon(

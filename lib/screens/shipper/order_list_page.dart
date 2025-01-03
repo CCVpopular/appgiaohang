@@ -36,6 +36,9 @@ class _OrderListPageState extends State<OrderListPage> {
           _orders = json.decode(response.body);
           _isLoading = false;
         });
+      } else {
+        print('Error: ${response.body}');
+        setState(() => _isLoading = false);
       }
     } catch (e) {
       print('Error loading orders: $e');

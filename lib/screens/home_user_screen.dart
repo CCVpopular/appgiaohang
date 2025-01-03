@@ -23,7 +23,7 @@ class _HomeUserScreenState extends State<HomeUserScreen> {
       const HomePage(),
       const OrdersPage(),
       const NotificationsPage(),
-      ProfilePage(),
+      const ProfilePage(),
     ];
   }
 

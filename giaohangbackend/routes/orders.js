@@ -8,8 +8,6 @@ router.post('/', async (req, res) => {
   try {
     await connection.beginTransaction();
     
-    console.log('Received order data:', req.body); // Debug log
-
     const { 
       userId, 
       address, 
@@ -44,11 +42,9 @@ router.post('/', async (req, res) => {
     );
 
     const orderId = orderResult.insertId;
-    console.log('Created order with ID:', orderId); // Debug log
 
     // Create order items
     for (const item of items) {
-      console.log('Inserting order item:', item); // Debug log
       await connection.query(
         'INSERT INTO order_items (order_id, food_id, quantity, price, store_id) VALUES (?, ?, ?, ?, ?)',
         [orderId, item.foodId, item.quantity, item.price, item.storeId]
@@ -62,7 +58,6 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating order:', error); // Debug log
     await connection.rollback();
     res.status(500).json({ error: error.message });
   } finally {
@@ -124,10 +119,8 @@ router.get('/confirmed', async (req, res) => {
       ORDER BY o.created_at DESC`
     );
     
-    console.log('Fetched confirmed orders:', orders);
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching confirmed orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -152,10 +145,8 @@ router.get('/pending', async (req, res) => {
       ORDER BY o.created_at DESC`
     );
     
-    console.log('Fetched pending orders:', orders); // Add logging
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching pending orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -181,12 +172,9 @@ router.get('/store/:storeId', async (req, res) => {
       ORDER BY o.created_at DESC`,
       [req.params.storeId]
     );
-
-    console.log('Store orders query result:', orders);
     
     res.json(orders || []);
   } catch (error) {
-    console.error('Error fetching store orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -242,8 +230,6 @@ router.post('/:orderId/accept', async (req, res) => {
       [shipperId]
     );
 
-    console.log('Shipper check result:', shipperCheck);
-
     if (!shipperCheck.length) {
       throw new Error('Shipper not found');
     }
@@ -254,7 +240,6 @@ router.post('/:orderId/accept', async (req, res) => {
         'UPDATE users SET role = "shipper" WHERE id = ?',
         [shipperId]
       );
-      console.log('Updated user to shipper role');
     }
 
     // Check if order exists and is available
@@ -262,8 +247,6 @@ router.post('/:orderId/accept', async (req, res) => {
       'SELECT id, status FROM orders WHERE id = ?',
       [orderId]
     );
-
-    console.log('Order check result:', orderCheck);
 
     if (!orderCheck.length) {
       throw new Error('Order not found');

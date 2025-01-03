@@ -1,8 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../config/config.dart';
-import '../providers/auth_provider.dart';
 import 'shipper/settings_page.dart';
 import 'shipper/order_list_page.dart';
 import 'shipper/active_deliveries_page.dart';
