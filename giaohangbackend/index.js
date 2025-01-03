@@ -8,7 +8,8 @@ import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
-import chatRoutes from './routes/chat.js'
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -74,7 +75,6 @@ app.use('/stores', storesRoutes);
 app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
-app.use('/chat', chatRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
@@ -103,7 +103,31 @@ app.use((req, res) => {
 
 // Start server
 const PORT = 3000;
-app.listen(PORT, () => {
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-delivery-room', (connectionString) => {
+    socket.join(connectionString);
+    console.log(connectionString);
+  });
+
+  socket.on('shipper-location', (data) => {
+    io.to(data.connectionString).emit('location-update', {
+      latitude: data.latitude,
+      longitude: data.longitude,
+    });
+    // console.log(data.connectionString);
+    // console.log(data.latitude , data.longitude);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 

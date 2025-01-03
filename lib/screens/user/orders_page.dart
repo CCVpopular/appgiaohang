@@ -4,13 +4,16 @@ import 'dart:convert';
 import '../../components/tab_bar/custom_tab_bar.dart';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
-import '../chat_screen.dart';
 
 class Order {
   final int id;
   final String status;
   final double totalAmount;
   final String address;
+  final double? latitude;  // Add these fields
+  final double? longitude; // Add these fields
+  final double? storeLat; // Add these fields 
+  final double? storeLng; // Add these fields
   final List<OrderItem> items;
   final String createdAt;
 
@@ -19,6 +22,10 @@ class Order {
     required this.status,
     required this.totalAmount,
     required this.address,
+    this.latitude,
+    this.longitude,
+    this.storeLat,
+    this.storeLng,
     required this.items,
     required this.createdAt,
   });
@@ -30,6 +37,10 @@ class Order {
       status: json['status'],
       totalAmount: double.parse(json['total_amount'].toString()),
       address: json['address'],
+      latitude: json['latitude']?.toDouble(),
+      longitude: json['longitude']?.toDouble(),
+      storeLat: json['store_latitude']?.toDouble(),
+      storeLng: json['store_longitude']?.toDouble(),
       createdAt: json['created_at'],
       items: itemsList.map((item) => OrderItem.fromJson(item)).toList(),
     );
@@ -121,61 +132,78 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   Widget _buildOrderCard(Order order) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Đơn hàng #${order.id}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-                Text(
-                  order.status.toUpperCase(),
-                  style: TextStyle(
-                    color: _getStatusColor(order.status),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-            const Divider(),
-            Text('Địa chỉ: ${order.address}'),
-            const SizedBox(height: 8),
-            Text(
-              'Tổng tiền: \$${order.totalAmount.toStringAsFixed(2)}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Ngày đặt: ${_formatDate(order.createdAt)}',
-              style: const TextStyle(color: Colors.grey),
-            ),
-            if (order.status == 'delivering' && order.items.isNotEmpty)
-              IconButton(
-                icon: const Icon(Icons.chat),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        orderId: order.id,
-                        currentUserId: 1, // Replace with actual user ID
-                        otherUserId: order.items.first.storeId,
-                        otherUserName: 'Shipper', // Replace with actual shipper name
-                      ),
+    return InkWell(
+      onTap: () {
+        Navigator.pushNamed(
+          context,
+          '/user-delivery-tracking',
+          arguments: {
+            'id': order.id,
+            'orderId': order.id,
+            'store_latitude': order.storeLat ?? 10.762622,
+            'store_longitude': order.storeLng ?? 106.660172,
+            'latitude': order.latitude ?? 10.762622,
+            'longitude': order.longitude ?? 106.660172,
+            'status': order.status, // Add this line
+          },
+        );
+      },
+      child: Card(
+        margin: const EdgeInsets.all(8.0),
+        child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Đơn hàng #${order.id}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
                     ),
-                  );
-                },
+                  ),
+                  Text(
+                    order.status.toUpperCase(),
+                    style: TextStyle(
+                      color: _getStatusColor(order.status),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-          ],
+              const Divider(),
+              Text('Địa chỉ: ${order.address}'),
+              const SizedBox(height: 8),
+              Text(
+                'Tổng tiền: \$${order.totalAmount.toStringAsFixed(2)}',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              Text(
+                'Ngày đặt: ${_formatDate(order.createdAt)}',
+                style: const TextStyle(color: Colors.grey),
+              ),
+              if (order.status == 'delivering' && order.items.isNotEmpty)
+                IconButton(
+                  icon: const Icon(Icons.chat),
+                  onPressed: () {
+                  //   Navigator.push(
+                  //     context,
+                  //     MaterialPageRoute(
+                  //       builder: (context) => ChatScreen(
+                  //         orderId: order.id,
+                  //         currentUserId: 1, // Replace with actual user ID
+                  //         otherUserId: order.items.first.storeId,
+                  //         otherUserName: 'Shipper', // Replace with actual shipper name
+                  //       ),
+                  //     ),
+                  //   );
+                  },
+                ),
+            ],
+          ),
         ),
       ),
     );

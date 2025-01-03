@@ -22,6 +22,17 @@ dependencies:
   flutter_svg: ^2.0.16
   vietmap_flutter_gl: ^3.1.1
   flutter_polyline_points: ^2.1.0
+  socket_io_client: ^3.0.2
+  image_picker: ^1.1.2
+  cached_network_image: ^3.4.1
+  url_launcher: ^6.3.1
+  file_picker: ^8.1.7
+  path: ^1.9.0
+  flutter_downloader: ^1.11.8
+  path_provider: ^2.1.5
+  permission_handler: ^11.3.1
+  firebase_messaging: ^15.1.6
+  agora_rtc_engine: ^6.5.0
 
 dev_dependencies:
   flutter_test:

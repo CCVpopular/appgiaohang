@@ -22,7 +22,6 @@ class DeliveryNavigationPage extends StatefulWidget {
 
 class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   late MapOptions _navigationOption;
-  final _vietmapNavigationPlugin = VietMapNavigationPlugin();
   MapNavigationViewController? _navigationController;
 
   Widget instructionImage = const SizedBox.shrink();

@@ -14,6 +14,7 @@ import 'screens/user/add_food_page.dart';
 import 'screens/user/cart_page.dart';
 import 'screens/user/checkout_page.dart';
 import 'screens/shipper/shipper_registration_screen.dart';
+import 'screens/user/delivery_tracking_page.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
@@ -141,6 +142,10 @@ class MainApp extends StatelessWidget {
         },
         '/store-address-map': (context) => const StoreAddressMapPage(),
         '/active-orders': (context) => const ActiveOrdersScreen(),
+        '/user-delivery-tracking': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          return UserDeliveryTrackingPage(order: args);
+        },
       },
     );
   }
