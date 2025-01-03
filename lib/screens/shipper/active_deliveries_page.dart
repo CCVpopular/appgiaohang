@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
 import '../../providers/auth_provider.dart';
+import '../chat_screen.dart';
 import './delivery_navigation_page.dart';
 
 class ActiveDeliveriesPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class ActiveDeliveriesPage extends StatefulWidget {
 class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
   List<dynamic> _activeOrders = [];
   bool _isLoading = true;
+  String? userId;
 
   @override
   void initState() {
@@ -23,13 +25,13 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
   Future<void> _loadActiveOrders() async {
     setState(() => _isLoading = true);
     try {
-      final userId = await AuthProvider.getUserId();
+      final id = await AuthProvider.getUserId();
+      userId = id?.toString();
       if (userId == null) return;
 
       final response = await http.get(
         Uri.parse('${Config.baseurl}/orders/shipper/$userId/active'),
       );
-
       if (response.statusCode == 200) {
         setState(() {
           _activeOrders = json.decode(response.body);
@@ -163,6 +165,24 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                           backgroundColor: Colors.green,
                           foregroundColor: Colors.white,
                         ),
+                      ),
+                    if (order['status'] == 'delivering')
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.chat),
+                        label: const Text('Chat'),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChatScreen(
+                                orderId: order['id'],
+                                currentUserId: int.parse(userId!), // Add userId as class field
+                                otherUserId: order['user_id'],
+                                otherUserName: order['customer_name'],
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.navigation),

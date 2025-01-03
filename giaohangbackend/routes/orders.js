@@ -421,7 +421,7 @@ router.get('/shipper/:shipperId/active', async (req, res) => {
       ORDER BY o.created_at DESC`,
       [req.params.shipperId]
     );
-    
+    console.log(orders + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });

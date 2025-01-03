@@ -8,6 +8,7 @@ import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
+import chatRoutes from './routes/chat.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 
@@ -75,6 +76,7 @@ app.use('/stores', storesRoutes);
 app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
+app.use('/chat', chatRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
@@ -124,6 +126,16 @@ io.on('connection', (socket) => {
     });
     // console.log(data.connectionString);
     // console.log(data.latitude , data.longitude);
+  });
+
+  // Handle chat room joining
+  socket.on('join-chat', (orderId) => {
+    socket.join(`chat-${orderId}`);
+  });
+
+  // Handle new messages
+  socket.on('new-message', (message) => {
+    io.to(`chat-${message.orderId}`).emit('message-received', message);
   });
 });
 

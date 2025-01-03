@@ -4,6 +4,7 @@ import 'dart:convert';
 import '../../components/tab_bar/custom_tab_bar.dart';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
+import '../chat_screen.dart';
 
 class Order {
   final int id;
@@ -14,6 +15,7 @@ class Order {
   final double? longitude; // Add these fields
   final double? storeLat; // Add these fields 
   final double? storeLng; // Add these fields
+  final int? shipperId; // Add this field
   final List<OrderItem> items;
   final String createdAt;
 
@@ -26,6 +28,7 @@ class Order {
     this.longitude,
     this.storeLat,
     this.storeLng,
+    this.shipperId,
     required this.items,
     required this.createdAt,
   });
@@ -41,6 +44,7 @@ class Order {
       longitude: json['longitude']?.toDouble(),
       storeLat: json['store_latitude']?.toDouble(),
       storeLng: json['store_longitude']?.toDouble(),
+      shipperId: json['shipper_id'], // Add this line
       createdAt: json['created_at'],
       items: itemsList.map((item) => OrderItem.fromJson(item)).toList(),
     );
@@ -81,6 +85,7 @@ class _OrdersPageState extends State<OrdersPage> {
   List<Order> _orders = [];
   bool _isLoading = true;
   String? _error;
+  int? userId; // Add this field
 
   @override
   void initState() {
@@ -95,7 +100,7 @@ class _OrdersPageState extends State<OrdersPage> {
         _error = null;
       });
 
-      final userId = await SharedPrefs.getUserId();
+      userId = await SharedPrefs.getUserId(); // Assign userId here
       if (userId == null) throw Exception('User not logged in');
 
       final response = await http.get(
@@ -189,17 +194,17 @@ class _OrdersPageState extends State<OrdersPage> {
                 IconButton(
                   icon: const Icon(Icons.chat),
                   onPressed: () {
-                  //   Navigator.push(
-                  //     context,
-                  //     MaterialPageRoute(
-                  //       builder: (context) => ChatScreen(
-                  //         orderId: order.id,
-                  //         currentUserId: 1, // Replace with actual user ID
-                  //         otherUserId: order.items.first.storeId,
-                  //         otherUserName: 'Shipper', // Replace with actual shipper name
-                  //       ),
-                  //     ),
-                  //   );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatScreen(
+                          orderId: order.id,
+                          currentUserId: userId!, // Add userId as class field and get from SharedPrefs
+                          otherUserId: order.shipperId ?? 0, // Add shipperId to Order model
+                          otherUserName: 'Shipper',
+                        ),
+                      ),
+                    );
                   },
                 ),
             ],
