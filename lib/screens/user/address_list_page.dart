@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../utils/shared_prefs.dart';
 
@@ -91,8 +93,8 @@ class _AddressListPageState extends State<AddressListPage> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Chọn Địa Chỉ Giao Hàng'),
+        appBar: CustomAppBar(
+          title: 'Chọn Địa Chỉ Giao Hàng',
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () async {
@@ -108,9 +110,9 @@ class _AddressListPageState extends State<AddressListPage> {
             : ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Card(
+                  CustomCard(
                     child: ListTile(
-                      leading: const Icon(Icons.add_circle, color: Colors.blue),
+                      leading: const Icon(Icons.add_circle, color: Color.fromARGB(196, 177, 92, 12)),
                       title: const Text('Thêm Địa Chỉ Mới'),
                       onTap: () async {
                         final result =
@@ -128,7 +130,7 @@ class _AddressListPageState extends State<AddressListPage> {
                   ),
                   const SizedBox(height: 16),
                   ...addresses
-                      .map((address) => Card(
+                      .map((address) => CustomCard(
                             margin: const EdgeInsets.only(bottom: 8),
                             child: RadioListTile<String>(
                               title: Text(address['address']),

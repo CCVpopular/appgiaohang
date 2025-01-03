@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 
 class ShipperManagementScreen extends StatefulWidget {
@@ -77,7 +78,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
       itemCount: _pendingShippers.length,
       itemBuilder: (context, index) {
         final shipper = _pendingShippers[index];
-        return Card(
+        return CustomCard(
           elevation: 4,
           margin: const EdgeInsets.all(8.0),
           child: Padding(

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../../components/app_bar/custom_app_bar.dart';
+import '../../components/buttons/custom_elevated_button.dart';
 import '../../config/config.dart';
 
 class ShipperRegistrationScreen extends StatefulWidget {
@@ -117,7 +119,7 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
                 validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập biển số xe' : null,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
+              CustomElevatedButton(
                 onPressed: _registerShipper,
                 child: const Text('Đăng ký'),
               ),

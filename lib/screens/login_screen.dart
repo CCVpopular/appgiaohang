@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import '../components/app_bar/custom_app_bar.dart';
+import '../components/buttons/custom_elevated_button.dart';
 import '../config/config.dart';
 import '../providers/auth_provider.dart';
 import '../utils/shared_prefs.dart';
@@ -86,9 +88,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Login')),
+      appBar: const CustomAppBar(title: 'Login'),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(16.0),
         child: Form(
           key: _formKey,
           child: Column(
@@ -96,40 +98,40 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
+                decoration: InputDecoration(labelText: 'Email'),
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter email' : null,
               ),
               TextFormField(
                 controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
+                decoration: InputDecoration(labelText: 'Password'),
                 obscureText: true,
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter password' : null,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
+              SizedBox(height: 20),
+              CustomElevatedButton(
                 onPressed: _login,
-                child: const Text('Login'),
+                text: 'Login',
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/register');
                 },
-                child: const Text('Don\'t have an account? Register'),
+                child: Text('Don\'t have an account? Register'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/shipper-registration');
                 },
-                child: const Text('Register as Shipper'),
+                child: Text('Register as Shipper'),
               ),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/forgot-password');
                 },
-                child: const Text('Forgot Password?'),
+                child: Text('Forgot Password?'),
               ),
             ],
           ),
