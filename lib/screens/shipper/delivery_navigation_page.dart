@@ -38,6 +38,7 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   bool _showStartDeliveryButton = false;
   bool _showProximityOverlay = false;
   String _proximityMessage = '';
+  bool _showCompleteDeliveryButton = false;  // Add this variable
 
   @override
   void initState() {
@@ -148,10 +149,17 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
           _proximityMessage = '';
         }
 
+        // Show/hide start delivery button near store
         _showStartDeliveryButton =
             distanceToStore <= STORE_PROXIMITY_THRESHOLD &&
             _isNavigatingToStore &&
             widget.order['status'] == 'preparing';
+
+        // Show/hide complete delivery button near customer
+        _showCompleteDeliveryButton = 
+            distanceToCustomer <= DESTINATION_PROXIMITY_THRESHOLD &&
+            !_isNavigatingToStore &&
+            widget.order['status'] == 'delivering';
       });
     });
   }
@@ -257,6 +265,36 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
       } else {
         final error = json.decode(response.body)['error'];
         throw Exception(error ?? 'Failed to start delivery');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  Future<void>  _completeDelivery() async {
+    try {
+      final shipperId = await AuthProvider.getUserId();
+      if (shipperId == null) throw Exception('Not authenticated');
+
+      final response = await http.put(
+        Uri.parse(
+            '${Config.baseurl}/orders/${widget.order['id']}/complete-delivery'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'shipperId': shipperId}),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã giao hàng thành công')),
+        );
+        Navigator.pop(context); // Return to previous screen after completion
+      } else {
+        final error = json.decode(response.body)['error'];
+        throw Exception(error ?? 'Failed to complete delivery');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -385,6 +423,24 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
                       ),
                     ),
                   ],
+                ),
+              ),
+            ),
+
+          // Replace the existing complete delivery button with this
+          if (_showCompleteDeliveryButton)
+            Positioned(
+              left: 16,
+              right: 16,
+              bottom: 180,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.check_circle),
+                label: const Text('Đã giao hàng thành công'),
+                onPressed: _completeDelivery,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
               ),
             ),

@@ -338,6 +338,60 @@ router.put('/:orderId/start-delivery', async (req, res) => {
   }
 });
 
+// Complete delivery route
+router.put('/:orderId/complete-delivery', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const orderId = req.params.orderId;
+    const { shipperId } = req.body;
+
+    // Validate request
+    if (!shipperId) {
+      throw new Error('Shipper ID is required');
+    }
+
+    // Check if order exists and belongs to this shipper
+    const [orderCheck] = await connection.query(
+      'SELECT id, status, shipper_id FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    if (!orderCheck.length) {
+      throw new Error('Order not found');
+    }
+
+    if (orderCheck[0].shipper_id != shipperId) {
+      throw new Error('Unauthorized: Order belongs to different shipper');
+    }
+
+    if (orderCheck[0].status !== 'delivering') {
+      throw new Error(`Cannot complete delivery. Current status: ${orderCheck[0].status}`);
+    }
+
+    // Update order status to completed
+    await connection.query(
+      'UPDATE orders SET status = "completed" WHERE id = ? AND shipper_id = ?',
+      [orderId, shipperId]
+    );
+
+    await connection.commit();
+    res.json({ 
+      success: true,
+      message: 'Delivery completed successfully'
+    });
+
+  } catch (error) {
+    await connection.rollback();
+    res.status(400).json({ 
+      success: false,
+      error: error.message 
+    });
+  } finally {
+    connection.release();
+  }
+});
+
 // Get shipper's active deliveries
 router.get('/shipper/:shipperId/active', async (req, res) => {
   try {

@@ -74,6 +74,35 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
     }
   }
 
+  Future<void> _completeDelivery(Map<String, dynamic> order) async {
+    try {
+      final shipperId = await AuthProvider.getUserId();
+      if (shipperId == null) throw Exception('Not authenticated');
+
+      final response = await http.put(
+        Uri.parse('${Config.baseurl}/orders/${order['id']}/complete-delivery'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: json.encode({'shipperId': shipperId}),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Đã giao hàng thành công')),
+        );
+        _loadActiveOrders();
+      } else {
+        final error = json.decode(response.body)['error'];
+        throw Exception(error ?? 'Failed to complete delivery');
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -123,6 +152,16 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor:
                               const Color.fromARGB(255, 168, 255, 197),
+                        ),
+                      ),
+                    if (order['status'] == 'delivering')
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.check_circle),
+                        label: const Text('Đã giao hàng'),
+                        onPressed: () => _completeDelivery(order),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
                         ),
                       ),
                     ElevatedButton.icon(
