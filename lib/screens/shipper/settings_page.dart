@@ -9,12 +9,12 @@ class SettingsPage extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          title: const Text('Đăng xuất'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
             TextButton(
               onPressed: () async {
@@ -23,7 +23,7 @@ class SettingsPage extends StatelessWidget {
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/user_home', (route) => false);
               },
-              child: const Text('Logout', style: TextStyle(color: Colors.red)),
+              child: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
             ),
           ],
         );

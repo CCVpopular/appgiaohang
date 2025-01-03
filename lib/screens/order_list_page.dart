@@ -1,3 +1,4 @@
+
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -36,9 +37,6 @@ class _OrderListPageState extends State<OrderListPage> {
           _orders = json.decode(response.body);
           _isLoading = false;
         });
-      } else {
-        print('Error: ${response.body}');
-        setState(() => _isLoading = false);
       }
     } catch (e) {
       print('Error loading orders: $e');
@@ -79,7 +77,7 @@ class _OrderListPageState extends State<OrderListPage> {
     }
 
     if (_orders.isEmpty) {
-      return const Center(child: Text('No orders available'));
+      return const Center(child: Text('Không có đơn hàng nào'));
     }
 
     return RefreshIndicator(
@@ -98,19 +96,19 @@ class _OrderListPageState extends State<OrderListPage> {
               subtitle: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Customer: ${order['customer_name']}'),
-                  Text('Address: ${order['address']}'),
-                  Text('Total: \$${order['total_amount']}'),
+                  Text('Khách hàng: ${order['customer_name']}'),
+                  Text('Địa chỉ: ${order['address']}'),
+                  Text('Tổng tiền: ${order['total_amount']}đ'),
                   const SizedBox(height: 8),
-                  Text('Items:'),
+                  Text('Món ăn:'),
                   ...items.map((item) => Text(
-                    '- ${item['food_name']} x${item['quantity']} from ${item['store_name']}'
+                    '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}'
                   )),
                 ],
               ),
               trailing: ElevatedButton(
                 onPressed: () => _acceptOrder(order['id']),
-                child: const Text('Accept'),
+                child: const Text('Nhận đơn'),
               ),
             ),
           );

@@ -53,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _editProfile() async {
     final userData = await _userFuture;
     final TextEditingController nameController =
-            TextEditingController(text: userData?['fullName'] ?? '');
+        TextEditingController(text: userData?['fullName'] ?? '');
     final TextEditingController phoneController =
         TextEditingController(text: userData?['phoneNumber'] ?? '');
     bool isLoading = false;
@@ -314,6 +314,20 @@ class _ProfilePageState extends State<ProfilePage> {
                 CustomElevatedButton(
                   onPressed: _editProfile,
                   text: 'Chỉnh sửa hồ sơ',
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/active-orders');
+                  },
+                  icon: const Icon(Icons.delivery_dining),
+                  label: const Text('Đơn hàng đang giao'),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
                 ),
               ],
             ),

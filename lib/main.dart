@@ -8,6 +8,7 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/active_orders_screen.dart';
 import 'screens/user/add_address_page.dart';
 import 'screens/user/add_food_page.dart';
 import 'screens/user/cart_page.dart';
@@ -100,11 +101,13 @@ class MainApp extends StatelessWidget {
         '/register-store': (context) => const StoreRegistrationPage(),
         '/shipper-registration': (context) => const ShipperRegistrationScreen(),
         '/store-detail': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return StoreDetailPage(store: store);
         },
         '/store-detail-info': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return StoreDetailInfo(store: store);
         },
         '/store-approval': (context) => const StoreApprovalScreen(),
@@ -117,12 +120,14 @@ class MainApp extends StatelessWidget {
           return StoreFoodManagement(storeId: storeId);
         },
         '/food-store': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return FoodStorePage(store: store);
         },
         '/cart': (context) => const CartPage(),
         '/checkout': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return CheckoutPage(
             cartItems: args['cartItems'],
             total: args['total'],
@@ -135,6 +140,7 @@ class MainApp extends StatelessWidget {
           return StoreOrdersScreen(storeId: storeId);
         },
         '/store-address-map': (context) => const StoreAddressMapPage(),
+        '/active-orders': (context) => const ActiveOrdersScreen(),
       },
     );
   }

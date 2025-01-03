@@ -122,24 +122,6 @@ export const createTables = async (pool) => {
     `);
 
     await pool.query(`
-      CREATE TABLE IF NOT EXISTS user_notifications (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        user_id INT NOT NULL,
-        order_id INT NOT NULL,
-        shipper_id INT NOT NULL,
-        store_id INT NOT NULL,
-        message TEXT NOT NULL,
-        type ENUM('order_accepted', 'order_preparing', 'order_delivering', 'order_completed') NOT NULL,
-        is_read BOOLEAN DEFAULT false,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (user_id) REFERENCES users(id),
-        FOREIGN KEY (order_id) REFERENCES orders(id),
-        FOREIGN KEY (shipper_id) REFERENCES users(id),
-        FOREIGN KEY (store_id) REFERENCES food_stores(id)
-      )
-    `);
-
-    await pool.query(`
       CREATE TABLE IF NOT EXISTS chat_messages (
         id INT PRIMARY KEY AUTO_INCREMENT,
         order_id INT NOT NULL,
