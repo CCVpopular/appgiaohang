@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:geolocator/geolocator.dart'; // Add this import
+import 'package:intl/intl.dart'; // Add this import
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/buttons/custom_elevated_button.dart';
 import '../../components/card/custom_card.dart';
@@ -31,6 +33,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   final _noteController = TextEditingController();
   String _paymentMethod = 'cash';
   bool _isLoading = true;
+  double _shippingFee = 0;
+  double _distance = 0;
 
   @override
   void initState() {
@@ -53,13 +57,31 @@ class _CheckoutPageState extends State<CheckoutPage> {
           (addr) => addr['is_selected'] == 1,
           orElse: () => {'address': '', 'latitude': null, 'longitude': null},
         );
-        
-        setState(() {
-          _selectedAddress = selectedAddress['address'];
-          _latitude = selectedAddress['latitude'];
-          _longitude = selectedAddress['longitude'];
-          _isLoading = false;
-        });
+
+        // Get store details for first item
+        if (widget.cartItems.isNotEmpty) {
+          final storeResponse = await http.get(
+            Uri.parse(
+                '${Config.baseurl}/stores/${widget.cartItems.first.storeId}'),
+          );
+
+          if (storeResponse.statusCode == 200) {
+            final storeData = json.decode(storeResponse.body);
+
+            setState(() {
+              _selectedAddress = selectedAddress['address'];
+              _latitude = selectedAddress['latitude'];
+              _longitude = selectedAddress['longitude'];
+              _isLoading = false;
+            });
+
+            // Calculate shipping fee after getting both coordinates
+            _calculateShippingFee(
+              storeData['latitude'],
+              storeData['longitude'],
+            );
+          }
+        }
       }
     } catch (e) {
       setState(() => _isLoading = false);
@@ -69,102 +91,140 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
   }
 
+  // Add this method to calculate distance and shipping fee
+  void _calculateShippingFee(double storeLat, double storeLng) {
+    if (_latitude == null || _longitude == null) return;
+
+    _distance = Geolocator.distanceBetween(
+          _latitude!,
+          _longitude!,
+          storeLat,
+          storeLng,
+        ) /
+        1000; // Convert meters to kilometers
+
+    // Calculate shipping fee based on distance
+    // Base fee: 10.000 VND for first 2km
+    // Additional fee: 5.000 VND per extra kilometer
+    setState(() {
+      _shippingFee = 10000 + ((_distance > 2) ? (_distance - 2) * 5000 : 0);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(
+      appBar: const CustomAppBar(
         title: 'Thanh toán',
       ),
-      body: _isLoading 
-        ? const Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Địa chỉ giao hàng',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            CustomCard(
-              child: ListTile(
-                title: Text(_selectedAddress.isEmpty 
-                  ? 'Chọn địa chỉ giao hàng' 
-                  : _selectedAddress),
-                trailing: const Icon(Icons.arrow_forward_ios),
-                onTap: () async {
-                  final result = await Navigator.pushNamed(
-                    context, 
-                    '/address-list'
-                  );
-                  if (result != null && result is String) {
-                    setState(() => _selectedAddress = result);
-                  }
-                },
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Địa chỉ giao hàng',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  CustomCard(
+                    child: ListTile(
+                      title: Text(_selectedAddress.isEmpty
+                          ? 'Chọn địa chỉ giao hàng'
+                          : _selectedAddress),
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () async {
+                        final result =
+                            await Navigator.pushNamed(context, '/address-list');
+                        if (result != null && result is String) {
+                          setState(() => _selectedAddress = result);
+                        }
+                      },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Ghi chú',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: _noteController,
+                    decoration: const InputDecoration(
+                      hintText: 'Thêm ghi chú cho đơn hàng (không bắt buộc)',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 2,
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Phương thức thanh toán',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  RadioListTile(
+                    title: const Text('Thanh toán khi nhận hàng'),
+                    value: 'cash',
+                    groupValue: _paymentMethod,
+                    onChanged: (value) =>
+                        setState(() => _paymentMethod = value!),
+                  ),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Tổng quan đơn hàng',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: widget.cartItems.length,
+                    itemBuilder: (context, index) {
+                      final item = widget.cartItems[index];
+                      return ListTile(
+                        title: Text(item.name),
+                        subtitle: Text(
+                            '${item.quantity}x ${NumberFormat('#,###').format(item.price)} VNĐ'),
+                        trailing: Text(
+                            '${NumberFormat('#,###').format(item.price * item.quantity)} VNĐ'),
+                      );
+                    },
+                  ),
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Khoảng cách giao hàng:'),
+                      Text('${_distance.toStringAsFixed(1)} km'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text('Phí giao hàng:'),
+                      Text('${NumberFormat('#,###').format(_shippingFee)} VNĐ'),
+                    ],
+                  ),
+                  const Divider(),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'Tổng cộng:',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        '${NumberFormat('#,###').format(widget.total + _shippingFee)} VNĐ',
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            const Text(
-              'Ghi chú',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _noteController,
-              decoration: const InputDecoration(
-                hintText: 'Thêm ghi chú cho đơn hàng (không bắt buộc)',
-                border: OutlineInputBorder(),
-              ),
-              maxLines: 2,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Phương thức thanh toán',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            RadioListTile(
-              title: const Text('Thanh toán khi nhận hàng'),
-              value: 'cash',
-              groupValue: _paymentMethod,
-              onChanged: (value) => setState(() => _paymentMethod = value!),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Tổng quan đơn hàng',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: widget.cartItems.length,
-              itemBuilder: (context, index) {
-                final item = widget.cartItems[index];
-                return ListTile(
-                  title: Text(item.name),
-                  subtitle: Text('${item.quantity}x \$${item.price}'),
-                  trailing: Text('\$${(item.price * item.quantity).toStringAsFixed(2)}'),
-                );
-              },
-            ),
-            const Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Total:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\$${widget.total.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
       bottomNavigationBar: Container(
         padding: const EdgeInsets.all(16),
         child: CustomElevatedButton(
@@ -191,7 +251,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       // First item in cart
       final firstItem = widget.cartItems.first;
-      
+
       // Get store details
       final storeResponse = await http.get(
         Uri.parse('${Config.baseurl}/stores/${firstItem.storeId}'),
@@ -212,13 +272,17 @@ class _CheckoutPageState extends State<CheckoutPage> {
         'store_address': storeData['address'],
         'store_latitude': storeData['latitude'],
         'store_longitude': storeData['longitude'],
-        'items': widget.cartItems.map((item) => {
-          'foodId': item.foodId,
-          'quantity': item.quantity,
-          'price': item.price,
-          'storeId': item.storeId,
-        }).toList(),
-        'totalAmount': widget.total,
+        'items': widget.cartItems
+            .map((item) => {
+                  'foodId': item.foodId,
+                  'quantity': item.quantity,
+                  'price': item.price,
+                  'storeId': item.storeId,
+                })
+            .toList(),
+        'totalAmount': widget.total + _shippingFee,
+        'shippingFee': _shippingFee,
+        'distance': _distance,
         'paymentMethod': _paymentMethod,
         'note': _noteController.text,
       };
@@ -231,7 +295,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         body: json.encode(orderData),
       );
 
-      print('Order response: ${response.statusCode} - ${response.body}'); // Debug log
+      print(
+          'Order response: ${response.statusCode} - ${response.body}'); // Debug log
 
       if (response.statusCode != 201) {
         throw Exception('Failed to create order: ${response.body}');
@@ -239,7 +304,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
       await CartProvider.clearCart();
       if (!mounted) return;
-      
+
       Navigator.popUntil(context, (route) => route.isFirst);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Đặt hàng thành công!')),

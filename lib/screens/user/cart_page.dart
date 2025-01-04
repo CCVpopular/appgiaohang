@@ -30,6 +30,13 @@ class _CartPageState extends State<CartPage> {
   double get total => cartItems.fold(
       0, (sum, item) => sum + (item.price * item.quantity));
 
+  String formatCurrency(double amount) {
+    return '${(amount).toStringAsFixed(0).replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    )}đ';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -47,7 +54,7 @@ class _CartPageState extends State<CartPage> {
         ],
       ),
       body: cartItems.isEmpty
-          ? const Center(child: Text('Giỏ hàng trống'))
+          ? const Center(child: Text('Giỏ hàng của bạn đang trống'))
           : ListView.builder(
               itemCount: cartItems.length,
               itemBuilder: (context, index) {
@@ -75,7 +82,7 @@ class _CartPageState extends State<CartPage> {
                           _loadCart();
                         },
                       ),
-                      Text('\$${(item.price * item.quantity).toStringAsFixed(2)}'),
+                      Text(formatCurrency(item.price * item.quantity)),
                     ],
                   ),
                 );
@@ -89,7 +96,7 @@ class _CartPageState extends State<CartPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Total: \$${total.toStringAsFixed(2)}',
+                    'Tổng tiền: ${formatCurrency(total)}',
                     style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -106,7 +113,7 @@ class _CartPageState extends State<CartPage> {
                         },
                       );
                     },
-                    text: 'Thanh toán',
+                    text: 'Đặt hàng',
                   ),
                 ],
               ),
