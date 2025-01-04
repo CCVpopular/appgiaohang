@@ -143,7 +143,8 @@ class MainApp extends StatelessWidget {
         '/store-address-map': (context) => const StoreAddressMapPage(),
         '/active-orders': (context) => const ActiveOrdersScreen(),
         '/user-delivery-tracking': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return UserDeliveryTrackingPage(order: args);
         },
       },
