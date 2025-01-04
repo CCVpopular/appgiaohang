@@ -45,3 +45,5 @@ flutter:
     # - assets/navigation_symbol/
     - assets/store_marker.png
     - assets/customer_marker.png
+    - assets/images/shop_food_image.png
+    - assets/images/food_image.png
