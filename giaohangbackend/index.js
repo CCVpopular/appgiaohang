@@ -10,6 +10,7 @@ import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
 import chatRoutes from './routes/chat.js';
 import transactionsRoutes from './routes/transactions.js';
+import earningsRoutes from './routes/earnings.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 
@@ -79,6 +80,7 @@ app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
 app.use('/chat', chatRoutes);
 app.use('/transactions', transactionsRoutes);
+app.use('/earnings', earningsRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {

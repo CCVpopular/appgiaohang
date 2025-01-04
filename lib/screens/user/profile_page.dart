@@ -63,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Edit Profile'),
+          title: const Text('Chỉnh Sửa Hồ Sơ'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -88,10 +88,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return 'Phone number cannot be empty';
+                    return 'Số điện thoại không được để trống';
                   }
                   if (!RegExp(r'^\d{10}$').hasMatch(value!)) {
-                    return 'Enter valid 10-digit phone number';
+                    return 'Vui lòng nhập số điện thoại hợp lệ (10 số)';
                   }
                   return null;
                 },
@@ -101,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             TextButton(
               onPressed: isLoading ? null : () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           phoneController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please fill all fields')),
+                              content: Text('Vui lòng điền đầy đủ thông tin')),
                         );
                         return;
                       }
@@ -148,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Profile updated successfully'),
+                              content: Text('Cập nhật hồ sơ thành công'),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text('Save'),
+                  : const Text('Lưu'),
             ),
           ],
         ),

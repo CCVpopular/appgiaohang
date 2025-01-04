@@ -443,4 +443,79 @@ router.get('/shipper/:shipperId/active', async (req, res) => {
   }
 });
 
+// Get shipper's completed orders
+router.get('/shipper/:shipperId/completed', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT 
+        o.*,
+        u.full_name as customer_name,
+        u.phone_number as customer_phone,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'food_name', f.name,
+            'store_name', fs.name,
+            'store_address', fs.address
+          )
+        ) as items
+      FROM orders o
+      INNER JOIN users u ON o.user_id = u.id
+      INNER JOIN order_items oi ON o.id = oi.order_id
+      INNER JOIN foods f ON oi.food_id = f.id
+      INNER JOIN food_stores fs ON oi.store_id = fs.id
+      WHERE o.shipper_id = ? 
+      AND o.status = 'completed'
+      GROUP BY o.id
+      ORDER BY o.updated_at DESC`,
+      [req.params.shipperId]
+    );
+    
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// When order is marked as completed
+router.put('/:id/complete', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    
+    const orderId = req.params.id;
+    const { shipperId } = req.body;
+    
+    // Update order status
+    await connection.query(
+      'UPDATE orders SET status = "completed" WHERE id = ?',
+      [orderId]
+    );
+
+    // Get order amount and calculate shipper earnings
+    const [orderDetails] = await connection.query(
+      'SELECT shipping_fee FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    const earnings = orderDetails[0].shipping_fee * 0.8; // Changed to 80% of shipping fee
+
+    // Record earnings transaction
+    await connection.query(
+      'INSERT INTO transactions (user_id, amount, type, description, reference_id) VALUES (?, ?, "order_earning", "Earnings from delivery", ?)',
+      [shipperId, earnings, orderId]
+    );
+
+    await connection.commit();
+    res.json({ message: 'Order completed and earnings recorded' });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Complete order error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    connection.release();
+  }
+});
+
 export default router;
