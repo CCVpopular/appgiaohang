@@ -88,6 +88,7 @@ export const createTables = async (pool) => {
         total_amount DECIMAL(10,2) NOT NULL,
         status ENUM('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled') DEFAULT 'pending',
         payment_method VARCHAR(50) NOT NULL,
+        shipping_fee DECIMAL(10,2),
         note TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

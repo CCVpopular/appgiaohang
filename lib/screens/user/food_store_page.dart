@@ -156,9 +156,6 @@ class _FoodStorePageState extends State<FoodStorePage> {
                                     storeName: widget.store['name'],
                                   );
                                   await CartProvider.addToCart(cartItem);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Đã thêm món ăn vào giỏ hàng')),
-                                  );
                                 },
                               ),
                             ],

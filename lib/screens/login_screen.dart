@@ -109,7 +109,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (value) =>
                     value?.isEmpty ?? true ? 'Please enter password' : null,
               ),
-              SizedBox(height: 20),
+              SizedBox(height: 10),
               CustomElevatedButton(
                 onPressed: _login,
                 text: 'Login',
@@ -121,12 +121,12 @@ class _LoginScreenState extends State<LoginScreen> {
                 },
                 child: Text('Don\'t have an account? Register'),
               ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/shipper-registration');
-                },
-                child: Text('Register as Shipper'),
-              ),
+              // TextButton(
+              //   onPressed: () {
+              //     Navigator.pushNamed(context, '/shipper-registration');
+              //   },
+              //   child: Text('Register as Shipper'),
+              // ),
               TextButton(
                 onPressed: () {
                   Navigator.pushNamed(context, '/forgot-password');

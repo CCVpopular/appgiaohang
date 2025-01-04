@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
 import '../../providers/auth_provider.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class OrderListPage extends StatefulWidget {
     const OrderListPage({super.key});
@@ -13,15 +15,26 @@ class OrderListPage extends StatefulWidget {
 class _OrderListPageState extends State<OrderListPage> {
   List<dynamic> _orders = [];
   bool _isLoading = true;
+  Position? _currentPosition;
 
   @override
   void initState() {
     super.initState();
+    _getCurrentLocation();
     _loadOrders();
   }
   @override
   void dispose() {
     super.dispose();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition();
+      setState(() => _currentPosition = position);
+    } catch (e) {
+      print('Error getting location: $e');
+    }
   }
 
   Future<void> _loadOrders() async {
@@ -72,6 +85,35 @@ class _OrderListPageState extends State<OrderListPage> {
     }
   }
 
+  double calculateTotalDistance(double storeLat, double storeLng, double customerLat, double customerLng) {
+    if (_currentPosition == null) return 0;
+    
+    // Calculate distance from current location to store
+    double toStoreDistance = Geolocator.distanceBetween(
+      _currentPosition!.latitude,
+      _currentPosition!.longitude,
+      storeLat,
+      storeLng
+    );
+
+    // Calculate distance from store to customer
+    double toCustomerDistance = Geolocator.distanceBetween(
+      storeLat,
+      storeLng,
+      customerLat,
+      customerLng
+    );
+
+    // Return total distance in kilometers
+    return (toStoreDistance + toCustomerDistance) / 1000;
+  }
+
+  // Add this helper method for VND formatting
+  String formatVND(dynamic amount) {
+    if (amount == null) return '0 ₫';
+    return '${amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},')} ₫';
+  }
+
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
@@ -79,7 +121,7 @@ class _OrderListPageState extends State<OrderListPage> {
     }
 
     if (_orders.isEmpty) {
-      return const Center(child: Text('No orders available'));
+      return const Center(child: Text('Không có đơn hàng nào'));
     }
 
     return RefreshIndicator(
@@ -91,26 +133,44 @@ class _OrderListPageState extends State<OrderListPage> {
           // Fix: items is already a List<dynamic>, no need to decode
           final items = order['items'] as List<dynamic>;
           
+          // Calculate total distance
+          double totalDistance = calculateTotalDistance(
+            order['store_latitude'] ?? 0,
+            order['store_longitude'] ?? 0,
+            order['latitude'] ?? 0,
+            order['longitude'] ?? 0
+          );
+
           return Card(
             margin: const EdgeInsets.all(8),
-            child: ListTile(
-              title: Text('Order #${order['id']}'),
-              subtitle: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Text('Customer: ${order['customer_name']}'),
-                  Text('Address: ${order['address']}'),
-                  Text('Total: \$${order['total_amount']}'),
+                  ListTile(
+                    title: Text('Đơn hàng #${order['id']}'),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Địa chỉ: ${order['address']}'),
+                        Text('Tổng tiền: ${formatVND(order['total_amount'])}'),
+                        Text('Phí vận chuyển: ${formatVND(order['shipping_fee'])}'),
+                        Text('Tổng khoảng cách: ${totalDistance.toStringAsFixed(2)} km'),
+                        const SizedBox(height: 8),
+                        const Text('Danh sách món:'),
+                        ...items.map((item) => Text(
+                          '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}'
+                        )),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 8),
-                  Text('Items:'),
-                  ...items.map((item) => Text(
-                    '- ${item['food_name']} x${item['quantity']} from ${item['store_name']}'
-                  )),
+                  ElevatedButton(
+                    onPressed: () => _acceptOrder(order['id']),
+                    child: const Text('Nhận đơn'),
+                  ),
                 ],
-              ),
-              trailing: ElevatedButton(
-                onPressed: () => _acceptOrder(order['id']),
-                child: const Text('Accept'),
               ),
             ),
           );

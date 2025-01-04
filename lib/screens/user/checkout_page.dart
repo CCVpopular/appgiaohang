@@ -103,11 +103,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
         ) /
         1000; // Convert meters to kilometers
 
-    // Calculate shipping fee based on distance
-    // Base fee: 10.000 VND for first 2km
-    // Additional fee: 5.000 VND per extra kilometer
+    // Round distance to nearest kilometer
+    _distance = (_distance).round().toDouble();
+
+    // Calculate shipping fee:
+    // Base fee: 15.000đ for first 2km
+    // Additional fee: 5.000đ per extra kilometer
     setState(() {
-      _shippingFee = 10000 + ((_distance > 2) ? (_distance - 2) * 5000 : 0);
+      _shippingFee = 15000 + ((_distance > 2) ? (_distance - 2).round() * 5000 : 0);
     });
   }
 

@@ -3,6 +3,15 @@ import pool from '../index.js';
 
 const router = express.Router();
 
+// Add shipping fee calculation helper function
+function calculateShippingFee(distance) {
+  // Base fee
+  const baseFee = 2;
+  // Per kilometer fee
+  const perKmFee = 0.5;
+  return baseFee + (distance * perKmFee);
+}
+
 router.post('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
@@ -19,7 +28,8 @@ router.post('/', async (req, res) => {
       items, 
       totalAmount, 
       paymentMethod, 
-      note 
+      note,
+      shippingFee
     } = req.body;
 
     // Validate required fields
@@ -32,12 +42,12 @@ router.post('/', async (req, res) => {
       `INSERT INTO orders (
         user_id, address, latitude, longitude,
         store_address, store_latitude, store_longitude,
-        total_amount, payment_method, note
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        total_amount, payment_method, note, shipping_fee
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId, address, latitude || null, longitude || null,
         store_address, store_latitude || null, store_longitude || null,
-        totalAmount, paymentMethod, note || null
+        totalAmount, paymentMethod, note || null, shippingFee || 0
       ]
     );
 
@@ -99,6 +109,11 @@ router.get('/confirmed', async (req, res) => {
         o.*,
         u.full_name as customer_name,
         u.phone_number as customer_phone,
+        o.shipping_fee,
+        o.store_latitude,
+        o.store_longitude,
+        o.latitude,
+        o.longitude,
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'quantity', oi.quantity,
