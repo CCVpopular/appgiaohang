@@ -1,3 +1,4 @@
+import 'package:appgiaohang/config/config.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 
@@ -41,7 +42,7 @@ class StripeService {
           contentType: Headers.formUrlEncodedContentType,
           headers: {
             "Authorization":
-                "Bearer sk_test_51QdkkKKaNRl3RZygHZ5KB0cpUJ5wg0usJgu2R5gt8xgCh4DfnUPiNVu9S4yl8xBUFkK3Q3Z3d9L5i9E0z0MYXlSj003qssRyCE", // Replace with your key
+                "Bearer ${Config.stripeSecretshableKey}",
             "Content-Type": 'application/x-www-form-urlencoded'
           },
         ),

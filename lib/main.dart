@@ -1,3 +1,4 @@
+import 'package:appgiaohang/config/config.dart';
 import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +46,7 @@ void main() async {
 
 Future<void> _setup() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = 'pk_test_51QdkkKKaNRl3RZygJWK8WIswWjdNPXubvcqrKYnxjjbE4ZwyFRyfegNTNuuE97Xy832QyiFCjHTRxBC4ag2Vtsdt007VIqgocC';
+  Stripe.publishableKey = Config.stripePublishableKey;
 }
 
 class MainApp extends StatelessWidget {
