@@ -3,6 +3,15 @@ import pool from '../index.js';
 
 const router = express.Router();
 
+// Add shipping fee calculation helper function
+function calculateShippingFee(distance) {
+  // Base fee
+  const baseFee = 2;
+  // Per kilometer fee
+  const perKmFee = 0.5;
+  return baseFee + (distance * perKmFee);
+}
+
 router.post('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
@@ -19,7 +28,8 @@ router.post('/', async (req, res) => {
       items, 
       totalAmount, 
       paymentMethod, 
-      note 
+      note,
+      shippingFee
     } = req.body;
 
     // Validate required fields
@@ -32,12 +42,12 @@ router.post('/', async (req, res) => {
       `INSERT INTO orders (
         user_id, address, latitude, longitude,
         store_address, store_latitude, store_longitude,
-        total_amount, payment_method, note
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        total_amount, payment_method, note, shipping_fee
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId, address, latitude || null, longitude || null,
         store_address, store_latitude || null, store_longitude || null,
-        totalAmount, paymentMethod, note || null
+        totalAmount, paymentMethod, note || null, shippingFee || 0
       ]
     );
 
@@ -99,6 +109,11 @@ router.get('/confirmed', async (req, res) => {
         o.*,
         u.full_name as customer_name,
         u.phone_number as customer_phone,
+        o.shipping_fee,
+        o.store_latitude,
+        o.store_longitude,
+        o.latitude,
+        o.longitude,
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'quantity', oi.quantity,
@@ -421,10 +436,85 @@ router.get('/shipper/:shipperId/active', async (req, res) => {
       ORDER BY o.created_at DESC`,
       [req.params.shipperId]
     );
+    console.log(orders + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get shipper's completed orders
+router.get('/shipper/:shipperId/completed', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT 
+        o.*,
+        u.full_name as customer_name,
+        u.phone_number as customer_phone,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'food_name', f.name,
+            'store_name', fs.name,
+            'store_address', fs.address
+          )
+        ) as items
+      FROM orders o
+      INNER JOIN users u ON o.user_id = u.id
+      INNER JOIN order_items oi ON o.id = oi.order_id
+      INNER JOIN foods f ON oi.food_id = f.id
+      INNER JOIN food_stores fs ON oi.store_id = fs.id
+      WHERE o.shipper_id = ? 
+      AND o.status = 'completed'
+      GROUP BY o.id
+      ORDER BY o.updated_at DESC`,
+      [req.params.shipperId]
+    );
     
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// When order is marked as completed
+router.put('/:id/complete', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    
+    const orderId = req.params.id;
+    const { shipperId } = req.body;
+    
+    // Update order status
+    await connection.query(
+      'UPDATE orders SET status = "completed" WHERE id = ?',
+      [orderId]
+    );
+
+    // Get order amount and calculate shipper earnings
+    const [orderDetails] = await connection.query(
+      'SELECT shipping_fee FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    const earnings = orderDetails[0].shipping_fee * 0.8; // Changed to 80% of shipping fee
+
+    // Record earnings transaction
+    await connection.query(
+      'INSERT INTO transactions (user_id, amount, type, description, reference_id) VALUES (?, ?, "order_earning", "Earnings from delivery", ?)',
+      [shipperId, earnings, orderId]
+    );
+
+    await connection.commit();
+    res.json({ message: 'Order completed and earnings recorded' });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Complete order error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    connection.release();
   }
 });
 

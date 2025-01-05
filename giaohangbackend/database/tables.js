@@ -1,6 +1,6 @@
 export const createTables = async (pool) => {
   try {
-    // Users table without the status field
+    // Users table with balance
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id INT PRIMARY KEY AUTO_INCREMENT,
@@ -10,6 +10,7 @@ export const createTables = async (pool) => {
         phone_number VARCHAR(15),
         role ENUM('admin', 'user', 'shipper') DEFAULT 'user',
         is_active BOOLEAN DEFAULT true,
+        balance DECIMAL(10,2) DEFAULT 0.00,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
@@ -88,6 +89,7 @@ export const createTables = async (pool) => {
         total_amount DECIMAL(10,2) NOT NULL,
         status ENUM('pending', 'confirmed', 'preparing', 'delivering', 'completed', 'cancelled') DEFAULT 'pending',
         payment_method VARCHAR(50) NOT NULL,
+        shipping_fee DECIMAL(10,2),
         note TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -133,6 +135,20 @@ export const createTables = async (pool) => {
         FOREIGN KEY (order_id) REFERENCES orders(id),
         FOREIGN KEY (sender_id) REFERENCES users(id),
         FOREIGN KEY (receiver_id) REFERENCES users(id)
+      )
+    `);
+
+    // Add transactions table
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS transactions (
+        id INT PRIMARY KEY AUTO_INCREMENT,
+        user_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL,
+        type ENUM('deposit', 'withdrawal', 'order_payment', 'order_earning') NOT NULL,
+        description TEXT,
+        reference_id INT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        FOREIGN KEY (user_id) REFERENCES users(id)
       )
     `);
     

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:convert';
-import '../components/app_bar/custom_app_bar.dart';
 import '../config/config.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -19,124 +19,154 @@ class ChatScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ChatScreen> createState() => _ChatScreenState();
+  _ChatScreenState createState() => _ChatScreenState();
 }
 
 class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-  List<dynamic> messages = [];
-  bool isLoading = true;
+  List<Map<String, dynamic>> messages = [];
+  late IO.Socket socket;
 
   @override
   void initState() {
     super.initState();
-    fetchMessages();
-    // Poll for new messages every 3 seconds
-    Future.delayed(const Duration(seconds: 3), () {
-      if (mounted) fetchMessages();
+    _loadMessages();
+    _initializeSocket();
+  }
+
+  void _initializeSocket() {
+    socket = IO.io(Config.baseurl, <String, dynamic>{
+      'transports': ['websocket'],
+      'autoConnect': false,
+    });
+
+    socket.connect();
+    socket.emit('join-chat', widget.orderId);
+
+    socket.on('message-received', (data) {
+      if (mounted) {
+        setState(() {
+          final messageData = Map<String, dynamic>.from(data);
+          messageData['sender_id'] = data['senderId']; // Thêm dòng này
+          messages.add(messageData);
+        });
+        _scrollToBottom();
+      }
     });
   }
 
-  Future<void> fetchMessages() async {
+  Future<void> _loadMessages() async {
     try {
       final response = await http.get(
-        Uri.parse('${Config.baseurl}/chat/order/${widget.orderId}'),
+        Uri.parse('${Config.baseurl}/chat/${widget.orderId}'),
       );
 
       if (response.statusCode == 200) {
         setState(() {
-          messages = json.decode(response.body);
-          isLoading = false;
+          messages = List<Map<String, dynamic>>.from(json.decode(response.body));
         });
-
-        // Mark messages as read
-        await http.put(
-          Uri.parse('${Config.baseurl}/chat/read'),
-          headers: {'Content-Type': 'application/json'},
-          body: json.encode({
-            'orderId': widget.orderId,
-            'userId': widget.currentUserId,
-          }),
-        );
-
-        // Scroll to bottom
-        if (_scrollController.hasClients) {
-          _scrollController.animateTo(
-            _scrollController.position.maxScrollExtent,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        }
+        _scrollToBottom();
       }
     } catch (e) {
-      if (mounted) {
-        setState(() => isLoading = false);
-      }
+      print('Error loading messages: $e');
     }
   }
 
-  Future<void> sendMessage() async {
+  Future<void> _sendMessage() async {
     if (_messageController.text.trim().isEmpty) return;
+
+    final message = {
+      'orderId': widget.orderId,
+      'senderId': widget.currentUserId,
+      'receiverId': widget.otherUserId,
+      'message': _messageController.text.trim(),
+      'sender_id': widget.currentUserId,
+      'sender_name': 'You',
+    };
 
     try {
       final response = await http.post(
-        Uri.parse('${Config.baseurl}/chat/send'),
+        Uri.parse('${Config.baseurl}/chat'),
         headers: {'Content-Type': 'application/json'},
-        body: json.encode({
-          'orderId': widget.orderId,
-          'senderId': widget.currentUserId,
-          'receiverId': widget.otherUserId,
-          'message': _messageController.text,
-        }),
+        body: json.encode(message),
       );
 
       if (response.statusCode == 201) {
+        socket.emit('new-message', message);
         _messageController.clear();
-        fetchMessages();
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to send message')),
-      );
+      print('Error sending message: $e');
     }
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      Future.delayed(const Duration(milliseconds: 100), () {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    socket.disconnect();
+    _messageController.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: widget.otherUserName,
+      appBar: AppBar(
+        title: Text('Chat with ${widget.otherUserName}'),
       ),
       body: Column(
         children: [
           Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : ListView.builder(
-                    controller: _scrollController,
-                    padding: const EdgeInsets.all(8),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messages[index];
-                      final isMe = message['sender_id'] == widget.currentUserId;
+            child: ListView.builder(
+              controller: _scrollController,
+              itemCount: messages.length,
+              padding: const EdgeInsets.all(8),
+              itemBuilder: (context, index) {
+                final message = messages[index];
+                final isMe = message['sender_id'] == widget.currentUserId;
 
-                      return Align(
-                        alignment:
-                            isMe ? Alignment.centerRight : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.symmetric(
-                              vertical: 4, horizontal: 8),
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: isMe ? Colors.blue[100] : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(15),
+                return Align(
+                  alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+                  child: Container(
+                    margin: const EdgeInsets.symmetric(vertical: 4),
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: isMe ? Colors.blue[100] : Colors.grey[300],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: isMe
+                          ? CrossAxisAlignment.end
+                          : CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          message['sender_name'] ?? 'Unknown',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
                           ),
-                          child: Text(message['message']),
                         ),
-                      );
-                    },
+                        const SizedBox(height: 4),
+                        Text(message['message']),
+                      ],
+                    ),
                   ),
+                );
+              },
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -146,14 +176,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: TextField(
                     controller: _messageController,
                     decoration: const InputDecoration(
-                      hintText: 'Type a message',
+                      hintText: 'Type a message...',
                       border: OutlineInputBorder(),
                     ),
                   ),
                 ),
                 IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: sendMessage,
+                  onPressed: _sendMessage,
                 ),
               ],
             ),
@@ -161,12 +191,5 @@ class _ChatScreenState extends State<ChatScreen> {
         ],
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    _scrollController.dispose();
-    super.dispose();
   }
 }

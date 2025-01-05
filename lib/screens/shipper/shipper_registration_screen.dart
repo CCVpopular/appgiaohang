@@ -121,7 +121,7 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
               const SizedBox(height: 20),
               CustomElevatedButton(
                 onPressed: _registerShipper,
-                child: const Text('Đăng ký'),
+                text: 'Đăng ký',
               ),
             ],
           ),
