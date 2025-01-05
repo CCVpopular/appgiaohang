@@ -254,12 +254,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     try {
-      // Handle online payment first if selected
       if (_paymentMethod == 'stripe') {
         final int amountInVND = ((widget.total + _shippingFee)).round();
-        final success = await StripeService.instance.makePayment(amountInVND);
-        if (!success) {
-          throw Exception('Payment failed');
+        final bool paymentSuccess = await StripeService.instance.makePayment(amountInVND);
+        if (!paymentSuccess) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Thanh toán thất bại. Vui lòng thử lại.')),
+          );
+          return;
         }
       }
 
