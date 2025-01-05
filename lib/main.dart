@@ -1,6 +1,7 @@
 import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'providers/theme_provider.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
@@ -33,12 +34,18 @@ import 'package:provider/provider.dart';
 import 'theme/themes.dart';
 
 void main() async {
+  await _setup();
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
       child: const MainApp(),
     ),
   );
+}
+
+Future<void> _setup() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = 'pk_test_51QdkkKKaNRl3RZygJWK8WIswWjdNPXubvcqrKYnxjjbE4ZwyFRyfegNTNuuE97Xy832QyiFCjHTRxBC4ag2Vtsdt007VIqgocC';
 }
 
 class MainApp extends StatelessWidget {

@@ -10,6 +10,7 @@ import '../../config/config.dart';
 import '../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
 import '../../providers/auth_provider.dart';
+import '../../services/stripe_service.dart';
 import '../../utils/shared_prefs.dart';
 
 class CheckoutPage extends StatefulWidget {
@@ -173,6 +174,12 @@ class _CheckoutPageState extends State<CheckoutPage> {
                     onChanged: (value) =>
                         setState(() => _paymentMethod = value!),
                   ),
+                  RadioListTile(
+                    title: const Text('Thanh toán bằng thẻ'),
+                    value: 'stripe',
+                    groupValue: _paymentMethod,
+                    onChanged: (value) => setState(() => _paymentMethod = value!),
+                  ),
                   const SizedBox(height: 16),
                   const Text(
                     'Tổng quan đơn hàng',
@@ -247,6 +254,15 @@ class _CheckoutPageState extends State<CheckoutPage> {
     }
 
     try {
+      // Handle online payment first if selected
+      if (_paymentMethod == 'stripe') {
+        final int amountInVND = ((widget.total + _shippingFee)).round();
+        final success = await StripeService.instance.makePayment(amountInVND);
+        if (!success) {
+          throw Exception('Payment failed');
+        }
+      }
+
       final userId = await SharedPrefs.getUserId();
       if (userId == null) {
         throw Exception('User not logged in');

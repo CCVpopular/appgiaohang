@@ -137,6 +137,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.0.2+3"
+  dio:
+    dependency: "direct main"
+    description:
+      name: dio
+      sha256: "5598aa796bbf4699afd5c67c0f5f6e2ed542afc956884b9cd58c306966efc260"
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.7.0"
+  dio_web_adapter:
+    dependency: transitive
+    description:
+      name: dio_web_adapter
+      sha256: "33259a9276d6cea88774a0000cfae0d861003497755969c92faa223108620dc8"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.0.0"
   fake_async:
     dependency: transitive
     description:
@@ -302,6 +318,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.0"
+  flutter_stripe:
+    dependency: "direct main"
+    description:
+      name: flutter_stripe
+      sha256: "06d7d8ac853470b7c9a9ed81f9fccafaf35f417a151e1b7ddcded56113aadf6f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.0"
   flutter_svg:
     dependency: "direct main"
     description:
@@ -1013,6 +1037,30 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
+  stripe_android:
+    dependency: transitive
+    description:
+      name: stripe_android
+      sha256: bc919b07ba1560b25a69002f9ca67a5973f12bfb96f78033cf9bd6c561f1aa10
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.0"
+  stripe_ios:
+    dependency: transitive
+    description:
+      name: stripe_ios
+      sha256: "734a7668babd85a451c8049f0dfa8ca5dc6d80f85600d29732e7fa703dd5ec5e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.0"
+  stripe_platform_interface:
+    dependency: transitive
+    description:
+      name: stripe_platform_interface
+      sha256: "5cb987074b6ee199e7dd1b81d189c87583f6eaeb19147ffc8c15bc009596e6ce"
+      url: "https://pub.dev"
+    source: hosted
+    version: "11.3.0"
   supercluster:
     dependency: transitive
     description:
