@@ -71,7 +71,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
     }
 
     if (_pendingShippers.isEmpty) {
-      return const Center(child: Text('No pending shipper applications'));
+      return const Center(child: Text('Không có đơn đăng ký shipper mới'));
     }
 
     return ListView.builder(
@@ -101,7 +101,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
                   children: [
                     ElevatedButton.icon(
                       icon: const Icon(Icons.check),
-                      label: const Text('Approve'),
+                      label: const Text('Phê duyệt'),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.green,
@@ -111,7 +111,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       icon: const Icon(Icons.close),
-                      label: const Text('Reject'),
+                      label: const Text('Từ chối'),
                       style: ElevatedButton.styleFrom(
                         foregroundColor: Colors.white,
                         backgroundColor: Colors.red,

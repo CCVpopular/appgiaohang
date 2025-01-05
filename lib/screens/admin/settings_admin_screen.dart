@@ -22,15 +22,15 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Logout'),
-          content: const Text('Are you sure you want to logout?'),
+          title: const Text('Đăng xuất'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
-              child: const Text('Logout'),
+              child: const Text('Đăng xuất'),
               onPressed: () async {
                 await AuthProvider.logout();
                 if (!mounted) return;
@@ -53,8 +53,8 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Admin Profile'),
-              subtitle: const Text('Manage your profile information'),
+              title: const Text('Hồ sơ quản trị'),
+              subtitle: const Text('Quản lý thông tin cá nhân'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navigate to profile management
@@ -66,15 +66,15 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             child: Column(
               children: [
                 CustomSwitchListTile(
-                  title: 'Dark Mode',
-                  subtitle: 'Enable or disable dark theme',
+                  title: 'Chế độ tối',
+                  subtitle: 'Bật/tắt giao diện tối',
                   value: themeProvider.isDarkMode,
                   onChanged: (value) {
                     themeProvider.toggleTheme();
                   },
                 ),
                 CustomSwitchListTile(
-                  title: 'Notifications',
+                  title: 'Thông báo',
                   secondary: const Icon(Icons.notifications),
                   value: _notifications,
                   onChanged: (value) {
@@ -90,8 +90,8 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.security),
-              title: const Text('Security Settings'),
-              subtitle: const Text('Password and authentication'),
+              title: const Text('Cài đặt bảo mật'),
+              subtitle: const Text('Mật khẩu và xác thực'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
                 // Navigate to security settings
@@ -101,7 +101,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.switch_account),
-              title: const Text('Switch to User View'),
+              title: const Text('Chuyển sang giao diện người dùng'),
               onTap: () {
                 Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
               },
@@ -110,7 +110,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Logout'),
+              title: const Text('Đăng xuất'),
               onTap: _showLogoutDialog,
             ),
           ),

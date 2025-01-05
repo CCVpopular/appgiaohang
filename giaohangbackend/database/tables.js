@@ -11,6 +11,7 @@ export const createTables = async (pool) => {
         role ENUM('admin', 'user', 'shipper') DEFAULT 'user',
         is_active BOOLEAN DEFAULT true,
         balance DECIMAL(10,2) DEFAULT 0.00,
+        fcm_token VARCHAR(255),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
