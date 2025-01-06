@@ -1,6 +1,8 @@
+import 'package:appgiaohang/config/config.dart';
 import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'providers/theme_provider.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
@@ -8,11 +10,13 @@ import 'screens/register_screen.dart';
 import 'screens/home_admin_screen.dart';
 import 'screens/home_user_screen.dart';
 import 'screens/home_shipper_screen.dart';
+import 'screens/user/active_orders_screen.dart';
 import 'screens/user/add_address_page.dart';
 import 'screens/user/add_food_page.dart';
 import 'screens/user/cart_page.dart';
 import 'screens/user/checkout_page.dart';
 import 'screens/shipper/shipper_registration_screen.dart';
+import 'screens/user/delivery_tracking_page.dart';
 import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
@@ -31,12 +35,18 @@ import 'package:provider/provider.dart';
 import 'theme/themes.dart';
 
 void main() async {
+  await _setup();
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
       child: const MainApp(),
     ),
   );
+}
+
+Future<void> _setup() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = Config.stripePublishableKey;
 }
 
 class MainApp extends StatelessWidget {
@@ -100,11 +110,13 @@ class MainApp extends StatelessWidget {
         '/register-store': (context) => const StoreRegistrationPage(),
         '/shipper-registration': (context) => const ShipperRegistrationScreen(),
         '/store-detail': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return StoreDetailPage(store: store);
         },
         '/store-detail-info': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return StoreDetailInfo(store: store);
         },
         '/store-approval': (context) => const StoreApprovalScreen(),
@@ -117,12 +129,14 @@ class MainApp extends StatelessWidget {
           return StoreFoodManagement(storeId: storeId);
         },
         '/food-store': (context) {
-          final store = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final store = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return FoodStorePage(store: store);
         },
         '/cart': (context) => const CartPage(),
         '/checkout': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
           return CheckoutPage(
             cartItems: args['cartItems'],
             total: args['total'],
@@ -135,6 +149,12 @@ class MainApp extends StatelessWidget {
           return StoreOrdersScreen(storeId: storeId);
         },
         '/store-address-map': (context) => const StoreAddressMapPage(),
+        '/active-orders': (context) => const ActiveOrdersScreen(),
+        '/user-delivery-tracking': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments
+              as Map<String, dynamic>;
+          return UserDeliveryTrackingPage(order: args);
+        },
       },
     );
   }

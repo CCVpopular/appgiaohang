@@ -8,7 +8,11 @@ import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
-import chatRoutes from './routes/chat.js'
+import chatRoutes from './routes/chat.js';
+import transactionsRoutes from './routes/transactions.js';
+import earningsRoutes from './routes/earnings.js';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -75,6 +79,8 @@ app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
 app.use('/chat', chatRoutes);
+app.use('/transactions', transactionsRoutes);
+app.use('/earnings', earningsRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
@@ -103,7 +109,41 @@ app.use((req, res) => {
 
 // Start server
 const PORT = 3000;
-app.listen(PORT, () => {
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-delivery-room', (connectionString) => {
+    socket.join(connectionString);
+    console.log(connectionString);
+  });
+
+  socket.on('shipper-location', (data) => {
+    io.to(data.connectionString).emit('location-update', {
+      latitude: data.latitude,
+      longitude: data.longitude,
+    });
+    // console.log(data.connectionString);
+    // console.log(data.latitude , data.longitude);
+  });
+
+  // Handle chat room joining
+  socket.on('join-chat', (orderId) => {
+    socket.join(`chat-${orderId}`);
+  });
+
+  // Handle new messages
+  socket.on('new-message', (message) => {
+    io.to(`chat-${message.orderId}`).emit('message-received', message);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 

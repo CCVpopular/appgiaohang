@@ -141,21 +141,21 @@ class _FoodStorePageState extends State<FoodStorePage> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text('\$${food['price']}'),
+                              Text('${(double.parse(food['price'].toString()) * 1000).toStringAsFixed(0).replaceAllMapped(
+                                RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+                                (Match m) => '${m[1]}.',
+                              )}đ'),
                               IconButton(
                                 icon: const Icon(Icons.add_shopping_cart),
                                 onPressed: () async {
                                   final cartItem = CartItem(
                                     foodId: food['id'],
                                     name: food['name'],
-                                    price: double.parse(food['price'].toString()),
+                                    price: double.parse(food['price'].toString()) * 1000,
                                     storeId: widget.store['id'],
                                     storeName: widget.store['name'],
                                   );
                                   await CartProvider.addToCart(cartItem);
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Đã thêm vào giỏ hàng')),
-                                  );
                                 },
                               ),
                             ],

@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Debug middleware for users routes
 router.use((req, res, next) => {
-  console.log('Users route accessed:', req.method, req.url);
+  console.log(`[Users] ${req.method} ${req.url}`);
   next();
 });
 
