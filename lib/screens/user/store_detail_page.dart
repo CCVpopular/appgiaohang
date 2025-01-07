@@ -92,6 +92,20 @@ class StoreDetailPage extends StatelessWidget {
                   },
                 ),
               ),
+              CustomCard(
+                child: ListTile(
+                  leading: const Icon(Icons.bar_chart),
+                  title: const Text('Monthly Statistics'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/store-statistics',
+                      arguments: store['id'],
+                    );
+                  },
+                ),
+              ),
             ],
           ],
         ),
