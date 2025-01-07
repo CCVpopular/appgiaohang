@@ -1,5 +1,6 @@
 import express from 'express';
 import pool from '../index.js';
+import admin from 'firebase-admin';
 
 const router = express.Router();
 
@@ -205,17 +206,56 @@ router.put('/:orderId/review', async (req, res) => {
     // Update order status based on store's decision
     const newStatus = status === 'accepted' ? 'confirmed' : 'cancelled';
     
+    // Get user's FCM token
+    const [userToken] = await connection.query(
+      `SELECT u.fcm_token, u.id 
+       FROM orders o 
+       JOIN users u ON o.user_id = u.id 
+       WHERE o.id = ?`,
+      [orderId]
+    );
+
     await connection.query(
       'UPDATE orders SET status = ? WHERE id = ?',
       [newStatus, orderId]
     );
 
     if (status === 'accepted') {
-      // Create notification for shippers only if accepted
+      // Create notification for shippers
       await connection.query(
         'INSERT INTO shipper_notifications (order_id, status) VALUES (?, "pending")',
         [orderId]
       );
+
+      // Send push notification if user has FCM token
+      if (userToken[0]?.fcm_token) {
+        await admin.messaging().send({
+          token: userToken[0].fcm_token,
+          notification: {
+            title: 'Đơn hàng đã được xác nhận',
+            body: `Đơn hàng #${orderId} của bạn đã được cửa hàng xác nhận và đang được chuẩn bị`,
+          },
+          data: {
+            orderId: orderId.toString(),
+            type: 'order_confirmed'
+          }
+        });
+      }
+    } else {
+      // Send cancellation notification
+      if (userToken[0]?.fcm_token) {
+        await admin.messaging().send({
+          token: userToken[0].fcm_token,
+          notification: {
+            title: 'Đơn hàng đã bị từ chối',
+            body: `Đơn hàng #${orderId} của bạn đã bị cửa hàng từ chối`,
+          },
+          data: {
+            orderId: orderId.toString(),
+            type: 'order_rejected'
+          }
+        });
+      }
     }
 
     await connection.commit();
@@ -225,6 +265,7 @@ router.put('/:orderId/review', async (req, res) => {
     });
   } catch (error) {
     await connection.rollback();
+    console.error('Error reviewing order:', error);
     res.status(500).json({ error: error.message });
   } finally {
     connection.release();

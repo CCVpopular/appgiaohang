@@ -55,8 +55,8 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
           SnackBar(
             content: Text(
               status == 'accepted' 
-                ? 'Đã xác nhận đơn hàng thành công' 
-                : 'Đã từ chối đơn hàng'
+                ? 'Đã xác nhận đơn hàng và thông báo cho khách hàng' 
+                : 'Đã từ chối đơn hàng và thông báo cho khách hàng'
             ),
             backgroundColor: status == 'accepted' ? Colors.green : Colors.red,
           ),

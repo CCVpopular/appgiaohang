@@ -13,6 +13,13 @@ import transactionsRoutes from './routes/transactions.js';
 import earningsRoutes from './routes/earnings.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import admin from 'firebase-admin';
+import serviceAccount from './key/appgiaohangonline-firebase-adminsdk.json' assert { type: "json" };
+
+// Initialize Firebase Admin before other initializations
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 //Cau hinh ket noi database
 const dbConfig = {

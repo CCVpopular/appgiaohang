@@ -36,6 +36,8 @@ import 'theme/themes.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
   await _setup();
@@ -93,6 +95,15 @@ Future<void> _setup() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   
+  // Initialize local notifications
+  await NotificationService.initialize();
+  
+  // Handle foreground messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print("Foreground Message received: ${message.notification?.title}");
+    NotificationService.showNotification(message);
+  });
+
   if (await AuthProvider.isLoggedIn()) {
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
