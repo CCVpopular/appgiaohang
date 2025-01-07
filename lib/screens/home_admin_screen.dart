@@ -5,6 +5,7 @@ import 'admin/shipper_management_screen.dart';
 import 'admin/settings_admin_screen.dart';
 import 'admin/store_approval_screen.dart';
 import 'admin/user_management_screen.dart';
+import 'admin/revenue_statistics_screen.dart';
 
 class HomeAdminScreen extends StatefulWidget {
   const HomeAdminScreen({super.key});
@@ -27,7 +28,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
     const UserManagementScreen(),
     const StoreApprovalScreen(),
     const ShipperManagementScreen(),
-    const Center(child: Text('Reports')),
+    const RevenueStatisticsScreen(),
     const SettingsAdminScreen(),
   ];
 
