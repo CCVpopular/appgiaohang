@@ -37,7 +37,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
 
       final apiUrl = '${Config.baseurl}/foods/statistics/${widget.storeId}';
       print('Fetching statistics from: $apiUrl');
-      
+
       final response = await http.get(
         Uri.parse(apiUrl),
         headers: {
@@ -126,6 +126,10 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
 
   Widget _buildOverallStats() {
     final overallStats = statistics['overall_statistics'] ?? {};
+    // Divide by 1000 to compensate for the multiplication in _parseNumber
+    final totalRevenue = _parseNumber(overallStats['total_revenue']) / 1000;
+    final shopRevenue = (totalRevenue * 0.7).floorToDouble();
+
     return CustomCard(
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -156,7 +160,12 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Total Revenue: \$${_formatNumber(overallStats['total_revenue'])}',
+              'Total Revenue: ${_formatCurrency(totalRevenue)}',
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Shop Revenue (70%): ${_formatCurrency(shopRevenue)}',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
@@ -168,7 +177,8 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
     );
   }
 
-  Widget _buildStatItem(String label, String value, IconData icon, Color color) {
+  Widget _buildStatItem(
+      String label, String value, IconData icon, Color color) {
     return Column(
       children: [
         Icon(icon, color: color, size: 24),
@@ -184,8 +194,8 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
     if (monthlyStats.isEmpty) return const SizedBox();
 
     final revenueData = monthlyStats.take(6).map((stat) {
-      // Safely convert total_revenue to double
-      final revenue = _parseNumber(stat['total_revenue']);
+      // Divide by 1000 for chart display to keep the scale manageable
+      final revenue = _parseNumber(stat['total_revenue']) / 1000;
       return FlSpot(
         monthlyStats.indexOf(stat).toDouble(),
         revenue,
@@ -215,14 +225,26 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
     );
   }
 
-  // Add this helper method for parsing numbers
+  // Update the number parsing method to handle different number formats
   double _parseNumber(dynamic value) {
     if (value == null) return 0.0;
-    if (value is num) return value.toDouble();
+    if (value is num)
+      return value.toDouble() * 1000; // Multiply by 1000 for VND
     if (value is String) {
-      return double.tryParse(value) ?? 0.0;
+      // Remove commas and any currency symbols before parsing
+      String cleanValue = value.replaceAll(RegExp(r'[^\d.]'), '');
+      return (double.tryParse(cleanValue) ?? 0.0) *
+          1000; // Multiply by 1000 for VND
     }
     return 0.0;
+  }
+
+  String _formatCurrency(dynamic value) {
+    final number = _parseNumber(value);
+    // Format with comma separators for thousands, remove decimal places
+    final formatted = number.toStringAsFixed(0).replaceAllMapped(
+        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]},');
+    return '$formatted VND';
   }
 
   Widget _buildPopularItems() {
@@ -254,7 +276,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
                   title: Text(item['name'] ?? ''),
                   subtitle: Text('Sold: ${item['total_sold'] ?? 0}'),
                   trailing: Text(
-                    '\$${_formatNumber(item['total_revenue'])}',
+                    _formatCurrency(item['total_revenue']),
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 );
@@ -282,6 +304,11 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
       itemCount: monthlyStats.length,
       itemBuilder: (context, index) {
         final stat = monthlyStats[index];
+        // Divide by 1000 to compensate for the multiplication in _parseNumber
+        final totalRevenue = _parseNumber(stat['completed_revenue']) / 1000;
+        final shopRevenue = (totalRevenue * 0.7).floorToDouble();
+        final averageOrder = _parseNumber(stat['average_order_value']) / 1000;
+
         return CustomCard(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -297,11 +324,16 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
                 Text('Completed Orders: ${stat['completed_orders'] ?? 0}'),
                 Text('Cancelled Orders: ${stat['cancelled_orders'] ?? 0}'),
                 Text('Total Items: ${stat['total_items'] ?? 0}'),
-                Text('Average Order: \$${_formatNumber(stat['average_order_value'])}'),
+                Text('Average Order: ${_formatCurrency(averageOrder)}'),
                 Text(
-                  'Revenue: \$${_formatNumber(stat['completed_revenue'])}',
+                  'Total Revenue: ${_formatCurrency(totalRevenue)}',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                Text(
+                  'Shop Revenue (70%): ${_formatCurrency(shopRevenue)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.bold,
                       ),
                 ),
               ],
@@ -310,9 +342,5 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
         );
       },
     );
-  }
-
-  String _formatNumber(dynamic value) {
-    return _parseNumber(value).toStringAsFixed(2);
   }
 }
