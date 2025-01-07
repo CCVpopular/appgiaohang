@@ -312,6 +312,16 @@ router.post('/:orderId/accept', async (req, res) => {
       throw new Error(`Order cannot be accepted. Current status: ${orderCheck[0].status}`);
     }
 
+    // Get user's FCM token and shipper info
+    const [userInfo] = await connection.query(
+      `SELECT u.fcm_token, u.id, sh.full_name as shipper_name 
+       FROM orders o 
+       JOIN users u ON o.user_id = u.id
+       JOIN users sh ON sh.id = ?
+       WHERE o.id = ?`,
+      [shipperId, orderId]
+    );
+
     // Update order status and assign shipper
     await connection.query(
       `UPDATE orders 
@@ -321,6 +331,21 @@ router.post('/:orderId/accept', async (req, res) => {
        WHERE id = ?`,
       [shipperId, orderId]
     );
+
+    // Send push notification if user has FCM token
+    if (userInfo[0]?.fcm_token) {
+      await admin.messaging().send({
+        token: userInfo[0].fcm_token,
+        notification: {
+          title: 'Đơn hàng được xác nhận',
+          body: `Shipper ${userInfo[0].shipper_name} đã nhận đơn hàng #${orderId} của bạn`,
+        },
+        data: {
+          orderId: orderId.toString(),
+          type: 'order_accepted_by_shipper'
+        }
+      });
+    }
 
     await connection.commit();
     res.json({ 
