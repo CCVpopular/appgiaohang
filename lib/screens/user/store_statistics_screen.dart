@@ -74,7 +74,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
       });
     } catch (e) {
       if (!mounted) return;
-      print('Error fetching statistics: $e');
+      print('Lỗi tải đơn hàng: $e');
       setState(() {
         error = 'Network error: ${e.toString()}';
         isLoading = false;
@@ -85,7 +85,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Monthly Statistics'),
+      appBar: const CustomAppBar(title: 'Thống Kê Cửa Hàng'),
       body: RefreshIndicator(
         onRefresh: _fetchStatistics,
         child: isLoading
@@ -137,7 +137,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Overall Statistics',
+              'Bảng Thống Kê Tổng Quan',
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
@@ -145,13 +145,13 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 _buildStatItem(
-                  'Completed Orders',
+                  'Đơn hàng đã hoàn thành',
                   overallStats['total_completed']?.toString() ?? '0',
                   Icons.check_circle,
                   Colors.green,
                 ),
                 _buildStatItem(
-                  'Cancelled Orders',
+                  'Đơn hàng đã hủy',
                   overallStats['total_cancelled']?.toString() ?? '0',
                   Icons.cancel,
                   Colors.red,
@@ -160,12 +160,12 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
             ),
             const SizedBox(height: 16),
             Text(
-              'Total Revenue: ${_formatCurrency(totalRevenue)}',
+              'Tổng số tiền: ${_formatCurrency(totalRevenue)}',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              'Shop Revenue (70%): ${_formatCurrency(shopRevenue)}',
+              'Tổng số shop nhận (70% chiết khấu cho dịch vụ app): ${_formatCurrency(shopRevenue)}',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     color: Theme.of(context).primaryColor,
                     fontWeight: FontWeight.bold,
@@ -206,7 +206,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Order Frequency by Item',
+              'Danh Sách Món Ăn Phổ Biến',
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
@@ -311,14 +311,14 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Text(
-              'Popular Items',
+              'Danh Sách Món Ăn Phổ Biến',
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
           if (popularItems.isEmpty)
             const Padding(
               padding: EdgeInsets.all(16.0),
-              child: Text('No data available'),
+              child: Text('Không có món ăn nào được bán chạy'),
             )
           else
             ListView.builder(
@@ -348,7 +348,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
       return const CustomCard(
         child: Padding(
           padding: EdgeInsets.all(16.0),
-          child: Text('No monthly statistics available'),
+          child: Text('Không có dữ liệu thống kê tháng nào'),
         ),
       );
     }
@@ -371,21 +371,21 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Month: ${stat['month'] ?? 'N/A'}',
+                  'Tháng: ${stat['month'] ?? 'N/A'}',
                   style: Theme.of(context).textTheme.titleLarge,
                 ),
                 const SizedBox(height: 8),
-                Text('Total Orders: ${stat['total_orders'] ?? 0}'),
-                Text('Completed Orders: ${stat['completed_orders'] ?? 0}'),
-                Text('Cancelled Orders: ${stat['cancelled_orders'] ?? 0}'),
-                Text('Total Items: ${stat['total_items'] ?? 0}'),
-                Text('Average Order: ${_formatCurrency(averageOrder)}'),
+                Text('Tổng đơn hàng: ${stat['total_orders'] ?? 0}'),
+                Text('Đơn hàng hoản thành: ${stat['completed_orders'] ?? 0}'),
+                Text('Đơn hàng bị huỷ: ${stat['cancelled_orders'] ?? 0}'),
+                Text('Tổng số món ăn: ${stat['total_items'] ?? 0}'),
+                Text('Đặt hàng trung bình: ${_formatCurrency(averageOrder)}'),
                 Text(
-                  'Total Revenue: ${_formatCurrency(totalRevenue)}',
+                  'Số tiền đơn hàng: ${_formatCurrency(totalRevenue)}',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 Text(
-                  'Shop Revenue (70%): ${_formatCurrency(shopRevenue)}',
+                  'Số tiền nhận được sau khi chết khấu(70%): ${_formatCurrency(shopRevenue)}',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         color: Theme.of(context).primaryColor,
                         fontWeight: FontWeight.bold,

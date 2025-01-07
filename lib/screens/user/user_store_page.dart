@@ -52,7 +52,7 @@ class _UserStorePageState extends State<UserStorePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:const CustomAppBar(
-        title: 'My Stores',
+        title: 'Cửa hàng của bạn',
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -79,7 +79,7 @@ class _UserStorePageState extends State<UserStorePage> {
           const Icon(Icons.store_outlined, size: 64, color: Colors.grey),
           const SizedBox(height: 16),
           const Text(
-            'No stores yet',
+            'Chưa có cửa hàng nào được đăng ký',
             style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),
