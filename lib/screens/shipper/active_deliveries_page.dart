@@ -169,7 +169,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                     if (order['status'] == 'delivering')
                       ElevatedButton.icon(
                         icon: const Icon(Icons.chat),
-                        label: const Text('Chat'),
+                        label: const Text('Nhắn tin'),
                         onPressed: () {
                           Navigator.push(
                             context,

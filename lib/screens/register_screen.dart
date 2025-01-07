@@ -86,80 +86,200 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Register',
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back),
-        //   onPressed: () => Navigator.pop(context),
-        // ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  suffixIcon: !_isOTPSent
-                      ? IconButton(
-                          icon: const Icon(Icons.send),
-                          onPressed: _sendOTP,
-                        )
-                      : const Icon(Icons.check, color: Colors.green),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [Color.fromARGB(255, 225, 140, 22), Color.fromARGB(255, 204, 146, 52)],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 10.0), // reduced vertical padding
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 10), // reduced margin
+              padding: const EdgeInsets.all(15), // reduced padding
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 5,
+                    blurRadius: 15,
+                  ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 10), // reduced spacing
+                    const Text(
+                      'Tạo tài khoản',
+                      style: TextStyle(
+                        fontSize: 24, // reduced font size
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 15), // reduced spacing
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _emailController,
+                        decoration: InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: const Icon(Icons.email),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.all(16),
+                          suffixIcon: !_isOTPSent
+                              ? IconButton(
+                                  icon: const Icon(Icons.send),
+                                  onPressed: _sendOTP,
+                                )
+                              : const Icon(Icons.check, color: Colors.green),
+                        ),
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Hãy nhập email' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    if (_isOTPSent)
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextFormField(
+                          controller: _otpController,
+                          decoration: const InputDecoration(
+                            labelText: 'Gửi OTP',
+                            prefixIcon: Icon(Icons.password),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) =>
+                              value?.isEmpty ?? true ? 'Nhập OTP được gửi về gmail của bạn' : null,
+                        ),
+                      ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Mât khẩu',
+                          prefixIcon: Icon(Icons.lock),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        obscureText: true,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Hãy nhập mật khẩu' : null,
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _confirmPasswordController,
+                        decoration: const InputDecoration(
+                          labelText: 'Xác nhận mật khẩu',
+                          prefixIcon: Icon(Icons.lock),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Hãy xác nhận mật khẩu';
+                          }
+                          if (value != _passwordController.text) {
+                            return 'Mật khẩu không khớp';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _fullNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Họ và tên',
+                          prefixIcon: Icon(Icons.person),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Hãy nhập họ và tên'
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(
+                          labelText: 'Số điện thoại',
+                          prefixIcon: Icon(Icons.phone),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Hãy nhập số điện thoại'
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    ElevatedButton(
+                      onPressed: _register,
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text(
+                        'Đăng ký',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 12), // reduced spacing between fields
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Đã có tài khoản?"),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Đăng nhập'),
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter email' : null,
               ),
-              if (_isOTPSent)
-                TextFormField(
-                  controller: _otpController,
-                  decoration: const InputDecoration(labelText: 'Enter OTP'),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Please enter OTP' : null,
-                ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Password'),
-                obscureText: true,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter password' : null,
-              ),
-              TextFormField(
-                controller: _confirmPasswordController,
-                decoration:
-                    const InputDecoration(labelText: 'Confirm Password'),
-                obscureText: true,
-                validator: (value) {
-                  if (value?.isEmpty ?? true) {
-                    return 'Please confirm password';
-                  }
-                  if (value != _passwordController.text) {
-                    return 'Passwords do not match';
-                  }
-                  return null;
-                },
-              ),
-              TextFormField(
-                controller: _fullNameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter full name' : null,
-              ),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter phone number' : null,
-              ),
-              const SizedBox(height: 20),
-              CustomElevatedButton(
-                onPressed: _register,
-                text: 'Register',
-              ),
-            ],
+            ),
           ),
         ),
       ),

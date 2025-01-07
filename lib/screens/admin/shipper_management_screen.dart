@@ -59,7 +59,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating status: $e')),
+        SnackBar(content: Text('Lỗi khi cập nhật trạng thái: $e')),
       );
     }
   }
