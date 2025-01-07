@@ -30,7 +30,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
 
   Future<void> fetchStatistics() async {
     try {
-      print('Fetching admin statistics from: ${Config.baseurl}/earnings/admin');
+      print('Tải thống kê doanh thu admin từ: ${Config.baseurl}/earnings/admin');
       
       final response = await http.get(
         Uri.parse('${Config.baseurl}/earnings/admin'),
@@ -166,21 +166,21 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Items Revenue (30%): ${formatCurrency(convertAmount(breakdown['itemRevenue']))}',
+            'Lợi nhuận từ đơn hàng(30%): ${formatCurrency(convertAmount(breakdown['itemRevenue']))}',
             style: const TextStyle(color: Colors.blue),
           ),
           const SizedBox(height: 4),
           Text(
-            'Shipping Revenue (20%): ${formatCurrency(convertAmount(breakdown['shippingRevenue']))}',
+            'Lợi nhuận từ vận chuyển (20%): ${formatCurrency(convertAmount(breakdown['shippingRevenue']))}',
             style: const TextStyle(color: Colors.blue),
           ),
           const Divider(),
           Text(
-            'Order Total: ${formatCurrency(convertAmount(breakdown['totalOrder']))}',
+            'Tổng đơn hàng: ${formatCurrency(convertAmount(breakdown['totalOrder']))}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
           Text(
-            'Shipping Fee: ${formatCurrency(convertAmount(breakdown['shippingFee']))}',
+            'Phí Ship: ${formatCurrency(convertAmount(breakdown['shippingFee']))}',
             style: const TextStyle(fontWeight: FontWeight.bold),
           ),
         ],
@@ -208,10 +208,10 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
           crossAxisSpacing: 16,
           mainAxisSpacing: 16,
           children: [
-            _buildStatisticCard('Today', data['today'], Icons.today),
-            _buildStatisticCard('This Week', data['week'], Icons.calendar_view_week),
-            _buildStatisticCard('This Month', data['month'], Icons.calendar_month),
-            _buildStatisticCard('Total', data['total'], Icons.account_balance_wallet),
+            _buildStatisticCard('Hôm nay', data['today'], Icons.today),
+            _buildStatisticCard('Tuần này', data['week'], Icons.calendar_view_week),
+            _buildStatisticCard('Tháng này', data['month'], Icons.calendar_month),
+            _buildStatisticCard('Tổng', data['total'], Icons.account_balance_wallet),
           ],
         ),
       ],
@@ -226,12 +226,12 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Revenue Statistics'),
+        title: const Text('Thống kê doanh thu'),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(text: 'Item Revenue (30%)'),
-            Tab(text: 'Shipping Revenue (20%)'),
+            Tab(text: 'Lợi nhuận từ đơn hàng (30%)'),
+            Tab(text: 'Lợi nhuận từ shipping (20%)'),
           ],
         ),
       ),
@@ -244,7 +244,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRevenueSection('Item Revenue', 
+                _buildRevenueSection('Vật phẩm lợi nhuận', 
                     statistics['itemRevenue'] ?? {}),
                 const SizedBox(height: 24),
                 _buildTransactionList(true),
@@ -257,7 +257,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRevenueSection('Shipping Revenue', 
+                _buildRevenueSection('Doanh thu vận chuyển', 
                     statistics['shippingRevenue'] ?? {}),
                 const SizedBox(height: 24),
                 _buildTransactionList(false),
@@ -282,7 +282,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Recent ${isItemRevenue ? 'Item' : 'Shipping'} Transactions',
+          'Những giao dịch gần đây',
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -309,7 +309,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
                   child: const Icon(Icons.receipt, color: Colors.blue),
                 ),
                 title: Text(
-                  'Order #${transaction['orderId']}',
+                  'Đơn hàng #${transaction['orderId']}',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(
@@ -320,7 +320,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
                         .toString()
                         .split('.')[0]),
                     Text(
-                      'Total: ${formatCurrency(total)}',
+                      'Tổng: ${formatCurrency(total)}',
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                   ],

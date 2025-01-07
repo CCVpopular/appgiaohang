@@ -24,7 +24,7 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   }
 
   final List<Widget> _pages = [
-    const Center(child: Text('Dashboard')),
+    //const Center(child: Text('Dashboard')),
     const UserManagementScreen(),
     const StoreApprovalScreen(),
     const ShipperManagementScreen(),
@@ -35,18 +35,18 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title: 'Admin Dashboard'),
+      appBar:const CustomAppBar(title: 'Trang quản trị'),
       body: _pages[_selectedIndex],
       bottomNavigationBar: CustomBottomNavBar(
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Users'),
-            BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Stores'),
+            //BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+            BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Người dùng'),
+            BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Cửa hàng'),
             BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shippers'),
-            BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Reports'),
-            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+            BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Báo cáo'),
+            BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
