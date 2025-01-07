@@ -112,7 +112,7 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
                       children: [
                         _buildOverallStats(),
                         const SizedBox(height: 20),
-                        _buildRevenueChart(),
+                        _buildOrderFrequencyChart(),
                         const SizedBox(height: 20),
                         _buildPopularItems(),
                         const SizedBox(height: 20),
@@ -189,38 +189,93 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
     );
   }
 
-  Widget _buildRevenueChart() {
-    final monthlyStats = statistics['monthly_statistics'] as List? ?? [];
-    if (monthlyStats.isEmpty) return const SizedBox();
+  // Add this new method
+  Widget _buildOrderFrequencyChart() {
+    final popularItems = statistics['popular_items'] as List? ?? [];
+    if (popularItems.isEmpty) return const SizedBox();
 
-    final revenueData = monthlyStats.take(6).map((stat) {
-      // Divide by 1000 for chart display to keep the scale manageable
-      final revenue = _parseNumber(stat['total_revenue']) / 1000;
-      return FlSpot(
-        monthlyStats.indexOf(stat).toDouble(),
-        revenue,
-      );
-    }).toList();
+    // Calculate maxY safely by converting string values to double
+    final maxY = popularItems
+        .map<double>((item) => double.parse((item['total_sold'] ?? '0').toString()))
+        .reduce((a, b) => a > b ? a : b) * 1.2;
 
     return CustomCard(
-      child: SizedBox(
-        height: 200,
-        child: LineChart(
-          LineChartData(
-            gridData: FlGridData(show: false),
-            titlesData: FlTitlesData(show: false),
-            borderData: FlBorderData(show: true),
-            lineBarsData: [
-              LineChartBarData(
-                spots: revenueData,
-                isCurved: true,
-                color: Theme.of(context).primaryColor,
-                barWidth: 3,
-                dotData: FlDotData(show: true),
-              ),
-            ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Text(
+              'Order Frequency by Item',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
           ),
-        ),
+          SizedBox(
+            height: 300,
+            child: BarChart(
+              BarChartData(
+                alignment: BarChartAlignment.spaceAround,
+                maxY: maxY,
+                titlesData: FlTitlesData(
+                  show: true,
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 40,
+                    ),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (value, meta) {
+                        if (value < 0 || value >= popularItems.length) {
+                          return const SizedBox();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8.0),
+                          child: RotatedBox(
+                            quarterTurns: 1,
+                            child: Text(
+                              popularItems[value.toInt()]['name'] ?? '',
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                          ),
+                        );
+                      },
+                      reservedSize: 60,
+                    ),
+                  ),
+                  rightTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                ),
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                ),
+                borderData: FlBorderData(
+                  show: true,
+                ),
+                barGroups: List.generate(
+                  popularItems.length,
+                  (index) => BarChartGroupData(
+                    x: index,
+                    barRods: [
+                      BarChartRodData(
+                        toY: double.parse((popularItems[index]['total_sold'] ?? '0').toString()),
+                        color: Theme.of(context).primaryColor,
+                        width: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
