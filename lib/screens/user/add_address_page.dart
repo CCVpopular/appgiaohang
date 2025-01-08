@@ -22,7 +22,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
   final _addressController = TextEditingController();
   bool _isLoading = false;
   GoogleMapController? _mapController;
-  LatLng _center = const LatLng(10.8231, 106.6297); // Default to HCMC
+  LatLng _center = const LatLng(10.8231, 106.6297); 
   LatLng? _currentMapPosition;
 
   void _onMapCreated(GoogleMapController controller) {

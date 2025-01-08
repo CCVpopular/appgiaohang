@@ -53,7 +53,7 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _editProfile() async {
     final userData = await _userFuture;
     final TextEditingController nameController =
-            TextEditingController(text: userData?['fullName'] ?? '');
+        TextEditingController(text: userData?['fullName'] ?? '');
     final TextEditingController phoneController =
         TextEditingController(text: userData?['phoneNumber'] ?? '');
     bool isLoading = false;
@@ -63,7 +63,7 @@ class _ProfilePageState extends State<ProfilePage> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Edit Profile'),
+          title: const Text('Chỉnh Sửa Hồ Sơ'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -88,10 +88,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 keyboardType: TextInputType.phone,
                 validator: (value) {
                   if (value?.isEmpty ?? true) {
-                    return 'Phone number cannot be empty';
+                    return 'Số điện thoại không được để trống';
                   }
                   if (!RegExp(r'^\d{10}$').hasMatch(value!)) {
-                    return 'Enter valid 10-digit phone number';
+                    return 'Vui lòng nhập số điện thoại hợp lệ (10 số)';
                   }
                   return null;
                 },
@@ -101,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
           actions: [
             TextButton(
               onPressed: isLoading ? null : () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Hủy'),
             ),
             ElevatedButton(
               onPressed: isLoading
@@ -111,7 +111,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           phoneController.text.isEmpty) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                              content: Text('Please fill all fields')),
+                              content: Text('Vui lòng điền đầy đủ thông tin')),
                         );
                         return;
                       }
@@ -148,7 +148,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                              content: Text('Profile updated successfully'),
+                              content: Text('Cập nhật hồ sơ thành công'),
                               backgroundColor: Colors.green,
                             ),
                           );
@@ -187,7 +187,7 @@ class _ProfilePageState extends State<ProfilePage> {
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                       ),
                     )
-                  : const Text('Save'),
+                  : const Text('Lưu'),
             ),
           ],
         ),
@@ -239,25 +239,48 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  Widget _buildProfileHeader(Map<String, dynamic> userData) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Container(
+          height: 200,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topRight,
+              end: Alignment.bottomLeft,
+              colors: [
+                Color.fromARGB(255, 225, 140, 22),
+                Color.fromARGB(255, 204, 146, 52)
+              ],
+            ),
+          ),
+        ),
+        Column(
+          children: [
+            const CircleAvatar(
+              radius: 60,
+              backgroundColor: Colors.white,
+              child: Icon(Icons.person, size: 80, color: Colors.grey),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              userData['fullName'] ?? '',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Hồ sơ',
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const UserSettingsPage(),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
       body: FutureBuilder<Map<String, dynamic>?>(
         future: _userFuture,
         builder: (context, snapshot) {
@@ -269,56 +292,88 @@ class _ProfilePageState extends State<ProfilePage> {
             return _buildLoginCard();
           }
 
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
           final userData = snapshot.data!;
 
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
+          return SingleChildScrollView(
             child: Column(
               children: [
+                _buildProfileHeader(userData),
                 const SizedBox(height: 20),
-                const CircleAvatar(
-                  radius: 50,
-                  backgroundColor: Colors.grey,
-                  child: Icon(Icons.person, size: 50, color: Colors.white),
-                ),
-                const SizedBox(height: 20),
-                Card(
-                  child: ListView(
-                    shrinkWrap: true,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
                     children: [
-                      ListTile(
-                        leading: const Icon(Icons.person),
-                        title: const Text('Họ và Tên'),
-                        subtitle: Text(userData['fullName'] ?? ''),
+                      _buildInfoCard(
+                        'Thông tin cá nhân',
+                        [
+                          _buildInfoTile(
+                              Icons.email, 'Email', userData['email'] ?? ''),
+                          _buildInfoTile(Icons.phone, 'Số điện thoại',
+                              userData['phoneNumber'] ?? ''),
+                        ],
                       ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.email),
-                        title: const Text('Email'),
-                        subtitle: Text(userData['email'] ?? ''),
-                      ),
-                      const Divider(),
-                      ListTile(
-                        leading: const Icon(Icons.phone),
-                        title: const Text('Số điện thoại'),
-                        subtitle: Text(userData['phoneNumber'] ?? ''),
+                      const SizedBox(height: 16),
+                      CustomElevatedButton(
+                        onPressed: _editProfile,
+                        text: 'Chỉnh sửa hồ sơ',
+                        icon: const Icon(Icons.edit),
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: 20),
-                CustomElevatedButton(
-                  onPressed: _editProfile,
-                  text: 'Chỉnh sửa hồ sơ',
                 ),
               ],
             ),
           );
         },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const UserSettingsPage()),
+          );
+        },
+        child: const Icon(Icons.settings),
+      ),
+    );
+  }
+
+  Widget _buildInfoCard(String title, List<Widget> children) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const Divider(),
+            ...children,
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoTile(IconData icon, String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, size: 24),
+          const SizedBox(width: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(color: Colors.grey)),
+              Text(value, style: const TextStyle(fontSize: 16)),
+            ],
+          ),
+        ],
       ),
     );
   }

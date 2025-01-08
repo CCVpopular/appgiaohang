@@ -3,13 +3,20 @@ import pool from '../index.js';
 
 const router = express.Router();
 
+// Add shipping fee calculation helper function
+function calculateShippingFee(distance) {
+  // Base fee
+  const baseFee = 2;
+  // Per kilometer fee
+  const perKmFee = 0.5;
+  return baseFee + (distance * perKmFee);
+}
+
 router.post('/', async (req, res) => {
   const connection = await pool.getConnection();
   try {
     await connection.beginTransaction();
     
-    console.log('Received order data:', req.body); // Debug log
-
     const { 
       userId, 
       address, 
@@ -21,7 +28,8 @@ router.post('/', async (req, res) => {
       items, 
       totalAmount, 
       paymentMethod, 
-      note 
+      note,
+      shippingFee
     } = req.body;
 
     // Validate required fields
@@ -34,21 +42,19 @@ router.post('/', async (req, res) => {
       `INSERT INTO orders (
         user_id, address, latitude, longitude,
         store_address, store_latitude, store_longitude,
-        total_amount, payment_method, note
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        total_amount, payment_method, note, shipping_fee
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         userId, address, latitude || null, longitude || null,
         store_address, store_latitude || null, store_longitude || null,
-        totalAmount, paymentMethod, note || null
+        totalAmount, paymentMethod, note || null, shippingFee || 0
       ]
     );
 
     const orderId = orderResult.insertId;
-    console.log('Created order with ID:', orderId); // Debug log
 
     // Create order items
     for (const item of items) {
-      console.log('Inserting order item:', item); // Debug log
       await connection.query(
         'INSERT INTO order_items (order_id, food_id, quantity, price, store_id) VALUES (?, ?, ?, ?, ?)',
         [orderId, item.foodId, item.quantity, item.price, item.storeId]
@@ -62,7 +68,6 @@ router.post('/', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating order:', error); // Debug log
     await connection.rollback();
     res.status(500).json({ error: error.message });
   } finally {
@@ -104,6 +109,11 @@ router.get('/confirmed', async (req, res) => {
         o.*,
         u.full_name as customer_name,
         u.phone_number as customer_phone,
+        o.shipping_fee,
+        o.store_latitude,
+        o.store_longitude,
+        o.latitude,
+        o.longitude,
         JSON_ARRAYAGG(
           JSON_OBJECT(
             'quantity', oi.quantity,
@@ -124,10 +134,8 @@ router.get('/confirmed', async (req, res) => {
       ORDER BY o.created_at DESC`
     );
     
-    console.log('Fetched confirmed orders:', orders);
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching confirmed orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -152,10 +160,8 @@ router.get('/pending', async (req, res) => {
       ORDER BY o.created_at DESC`
     );
     
-    console.log('Fetched pending orders:', orders); // Add logging
     res.json(orders);
   } catch (error) {
-    console.error('Error fetching pending orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -181,12 +187,9 @@ router.get('/store/:storeId', async (req, res) => {
       ORDER BY o.created_at DESC`,
       [req.params.storeId]
     );
-
-    console.log('Store orders query result:', orders);
     
     res.json(orders || []);
   } catch (error) {
-    console.error('Error fetching store orders:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -232,11 +235,6 @@ router.put('/:orderId/review', async (req, res) => {
 router.post('/:orderId/accept', async (req, res) => {
   const connection = await pool.getConnection();
   try {
-    console.log('Accepting order:', {
-      orderId: req.params.orderId,
-      shipperId: req.body.shipperId,
-    });
-
     await connection.beginTransaction();
     const { shipperId } = req.body;
     const orderId = req.params.orderId;
@@ -246,8 +244,6 @@ router.post('/:orderId/accept', async (req, res) => {
       'SELECT id, role FROM users WHERE id = ?',
       [shipperId]
     );
-
-    console.log('Shipper check result:', shipperCheck);
 
     if (!shipperCheck.length) {
       throw new Error('Shipper not found');
@@ -259,7 +255,6 @@ router.post('/:orderId/accept', async (req, res) => {
         'UPDATE users SET role = "shipper" WHERE id = ?',
         [shipperId]
       );
-      console.log('Updated user to shipper role');
     }
 
     // Check if order exists and is available
@@ -267,8 +262,6 @@ router.post('/:orderId/accept', async (req, res) => {
       'SELECT id, status FROM orders WHERE id = ?',
       [orderId]
     );
-
-    console.log('Order check result:', orderCheck);
 
     if (!orderCheck.length) {
       throw new Error('Order not found');
@@ -288,47 +281,6 @@ router.post('/:orderId/accept', async (req, res) => {
       [shipperId, orderId]
     );
 
-    // Get order details for notification
-    const [orderDetails] = await connection.query(
-      `SELECT 
-        o.*,
-        u.id as customer_id,
-        u.full_name as customer_name,
-        (SELECT fs.id FROM order_items oi2 
-         JOIN food_stores fs ON oi2.store_id = fs.id 
-         WHERE oi2.order_id = o.id LIMIT 1) as store_id,
-        (SELECT fs.name FROM order_items oi2 
-         JOIN food_stores fs ON oi2.store_id = fs.id 
-         WHERE oi2.order_id = o.id LIMIT 1) as store_name,
-        s.full_name as shipper_name
-      FROM orders o
-      JOIN users u ON o.user_id = u.id
-      JOIN users s ON s.id = ?
-      WHERE o.id = ?
-      LIMIT 1`,
-      [shipperId, orderId]
-    );
-
-    console.log('Order details:', orderDetails);
-
-    if (orderDetails.length > 0) {
-      const details = orderDetails[0];
-      
-      await connection.query(
-        `INSERT INTO user_notifications 
-        (user_id, order_id, shipper_id, store_id, message, type) 
-        VALUES (?, ?, ?, ?, ?, ?)`,
-        [
-          details.customer_id,
-          orderId,
-          shipperId,
-          details.store_id,
-          `Your order #${orderId} has been accepted by ${details.shipper_name} and is being prepared at ${details.store_name}`,
-          'order_accepted'
-        ]
-      );
-    }
-
     await connection.commit();
     res.json({ 
       success: true,
@@ -337,7 +289,114 @@ router.post('/:orderId/accept', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error accepting order:', error);
+    await connection.rollback();
+    res.status(400).json({ 
+      success: false,
+      error: error.message 
+    });
+  } finally {
+    connection.release();
+  }
+});
+
+// Start delivery route
+router.put('/:orderId/start-delivery', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const orderId = req.params.orderId;
+    const { shipperId } = req.body;
+
+    // Validate request
+    if (!shipperId) {
+      throw new Error('Shipper ID is required');
+    }
+
+    // Check if order exists and belongs to this shipper
+    const [orderCheck] = await connection.query(
+      'SELECT id, status, shipper_id FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    if (!orderCheck.length) {
+      throw new Error('Order not found');
+    }
+
+    if (orderCheck[0].shipper_id != shipperId) {
+      throw new Error('Unauthorized: Order belongs to different shipper');
+    }
+
+    if (orderCheck[0].status !== 'preparing') {
+      throw new Error(`Cannot start delivery. Current status: ${orderCheck[0].status}`);
+    }
+
+    // Update order status to delivering
+    await connection.query(
+      'UPDATE orders SET status = "delivering" WHERE id = ? AND shipper_id = ?',
+      [orderId, shipperId]
+    );
+
+    await connection.commit();
+    res.json({ 
+      success: true,
+      message: 'Delivery started successfully'
+    });
+
+  } catch (error) {
+    await connection.rollback();
+    res.status(400).json({ 
+      success: false,
+      error: error.message 
+    });
+  } finally {
+    connection.release();
+  }
+});
+
+// Complete delivery route
+router.put('/:orderId/complete-delivery', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    const orderId = req.params.orderId;
+    const { shipperId } = req.body;
+
+    // Validate request
+    if (!shipperId) {
+      throw new Error('Shipper ID is required');
+    }
+
+    // Check if order exists and belongs to this shipper
+    const [orderCheck] = await connection.query(
+      'SELECT id, status, shipper_id FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    if (!orderCheck.length) {
+      throw new Error('Order not found');
+    }
+
+    if (orderCheck[0].shipper_id != shipperId) {
+      throw new Error('Unauthorized: Order belongs to different shipper');
+    }
+
+    if (orderCheck[0].status !== 'delivering') {
+      throw new Error(`Cannot complete delivery. Current status: ${orderCheck[0].status}`);
+    }
+
+    // Update order status to completed
+    await connection.query(
+      'UPDATE orders SET status = "completed" WHERE id = ? AND shipper_id = ?',
+      [orderId, shipperId]
+    );
+
+    await connection.commit();
+    res.json({ 
+      success: true,
+      message: 'Delivery completed successfully'
+    });
+
+  } catch (error) {
     await connection.rollback();
     res.status(400).json({ 
       success: false,
@@ -377,10 +436,85 @@ router.get('/shipper/:shipperId/active', async (req, res) => {
       ORDER BY o.created_at DESC`,
       [req.params.shipperId]
     );
+    console.log(orders + "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get shipper's completed orders
+router.get('/shipper/:shipperId/completed', async (req, res) => {
+  try {
+    const [orders] = await pool.query(
+      `SELECT 
+        o.*,
+        u.full_name as customer_name,
+        u.phone_number as customer_phone,
+        JSON_ARRAYAGG(
+          JSON_OBJECT(
+            'quantity', oi.quantity,
+            'price', oi.price,
+            'food_name', f.name,
+            'store_name', fs.name,
+            'store_address', fs.address
+          )
+        ) as items
+      FROM orders o
+      INNER JOIN users u ON o.user_id = u.id
+      INNER JOIN order_items oi ON o.id = oi.order_id
+      INNER JOIN foods f ON oi.food_id = f.id
+      INNER JOIN food_stores fs ON oi.store_id = fs.id
+      WHERE o.shipper_id = ? 
+      AND o.status = 'completed'
+      GROUP BY o.id
+      ORDER BY o.updated_at DESC`,
+      [req.params.shipperId]
+    );
     
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// When order is marked as completed
+router.put('/:id/complete', async (req, res) => {
+  const connection = await pool.getConnection();
+  try {
+    await connection.beginTransaction();
+    
+    const orderId = req.params.id;
+    const { shipperId } = req.body;
+    
+    // Update order status
+    await connection.query(
+      'UPDATE orders SET status = "completed" WHERE id = ?',
+      [orderId]
+    );
+
+    // Get order amount and calculate shipper earnings
+    const [orderDetails] = await connection.query(
+      'SELECT shipping_fee FROM orders WHERE id = ?',
+      [orderId]
+    );
+
+    const earnings = orderDetails[0].shipping_fee * 0.8; // Changed to 80% of shipping fee
+
+    // Record earnings transaction
+    await connection.query(
+      'INSERT INTO transactions (user_id, amount, type, description, reference_id) VALUES (?, ?, "order_earning", "Earnings from delivery", ?)',
+      [shipperId, earnings, orderId]
+    );
+
+    await connection.commit();
+    res.json({ message: 'Order completed and earnings recorded' });
+  } catch (error) {
+    await connection.rollback();
+    console.error('Complete order error:', error);
+    res.status(500).json({ error: error.message });
+  } finally {
+    connection.release();
   }
 });
 

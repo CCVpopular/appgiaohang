@@ -8,7 +8,11 @@ import foodsRoutes from './routes/foods.js';
 import addressesRoutes from './routes/addresses.js';
 import ordersRoutes from './routes/orders.js';
 import usersRoutes from './routes/users.js';
-import chatRoutes from './routes/chat.js'
+import chatRoutes from './routes/chat.js';
+import transactionsRoutes from './routes/transactions.js';
+import earningsRoutes from './routes/earnings.js';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -56,14 +60,42 @@ const app = express();
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept']
+  allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Add headers middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
+  next();
+});
 
 app.use(express.json());
 
 // Add logging middleware to debug routes
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Add more detailed logging middleware
+app.use((req, res, next) => {
+  console.log('Request:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    params: req.params,
+    query: req.query
+  });
   next();
 });
 
@@ -75,6 +107,8 @@ app.use('/foods', foodsRoutes);
 app.use('/addresses', addressesRoutes);
 app.use('/orders', ordersRoutes);
 app.use('/chat', chatRoutes);
+app.use('/transactions', transactionsRoutes);
+app.use('/earnings', earningsRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
@@ -101,9 +135,61 @@ app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
 });
 
+// Move 404 handler to the end
+const handle404 = (req, res) => {
+  console.log('404 Not Found:', req.method, req.url);
+  res.status(404).json({ error: 'Not found' });
+};
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  if (err.code === 'ER_DUP_ENTRY') {
+    return res.status(400).json({ error: 'Email already registered' });
+  }
+  res.status(500).json({ error: err.message || 'Something went wrong!' });
+});
+
+// Add 404 handler last
+app.use(handle404);
+
 // Start server
 const PORT = 3000;
-app.listen(PORT, () => {
+const server = createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    methods: ["GET", "POST"]
+  }
+});
+
+io.on('connection', (socket) => {
+  socket.on('join-delivery-room', (connectionString) => {
+    socket.join(connectionString);
+    console.log(connectionString);
+  });
+
+  socket.on('shipper-location', (data) => {
+    io.to(data.connectionString).emit('location-update', {
+      latitude: data.latitude,
+      longitude: data.longitude,
+    });
+    // console.log(data.connectionString);
+    // console.log(data.latitude , data.longitude);
+  });
+
+  // Handle chat room joining
+  socket.on('join-chat', (orderId) => {
+    socket.join(`chat-${orderId}`);
+  });
+
+  // Handle new messages
+  socket.on('new-message', (message) => {
+    io.to(`chat-${message.orderId}`).emit('message-received', message);
+  });
+});
+
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
 
