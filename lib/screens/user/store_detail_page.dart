@@ -12,7 +12,7 @@ class StoreDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar:const CustomAppBar(
-        title: 'Store Details',
+        title: 'Chi tiết cửa hàng',
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -51,7 +51,7 @@ class StoreDetailPage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: const [
-                          Text('Tap to view details'),
+                          Text('Chi tiết'),
                           Icon(Icons.arrow_forward_ios),
                         ],
                       ),
@@ -64,7 +64,7 @@ class StoreDetailPage extends StatelessWidget {
               CustomCard(
                 child: ListTile(
                   leading: const Icon(Icons.restaurant_menu),
-                  title: const Text('Manage Food Items'),
+                  title: const Text('Quản lý món ăn'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     Navigator.pushNamed(
@@ -78,7 +78,7 @@ class StoreDetailPage extends StatelessWidget {
               CustomCard(
                 child: ListTile(
                   leading: const Icon(Icons.shopping_bag),
-                  title: const Text('View Orders'),
+                  title: const Text('Đơn hàng'),
                   trailing: const Icon(Icons.arrow_forward_ios),
                   onTap: () {
                     Navigator.push(
@@ -88,6 +88,20 @@ class StoreDetailPage extends StatelessWidget {
                           storeId: store['id'],
                         ),
                       ),
+                    );
+                  },
+                ),
+              ),
+              CustomCard(
+                child: ListTile(
+                  leading: const Icon(Icons.bar_chart),
+                  title: const Text('Thống kê'),
+                  trailing: const Icon(Icons.arrow_forward_ios),
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      '/store-statistics',
+                      arguments: store['id'],
                     );
                   },
                 ),

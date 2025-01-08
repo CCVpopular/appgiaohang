@@ -60,4 +60,74 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
+// Get monthly order statistics
+router.get('/statistics/:storeId', async (req, res) => {
+  try {
+    console.log('Fetching statistics for store:', req.params.storeId);
+
+    const [monthlyStats] = await pool.query(
+      `SELECT 
+        DATE_FORMAT(o.created_at, '%Y-%m') as month,
+        COUNT(DISTINCT o.id) as total_orders,
+        CAST(SUM(oi.quantity) AS DECIMAL(10,2)) as total_items,
+        CAST(SUM(oi.quantity * f.price) AS DECIMAL(10,2)) as total_revenue,
+        CAST(AVG(oi.quantity * f.price) AS DECIMAL(10,2)) as average_order_value,
+        CAST(SUM(CASE WHEN o.status = 'completed' THEN oi.quantity * f.price ELSE 0 END) AS DECIMAL(10,2)) as completed_revenue,
+        COUNT(CASE WHEN o.status = 'completed' THEN 1 END) as completed_orders,
+        COUNT(CASE WHEN o.status = 'cancelled' THEN 1 END) as cancelled_orders
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN foods f ON oi.food_id = f.id
+      WHERE f.store_id = ?
+      AND o.created_at >= DATE_SUB(NOW(), INTERVAL 12 MONTH)
+      GROUP BY DATE_FORMAT(o.created_at, '%Y-%m')
+      ORDER BY month DESC`,
+      [req.params.storeId]
+    );
+
+    console.log('Monthly stats:', monthlyStats);
+
+    const [overallStats] = await pool.query(
+      `SELECT 
+        COUNT(DISTINCT CASE WHEN o.status = 'completed' THEN o.id END) as total_completed,
+        COUNT(DISTINCT CASE WHEN o.status = 'cancelled' THEN o.id END) as total_cancelled,
+        SUM(CASE WHEN o.status = 'completed' THEN oi.quantity * f.price ELSE 0 END) as total_revenue
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN foods f ON oi.food_id = f.id
+      WHERE f.store_id = ?`,
+      [req.params.storeId]
+    );
+
+    console.log('Overall stats:', overallStats[0]);
+
+    const [popularItems] = await pool.query(
+      `SELECT 
+        f.id,
+        f.name,
+        SUM(oi.quantity) as total_sold,
+        SUM(oi.quantity * f.price) as total_revenue
+      FROM orders o
+      JOIN order_items oi ON o.id = oi.order_id
+      JOIN foods f ON oi.food_id = f.id
+      WHERE f.store_id = ?
+      GROUP BY f.id, f.name
+      ORDER BY total_sold DESC
+      LIMIT 5`,
+      [req.params.storeId]
+    );
+
+    console.log('Popular items:', popularItems);
+
+    res.json({
+      monthly_statistics: monthlyStats,
+      popular_items: popularItems,
+      overall_statistics: overallStats[0]
+    });
+  } catch (error) {
+    console.error('Error fetching statistics:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
 export default router;

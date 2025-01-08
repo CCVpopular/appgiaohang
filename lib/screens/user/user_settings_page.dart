@@ -51,7 +51,8 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
               onPressed: () async {
                 await AuthProvider.logout();
                 if (!mounted) return;
-                Navigator.of(context).pushNamedAndRemoveUntil('/user_home', (route) => false);
+                Navigator.of(context)
+                    .pushNamedAndRemoveUntil('/user_home', (route) => false);
               },
             ),
           ],
@@ -60,100 +61,96 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
     );
   }
 
+  Widget _buildSettingsSection(String title, List<Widget> children) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(
+            title,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        Card(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(15),
+          ),
+          child: Column(children: children),
+        ),
+        const SizedBox(height: 24),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    
+
     return Scaffold(
-      appBar: CustomAppBar(
-        title: 'Settings',
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      appBar: const CustomAppBar(title: 'Cài đặt'),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSettingsSection(
+              'Tùy chỉnh ứng dụng',
+              [
+                CustomSwitchListTile(
+                  title: 'Thông báo',
+                  subtitle: 'Bật/tắt thông báo',
+                  value: notificationsEnabled,
+                  onChanged: (value) =>
+                      setState(() => notificationsEnabled = value),
+                ),
+                const Divider(height: 1),
+                CustomSwitchListTile(
+                  title: 'Chế độ tối',
+                  subtitle: 'Bật/tắt giao diện tối',
+                  value: themeProvider.isDarkMode,
+                  onChanged: (value) => themeProvider.toggleTheme(),
+                ),
+              ],
+            ),
+            _buildSettingsSection(
+              'Tài khoản',
+              [
+                ListTile(
+                  leading: const Icon(Icons.store),
+                  title: const Text('Cửa hàng của tôi'),
+                  trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                  onTap: () => Navigator.pushNamed(context, '/my-store'),
+                ),
+                if (isAdmin) ...[
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.admin_panel_settings),
+                    title: const Text('Chuyển sang giao diện Admin'),
+                    trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+                    onTap: () => Navigator.pushNamedAndRemoveUntil(
+                        context, '/admin', (route) => false),
+                  ),
+                ],
+              ],
+            ),
+            if (showLogout)
+              _buildSettingsSection(
+                'Khác',
+                [
+                  ListTile(
+                    leading: const Icon(Icons.logout, color: Colors.red),
+                    title: const Text('Đăng xuất',
+                        style: TextStyle(color: Colors.red)),
+                    onTap: _showLogoutDialog,
+                  ),
+                ],
+              ),
+          ],
         ),
-      ),
-      body: ListView(
-        children: [
-          CustomSwitchListTile(
-            title: 'Push Notifications',
-            subtitle: 'Enable or disable notifications',
-            value: notificationsEnabled,
-            onChanged: (bool value) {
-              setState(() {
-                notificationsEnabled = value;
-              });
-            },
-          ),
-          const Divider(),
-          CustomSwitchListTile(
-            title: 'Dark Mode',
-            subtitle: 'Enable or disable dark theme',
-            value: themeProvider.isDarkMode,
-            onChanged: (value) {
-              themeProvider.toggleTheme();
-            },
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Language'),
-            subtitle: Text(selectedLanguage),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // Add language selection functionality
-            },
-          ),
-          const Divider(),
-          ListTile(title: const Text('Privacy Policy'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // Navigate to privacy policy
-            },
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Terms of Service'),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              // Navigate to terms of service
-            },
-          ),
-          if (isAdmin) ...[
-            const Divider(),
-            ListTile(
-              title: const Text('Switch to Admin View'),
-              leading: const Icon(Icons.admin_panel_settings),
-              onTap: () {
-                Navigator.pushNamedAndRemoveUntil(context, '/admin', (route) => false);
-              },
-            ),
-          ],
-          const Divider(),
-          ListTile(
-            title: const Text('My Store'),
-            leading: const Icon(Icons.store),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.pushNamed(context, '/my-store');
-            },
-          ),
-          const Divider(),
-          ListTile(
-            title: const Text('Become a Shipper'),
-            leading: const Icon(Icons.delivery_dining),
-            trailing: const Icon(Icons.arrow_forward_ios),
-            onTap: () {
-              Navigator.pushNamed(context, '/shipper-registration');
-            },
-          ),
-          if (showLogout) ...[
-            const Divider(),
-            ListTile(
-              title: const Text('Logout'),
-              leading: const Icon(Icons.logout, color: Colors.red),
-              onTap: _showLogoutDialog,
-            ),
-          ],
-        ],
       ),
     );
   }

@@ -171,7 +171,7 @@ class _EarningsPageState extends State<EarningsPage> {
     final date = DateTime.parse(dateStr);
     return '${date.day}/${date.month}/${date.year} ${date.hour}:${date.minute}';
   }
-
+  
   String formatCurrency(dynamic amount) {
     if (amount == null) return '0 ₫';
     if (amount is String) {

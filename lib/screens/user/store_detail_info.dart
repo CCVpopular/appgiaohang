@@ -49,12 +49,12 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Store updated successfully')),
+        const SnackBar(content: Text('Cập nhật cửa hàng thành công')),
       );
       setState(() => _isEditing = false);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update store')),
+        const SnackBar(content: Text('Cập nhật cửa hàng thất bại')),
       );
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -76,7 +76,7 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
       Navigator.pop(context, true);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to update store status')),
+        const SnackBar(content: Text('cập nhật trạng thái cửa hàng thất bại')),
       );
     }
   }
@@ -85,7 +85,7 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(
-        title:  'Store Details',
+        title:  'Chi tiết cửa hàng',
         actions: [
           IconButton(
             icon: Icon(_isEditing ? Icons.save : Icons.edit),
@@ -104,26 +104,26 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
                   children: [
                     TextFormField(
                       controller: _nameController,
-                      decoration: const InputDecoration(labelText: 'Store Name'),
+                      decoration: const InputDecoration(labelText: 'Tên cửa hàng'),
                       enabled: _isEditing,
                       validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter store name' : null,
+                          value?.isEmpty ?? true ? 'Điền tên cửa hàng' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _addressController,
-                      decoration: const InputDecoration(labelText: 'Store Address'),
+                      decoration: const InputDecoration(labelText: 'Địa chỉ'),
                       enabled: _isEditing,
                       validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter address' : null,
+                          value?.isEmpty ?? true ? 'Điền địa chỉ' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
                       controller: _phoneController,
-                      decoration: const InputDecoration(labelText: 'Phone Number'),
+                      decoration: const InputDecoration(labelText: 'Số điện thoại'),
                       enabled: _isEditing,
                       validator: (value) =>
-                          value?.isEmpty ?? true ? 'Please enter phone number' : null,
+                          value?.isEmpty ?? true ? 'Điền số điện thoại' : null,
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton.icon(

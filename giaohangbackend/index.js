@@ -60,14 +60,42 @@ const app = express();
 app.use(cors({
   origin: '*',
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Accept']
+  allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
+
+// Add headers middleware
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Accept, Authorization');
+  
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    return res.status(204).send();
+  }
+  next();
+});
 
 app.use(express.json());
 
 // Add logging middleware to debug routes
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
+  next();
+});
+
+// Add more detailed logging middleware
+app.use((req, res, next) => {
+  console.log('Request:', {
+    method: req.method,
+    url: req.url,
+    path: req.path,
+    params: req.params,
+    query: req.query
+  });
   next();
 });
 
@@ -106,6 +134,24 @@ app.use((req, res) => {
   console.log('404 for:', req.method, req.url);
   res.status(404).json({ error: 'Not found' });
 });
+
+// Move 404 handler to the end
+const handle404 = (req, res) => {
+  console.log('404 Not Found:', req.method, req.url);
+  res.status(404).json({ error: 'Not found' });
+};
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error('Error:', err);
+  if (err.code === 'ER_DUP_ENTRY') {
+    return res.status(400).json({ error: 'Email already registered' });
+  }
+  res.status(500).json({ error: err.message || 'Something went wrong!' });
+});
+
+// Add 404 handler last
+app.use(handle404);
 
 // Start server
 const PORT = 3000;
