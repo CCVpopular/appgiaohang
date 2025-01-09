@@ -75,7 +75,7 @@ router.post('/register', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, fcmToken } = req.body;
     const [users] = await pool.query('SELECT * FROM users WHERE email = ?', [email]);
     
     if (users.length === 0) {
@@ -84,7 +84,6 @@ router.post('/login', async (req, res) => {
     
     const user = users[0];
 
-    // Check if account is active
     if (!user.is_active) {
       return res.status(403).json({ error: 'Account is inactive. Please contact support.' });
     }
@@ -93,6 +92,14 @@ router.post('/login', async (req, res) => {
     
     if (!validPassword) {
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Update FCM token if provided
+    if (fcmToken) {
+      await pool.query(
+        'UPDATE users SET fcm_token = ? WHERE id = ?',
+        [fcmToken, user.id]
+      );
     }
     
     res.json({ 
@@ -255,6 +262,26 @@ router.post('/change-password', async (req, res) => {
   } catch (error) {
     console.error('Error changing password:', error);
     res.status(500).json({ error: error.message || 'Internal server error' });
+  }
+});
+
+// Add logout endpoint
+router.post('/logout', async (req, res) => {
+  try {
+    const { userId, fcmToken } = req.body;
+    
+    // Clear FCM token from database
+    if (userId) {
+      await pool.query(
+        'UPDATE users SET fcm_token = NULL WHERE id = ? AND fcm_token = ?',
+        [userId, fcmToken]
+      );
+    }
+    
+    res.json({ message: 'Logged out successfully' });
+  } catch (error) {
+    console.error('Logout error:', error);
+    res.status(500).json({ error: error.message });
   }
 });
 

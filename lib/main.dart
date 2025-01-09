@@ -34,6 +34,11 @@ import 'screens/user/store_address_map_page.dart';
 import 'package:provider/provider.dart';
 
 import 'theme/themes.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'services/notification_service.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 void main() async {
   await _setup();
@@ -45,8 +50,70 @@ void main() async {
   );
 }
 
+Future<void> checkAndRequestNotificationPermissions(BuildContext? context) async {
+  final notificationSettings = await FirebaseMessaging.instance.getNotificationSettings();
+  
+  if (notificationSettings.authorizationStatus == AuthorizationStatus.notDetermined ||
+      notificationSettings.authorizationStatus == AuthorizationStatus.denied) {
+    if (context != null) {
+      // Show dialog
+      final bool? shouldRequest = await showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Bật thông báo'),
+            content: const Text('Bạn có muốn bật thông báo để nhận cập nhật về đơn hàng của bạn không?'),
+            actions: [
+              TextButton(
+                child: const Text('Không'),
+                onPressed: () => Navigator.pop(context, false),
+              ),
+              TextButton(
+                child: const Text('Có'),
+                onPressed: () => Navigator.pop(context, true),
+              ),
+            ],
+          );
+        },
+      );
+
+      if (shouldRequest == true) {
+        await FirebaseMessaging.instance.requestPermission(
+          alert: true,
+          badge: true,
+          sound: true,
+        );
+      }
+    }
+  }
+}
+
 Future<void> _setup() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
+  // Initialize local notifications
+  await NotificationService.initialize();
+  
+  // Handle foreground messages
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print("Foreground Message received: ${message.notification?.title}");
+    NotificationService.showNotification(message);
+  });
+
+  if (await AuthProvider.isLoggedIn()) {
+    await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+  }
+  
+  // Initialize Stripe
   Stripe.publishableKey = Config.stripePublishableKey;
 }
 
@@ -61,40 +128,49 @@ class MainApp extends StatelessWidget {
       themeMode: themeProvider.themeMode,
       theme: lightTheme,
       darkTheme: darkTheme,
-      home: FutureBuilder<bool>(
-        future: AuthProvider.isLoggedIn(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
-          }
+      home: Builder(
+        builder: (context) {
+          // Check permissions when app starts
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            checkAndRequestNotificationPermissions(context);
+          });
+          
+          return FutureBuilder<bool>(
+            future: AuthProvider.isLoggedIn(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Scaffold(
+                  body: Center(child: CircularProgressIndicator()),
+                );
+              }
 
-          if (snapshot.data == true) {
-            return FutureBuilder<String?>(
-              future: AuthProvider.getUserRole(),
-              builder: (context, roleSnapshot) {
-                if (roleSnapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
-                    body: Center(child: CircularProgressIndicator()),
-                  );
-                }
+              if (snapshot.data == true) {
+                return FutureBuilder<String?>(
+                  future: AuthProvider.getUserRole(),
+                  builder: (context, roleSnapshot) {
+                    if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                      return const Scaffold(
+                        body: Center(child: CircularProgressIndicator()),
+                      );
+                    }
 
-                switch (roleSnapshot.data) {
-                  case 'admin':
-                    return const HomeAdminScreen();
-                  case 'user':
-                    return const HomeUserScreen();
-                  case 'shipper':
-                    return const HomeShipperScreen();
-                  default:
-                    return const LoginScreen();
-                }
-              },
-            );
-          }
+                    switch (roleSnapshot.data) {
+                      case 'admin':
+                        return const HomeAdminScreen();
+                      case 'user':
+                        return const HomeUserScreen();
+                      case 'shipper':
+                        return const HomeShipperScreen();
+                      default:
+                        return const LoginScreen();
+                    }
+                  },
+                );
+              }
 
-          return const HomeUserScreen();
+              return const HomeUserScreen();
+            },
+          );
         },
       ),
       routes: {

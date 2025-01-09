@@ -35,16 +35,18 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title: 'Trang quản trị'),
+      appBar:const CustomAppBar(title: 'Trang Quản Trị'),
       body: _pages[_selectedIndex],
       bottomNavigationBar: CustomBottomNavBar(
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
-            //BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
+
+            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Tổng quan'),
             BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Người dùng'),
             BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Cửa hàng'),
-            BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shippers'),
+            BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shipper'),
+
             BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Báo cáo'),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
           ],
