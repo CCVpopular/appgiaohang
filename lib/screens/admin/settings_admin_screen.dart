@@ -27,6 +27,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           actions: [
             TextButton(
               child: const Text('Hủy'),
+
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
@@ -54,6 +55,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             child: ListTile(
               leading: const Icon(Icons.person),
               title: const Text('Hồ sơ quản trị'),
+              title: const Text('Hồ sơ quản trị viên'),
               subtitle: const Text('Quản lý thông tin cá nhân'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
@@ -110,7 +112,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.logout, color: Colors.red),
-              title: const Text('Đăng xuất'),
+              title: const Text('Đăng xuất', style: TextStyle(color: Colors.red)),
               onTap: _showLogoutDialog,
             ),
           ),

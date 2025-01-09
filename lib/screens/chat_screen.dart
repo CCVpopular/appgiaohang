@@ -3,6 +3,8 @@ import 'package:http/http.dart' as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'dart:convert';
 import '../config/config.dart';
+import '../widgets/incoming_call_dialog.dart';
+import '../screens/call_screen.dart';
 
 class ChatScreen extends StatefulWidget {
   final int orderId;
@@ -33,6 +35,64 @@ class _ChatScreenState extends State<ChatScreen> {
     super.initState();
     _loadMessages();
     _initializeSocket();
+    _setupCallHandlers();
+  }
+
+  void _setupCallHandlers() {
+    // Listen for incoming calls
+    socket.on('call-to-${widget.currentUserId}', (data) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => IncomingCallDialog(
+          callerName: data['callerName'],
+          onAccept: () {
+            Navigator.pop(context);
+            // Notify caller that call was accepted
+            socket.emit('call-accepted', {
+              'callerId': data['callerId'],
+              'channelName': data['channelName']
+            });
+            // Join the call
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CallScreen(
+                  channelName: data['channelName'],
+                  token: data['token'],
+                  isOutgoing: false,
+                ),
+              ),
+            );
+          },
+          onDecline: () {
+            socket.emit('call-rejected', {
+              'callerId': data['callerId']
+            });
+            Navigator.pop(context);
+          },
+        ),
+      );
+    });
+
+    // Listen for call accepted
+    socket.on('call-accepted-${widget.currentUserId}', (data) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Call was accepted')),
+      );
+    });
+
+    // Listen for call rejected
+    socket.on('call-rejected-${widget.currentUserId}', (data) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Call was declined')),
+      );
+    });
+
+    // Listen for call ended
+    socket.on('call-ended-${widget.currentUserId}', (data) {
+      Navigator.of(context).pop(); // Close call screen
+    });
   }
 
   void _initializeSocket() {
@@ -113,6 +173,35 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  void _initiateCall() async {
+    final token = 'YOUR_AGORA_TOKEN'; // Replace with actual token
+    final channelName = 'call_${widget.orderId}';
+
+    socket.emit('initiate-call', {
+      'receiverId': widget.otherUserId,
+      'callerId': widget.currentUserId,
+      'callerName': 'You', // Replace with actual user name
+      'channelName': channelName,
+      'token': token,
+    });
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => CallScreen(
+          channelName: channelName,
+          token: token,
+          isOutgoing: true,
+          onCallEnded: () {
+            socket.emit('end-call', {
+              'receiverId': widget.otherUserId,
+            });
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     socket.disconnect();
@@ -126,6 +215,12 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat with ${widget.otherUserName}'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.video_call),
+            onPressed: _initiateCall,
+          ),
+        ],
       ),
       body: Column(
         children: [

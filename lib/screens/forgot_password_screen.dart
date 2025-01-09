@@ -50,7 +50,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     try {
       print('Sending reset password request...'); // Debug log
       final response = await http.post(
-        Uri.parse('http://192.168.10.120:3000/auth/password/reset'), // Updated path
+        Uri.parse(
+            'http://192.168.10.120:3000/auth/password/reset'), // Updated path
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,
@@ -86,53 +87,141 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title: 'Forgot Password'),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                enabled: !_otpSent,
-                validator: (value) =>
-                    value?.isEmpty ?? true ? 'Please enter email' : null,
-              ),
-              if (_otpSent) ...[
-                TextFormField(
-                  controller: _otpController,
-                  decoration: const InputDecoration(labelText: 'Enter OTP'),
-                  validator: (value) =>
-                      value?.isEmpty ?? true ? 'Please enter OTP' : null,
-                ),
-                TextFormField(
-                  controller: _newPasswordController,
-                  decoration: const InputDecoration(labelText: 'New Password'),
-                  obscureText: true,
-                  validator: (value) => value?.isEmpty ?? true
-                      ? 'Please enter new password'
-                      : null,
-                ),
-              ],
-              const SizedBox(height: 20),
-              if (_isLoading)
-                const CircularProgressIndicator()
-              else
-                CustomElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      if (!_otpSent) {
-                        _sendOTP();
-                      } else {
-                        _resetPassword();
-                      }
-                    }
-                  },
-                  text: _otpSent ? 'Reset Password' : 'Send OTP',
-                ),
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Color.fromARGB(255, 225, 140, 22),
+              Color.fromARGB(255, 204, 146, 52)
             ],
+          ),
+        ),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Container(
+              margin: const EdgeInsets.symmetric(vertical: 20),
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.9),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 5,
+                    blurRadius: 15,
+                  ),
+                ],
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 20),
+                    const Text(
+                      'Quên mật khẩu',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email',
+                          prefixIcon: Icon(Icons.email),
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.all(16),
+                        ),
+                        enabled: !_otpSent,
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Hãy nhập email' : null,
+                      ),
+                    ),
+                    if (_otpSent) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextFormField(
+                          controller: _otpController,
+                          decoration: const InputDecoration(
+                            labelText: 'Nhập OTP',
+                            prefixIcon: Icon(Icons.lock_clock),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          validator: (value) =>
+                              value?.isEmpty ?? true ? 'Hãy nhập OTP' : null,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.grey[100],
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: TextFormField(
+                          controller: _newPasswordController,
+                          decoration: const InputDecoration(
+                            labelText: 'Mật khẩu mới',
+                            prefixIcon: Icon(Icons.lock),
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.all(16),
+                          ),
+                          obscureText: true,
+                          validator: (value) => value?.isEmpty ?? true
+                              ? 'Hãy nhập mật khẩu mới'
+                              : null,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 24),
+                    if (_isLoading)
+                      const Center(child: CircularProgressIndicator())
+                    else
+                      ElevatedButton(
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            if (!_otpSent) {
+                              _sendOTP();
+                            } else {
+                              _resetPassword();
+                            }
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          _otpSent ? 'Đặt lại mật khẩu' : 'Gửi OTP',
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                    const SizedBox(height: 16),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Quay lại đăng nhập'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
         ),
       ),

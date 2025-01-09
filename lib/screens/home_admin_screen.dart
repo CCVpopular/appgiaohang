@@ -5,6 +5,7 @@ import 'admin/shipper_management_screen.dart';
 import 'admin/settings_admin_screen.dart';
 import 'admin/store_approval_screen.dart';
 import 'admin/user_management_screen.dart';
+import 'admin/revenue_statistics_screen.dart';
 
 class HomeAdminScreen extends StatefulWidget {
   const HomeAdminScreen({super.key});
@@ -23,11 +24,11 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   }
 
   final List<Widget> _pages = [
-    const Center(child: Text('Dashboard')),
+    //const Center(child: Text('Dashboard')),
     const UserManagementScreen(),
     const StoreApprovalScreen(),
     const ShipperManagementScreen(),
-    const Center(child: Text('Reports')),
+    const RevenueStatisticsScreen(),
     const SettingsAdminScreen(),
   ];
 
@@ -40,10 +41,12 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
+
             BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Tổng quan'),
             BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Người dùng'),
             BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Cửa hàng'),
             BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shipper'),
+
             BottomNavigationBarItem(icon: Icon(Icons.assessment), label: 'Báo cáo'),
             BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Cài đặt'),
           ],

@@ -21,6 +21,7 @@ import 'screens/user/store_detail_info.dart';
 import 'screens/user/store_detail_page.dart';
 import 'screens/user/store_food_management.dart';
 import 'screens/user/store_registration_page.dart';
+import 'screens/user/store_statistics_screen.dart';
 import 'screens/user/user_settings_page.dart';
 import 'screens/admin/settings_admin_screen.dart';
 import 'providers/auth_provider.dart';
@@ -230,6 +231,10 @@ class MainApp extends StatelessWidget {
           final args = ModalRoute.of(context)!.settings.arguments
               as Map<String, dynamic>;
           return UserDeliveryTrackingPage(order: args);
+        },
+        '/store-statistics': (context) {
+          final storeId = ModalRoute.of(context)!.settings.arguments as int;
+          return StoreStatisticsScreen(storeId: storeId);
         },
       },
     );
