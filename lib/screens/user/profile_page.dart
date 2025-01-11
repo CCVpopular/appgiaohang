@@ -244,35 +244,50 @@ class _ProfilePageState extends State<ProfilePage> {
       alignment: Alignment.center,
       children: [
         Container(
-          height: 350, // Increased height
-          decoration: BoxDecoration(
+          height: 350,
+          decoration: const BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topRight,
               end: Alignment.bottomLeft,
               colors: [
-                Color.fromARGB(255, 225, 140, 22),
-                Color.fromARGB(255, 204, 146, 52)
+                Color(0xFFFF8C00),  // Bright orange
+                Color(0xFFFF6B00),  // Deep orange
               ],
             ),
           ),
         ),
         SafeArea(
           child: Padding(
-            padding: const EdgeInsets.only(top: 40), // Add top padding
+            padding: const EdgeInsets.only(top: 40),
             child: Column(
               children: [
-                const CircleAvatar(
-                  radius: 60,
-                  backgroundColor: Colors.white,
-                  child: Icon(Icons.person, size: 80, color: Colors.grey),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 3),
+                  ),
+                  child: const CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.white,
+                    child: Icon(Icons.person, size: 80, color: Color(0xFFFF8C00)),
+                  ),
                 ),
                 const SizedBox(height: 16),
                 Text(
                   userData['fullName'] ?? '',
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 26,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  userData['email'] ?? '',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
               ],
@@ -338,25 +353,34 @@ class _ProfilePageState extends State<ProfilePage> {
             MaterialPageRoute(builder: (context) => const UserSettingsPage()),
           );
         },
-        child: const Icon(Icons.settings),
+        backgroundColor: const Color(0xFFFF8C00),
+        child: const Icon(Icons.settings, color: Colors.white),
       ),
     );
   }
 
   Widget _buildInfoCard(String title, List<Widget> children) {
     return Card(
-      elevation: 4,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               title,
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFFFF8C00),
+              ),
             ),
-            const Divider(),
+            const Divider(height: 25, thickness: 1),
             ...children,
           ],
         ),
@@ -366,17 +390,39 @@ class _ProfilePageState extends State<ProfilePage> {
 
   Widget _buildInfoTile(IconData icon, String title, String value) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.symmetric(vertical: 10),
       child: Row(
         children: [
-          Icon(icon, size: 24),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: const Color(0xFFFF8C00).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 24, color: const Color(0xFFFF8C00)),
+          ),
           const SizedBox(width: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: const TextStyle(color: Colors.grey)),
-              Text(value, style: const TextStyle(fontSize: 16)),
-            ],
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),
