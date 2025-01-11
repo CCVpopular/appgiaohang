@@ -112,35 +112,102 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
     }
 
     if (_activeOrders.isEmpty) {
-      return const Center(child: Text('Không có đơn hàng đang giao'));
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.local_shipping_outlined, size: 64, color: Colors.grey[400]),
+            const SizedBox(height: 16),
+            Text(
+              'Không có đơn hàng đang giao',
+              style: TextStyle(
+                fontSize: 18,
+                color: Colors.grey[600],
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      );
     }
 
     return RefreshIndicator(
       onRefresh: _loadActiveOrders,
       child: ListView.builder(
+        padding: const EdgeInsets.all(12),
         itemCount: _activeOrders.length,
         itemBuilder: (context, index) {
           final order = _activeOrders[index];
-          // Fix: items is already a List<dynamic>, no need to decode
           final items = order['items'] as List<dynamic>;
 
           return Card(
-            margin: const EdgeInsets.all(8),
+            elevation: 4,
+            margin: const EdgeInsets.only(bottom: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
             child: Column(
               children: [
-                ListTile(
-                  title: Text('Order #${order['id']}'),
-                  subtitle: Column(
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: order['status'] == 'preparing' 
+                        ? Colors.blue[50] 
+                        : Colors.green[50],
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        order['status'] == 'preparing'
+                            ? Icons.pending_actions
+                            : Icons.delivery_dining,
+                        color: order['status'] == 'preparing'
+                            ? Colors.blue
+                            : Colors.green,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Order #${order['id']}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: order['status'] == 'preparing'
+                              ? Colors.blue[700]
+                              : Colors.green[700],
+                        ),
+                      ),
+                      const Spacer(),
+                      _buildStatusChip(order['status']),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Trạng thái: ${order['status']}'),
-                      Text('Khách hàng: ${order['customer_name']}'),
-                      Text('Số điện thoại: ${order['customer_phone']}'),
-                      Text('Địa chỉ: ${order['address']}'),
+                      _buildInfoRow(Icons.person, order['customer_name']),
                       const SizedBox(height: 8),
-                      Text('Món ăn:'),
-                      ...items.map((item) => Text(
-                          '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}')),
+                      _buildInfoRow(Icons.phone, order['customer_phone']),
+                      const SizedBox(height: 8),
+                      _buildInfoRow(Icons.location_on, order['address']),
+                      const Divider(height: 24),
+                      ...items.map((item) => Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: Row(
+                              children: [
+                                Text(
+                                  '- ${item['food_name']} x${item['quantity']} từ ${item['store_name']}',
+                                  style: const TextStyle(fontSize: 16),
+                                ),
+                              ],
+                            ),
+                          )),
                     ],
                   ),
                 ),
@@ -205,6 +272,46 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
           );
         },
       ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    Color color;
+    String text;
+
+    switch (status) {
+      case 'preparing':
+        color = Colors.blue;
+        text = 'Đang chuẩn bị';
+        break;
+      case 'delivering':
+        color = Colors.green;
+        text = 'Đang giao';
+        break;
+      default:
+        color = Colors.grey;
+        text = 'Không xác định';
+    }
+
+    return Chip(
+      label: Text(
+        text,
+        style: const TextStyle(color: Colors.white),
+      ),
+      backgroundColor: color,
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: Colors.grey[600]),
+        const SizedBox(width: 8),
+        Text(
+          text,
+          style: const TextStyle(fontSize: 16),
+        ),
+      ],
     );
   }
 }

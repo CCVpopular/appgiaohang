@@ -52,11 +52,22 @@ class _EarningsPageState extends State<EarningsPage> {
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(kToolbarHeight),
           child: Container(
-            color: Colors.white,
-            child: const TabBar(
-              labelColor: Colors.blue,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  spreadRadius: 1,
+                  blurRadius: 3,
+                ),
+              ],
+            ),
+            child: TabBar(
+              labelColor: Colors.blue.shade700,
               unselectedLabelColor: Colors.grey,
-              tabs: [
+              indicatorColor: Colors.blue.shade700,
+              indicatorWeight: 3,
+              tabs: const [
                 Tab(text: 'Thu Nhập'),
                 Tab(text: 'Đơn Hoàn Thành'),
               ],
@@ -189,34 +200,56 @@ class _EarningsPageState extends State<EarningsPage> {
 
   Widget _buildEarningsSummary(Map<String, dynamic> earnings) {
     return Container(
-      padding: const EdgeInsets.all(16),
-      color: Colors.blue[50],
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade400, Colors.blue.shade700],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.blue.withOpacity(0.2),
+            spreadRadius: 2,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         children: [
           const Text(
             'Tổng Thu Nhập',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.white,
+            ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             formatCurrency(earnings['totalEarnings']),
             style: const TextStyle(
-              fontSize: 24,
+              fontSize: 32,
               fontWeight: FontWeight.bold,
-              color: Colors.blue,
+              color: Colors.white,
             ),
           ),
-          const SizedBox(height: 16),
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          const SizedBox(height: 20),
+          Container(
+            padding: const EdgeInsets.all(15),
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                _buildStatItem('Hôm nay', formatCurrency(earnings['todayEarnings'])),
-                const SizedBox(width: 16),
-                _buildStatItem('Tuần này', formatCurrency(earnings['weekEarnings'])),
-                const SizedBox(width: 16),
-                _buildStatItem('Tháng này', formatCurrency(earnings['monthEarnings'])),
+                _buildStatItem('Hôm nay', formatCurrency(earnings['todayEarnings']), true),
+                _buildVerticalDivider(),
+                _buildStatItem('Tuần này', formatCurrency(earnings['weekEarnings']), true),
+                _buildVerticalDivider(),
+                _buildStatItem('Tháng này', formatCurrency(earnings['monthEarnings']), true),
               ],
             ),
           ),
@@ -225,22 +258,31 @@ class _EarningsPageState extends State<EarningsPage> {
     );
   }
 
-  Widget _buildStatItem(String label, String value) {
+  Widget _buildVerticalDivider() {
+    return Container(
+      height: 40,
+      width: 1,
+      color: Colors.white.withOpacity(0.2),
+    );
+  }
+
+  Widget _buildStatItem(String label, String value, bool isWhite) {
     return Column(
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 14,
-            color: Colors.grey,
+            color: isWhite ? Colors.white70 : Colors.grey,
           ),
         ),
         const SizedBox(height: 4),
         Text(
           value,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
+            color: isWhite ? Colors.white : Colors.black87,
           ),
         ),
       ],

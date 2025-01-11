@@ -137,26 +137,29 @@ class _OrdersPageState extends State<OrdersPage> {
   }
 
   Widget _buildOrderCard(Order order) {
-    return InkWell(
-      onTap: () {
-        Navigator.pushNamed(
-          context,
-          '/user-delivery-tracking',
-          arguments: {
-            'id': order.id,
-            'orderId': order.id,
-            'store_latitude': order.storeLat ?? 10.762622,
-            'store_longitude': order.storeLng ?? 106.660172,
-            'latitude': order.latitude ?? 10.762622,
-            'longitude': order.longitude ?? 106.660172,
-            'status': order.status, // Add this line
-          },
-        );
-      },
-      child: Card(
-        margin: const EdgeInsets.all(8.0),
-        child: Padding(
-          padding: const EdgeInsets.all(12.0),
+    return Card(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      elevation: 2,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: () {
+          Navigator.pushNamed(
+            context,
+            '/user-delivery-tracking',
+            arguments: {
+              'id': order.id,
+              'orderId': order.id,
+              'store_latitude': order.storeLat ?? 10.762622,
+              'store_longitude': order.storeLng ?? 106.660172,
+              'latitude': order.latitude ?? 10.762622,
+              'longitude': order.longitude ?? 106.660172,
+              'status': order.status,
+            },
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -167,50 +170,95 @@ class _OrdersPageState extends State<OrdersPage> {
                     'Đơn hàng #${order.id}',
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                      fontSize: 18,
                     ),
                   ),
-                  Text(
-                    order.status.toUpperCase(),
-                    style: TextStyle(
-                      color: _getStatusColor(order.status),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  _buildStatusChip(order.status),
                 ],
               ),
-              const Divider(),
-              Text('Địa chỉ: ${order.address}'),
-              const SizedBox(height: 8),
-              Text(
-                'Tổng tiền: \$${order.totalAmount.toStringAsFixed(2)}',
-                style: const TextStyle(fontWeight: FontWeight.bold),
+              const Divider(height: 24),
+              _buildInfoRow(Icons.location_on, order.address),
+              const SizedBox(height: 12),
+              _buildInfoRow(
+                Icons.attach_money,
+                '${order.totalAmount.toStringAsFixed(2)} VND',
+                isBold: true,
               ),
-              Text(
-                'Ngày đặt: ${_formatDate(order.createdAt)}',
-                style: const TextStyle(color: Colors.grey),
+              const SizedBox(height: 12),
+              _buildInfoRow(
+                Icons.access_time,
+                _formatDate(order.createdAt),
+                color: Colors.grey[600],
               ),
               if (order.status == 'delivering' && order.items.isNotEmpty)
-                IconButton(
-                  icon: const Icon(Icons.chat),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChatScreen(
-                          orderId: order.id,
-                          currentUserId: userId!, // Add userId as class field and get from SharedPrefs
-                          otherUserId: order.shipperId ?? 0, // Add shipperId to Order model
-                          otherUserName: 'Shipper',
-                        ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 12),
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.chat),
+                    label: const Text('Chat với người giao hàng'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFF8C00),
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                    );
-                  },
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            orderId: order.id,
+                            currentUserId: userId!,
+                            otherUserId: order.shipperId ?? 0,
+                            otherUserName: 'Shipper',
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildStatusChip(String status) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: _getStatusColor(status).withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        status.toUpperCase(),
+        style: TextStyle(
+          color: _getStatusColor(status),
+          fontWeight: FontWeight.bold,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String text, {bool isBold = false, Color? color}) {
+    return Row(
+      children: [
+        Icon(icon, size: 20, color: color ?? Colors.grey[700]),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: 15,
+              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+              color: color ?? Colors.black87,
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -261,41 +309,87 @@ class _OrdersPageState extends State<OrdersPage> {
 
     return DefaultTabController(
       length: 2,
-      child: Column(
-        children: [
-          const CustomTabBar(
-          height: 100.0,  // Chiều cao tùy chỉnh cho TabBar
-          topPadding: 40.0,  // Padding phía trên
-            tabs: [
-              Tab(text: 'Đơn hàng hiện tại'),
-              Tab(text: 'Lịch sử đơn hàng'),
-            ],
-          ),
-          Expanded(
-            child: TabBarView(
-              children: [
-                // Current Orders Tab
-                _getCurrentOrders().isEmpty
-                    ? const Center(child: Text('Không có đơn hàng nào'))
-                    : ListView.builder(
-                        itemCount: _getCurrentOrders().length,
-                        itemBuilder: (context, index) {
-                          return _buildOrderCard(_getCurrentOrders()[index]);
-                        },
+      child: Scaffold(
+        body: Column(
+          children: [
+            Container(
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topRight,
+                  end: Alignment.bottomLeft,
+                  colors: [
+                    Color(0xFFFF8C00),
+                    Color(0xFFFF6B00),
+                  ],
+                ),
+              ),
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Center( // Center the title
+                        child: const Text(
+                          'Đơn hàng của tôi',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
                       ),
-                // Order History Tab
-                _getPastOrders().isEmpty
-                    ? const Center(child: Text('Không có lịch sử đơn hàng'))
-                    : ListView.builder(
-                        itemCount: _getPastOrders().length,
-                        itemBuilder: (context, index) {
-                          return _buildOrderCard(_getPastOrders()[index]);
-                        },
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: TabBar(
+                        tabs: const [
+                          Tab(text: 'Đơn hàng hiện tại'),
+                          Tab(text: 'Lịch sử đơn hàng'),
+                        ],
+                        indicator: BoxDecoration(
+                          borderRadius: BorderRadius.circular(50),
+                          color: Colors.white.withOpacity(0.2),
+                        ),
+                        labelColor: Colors.white,
+                        unselectedLabelColor: Colors.white.withOpacity(0.7),
+                        labelStyle: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
-              ],
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: TabBarView(
+                children: [
+                  // Current Orders Tab
+                  _getCurrentOrders().isEmpty
+                      ? const Center(child: Text('Không có đơn hàng nào'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(top: 8),
+                          itemCount: _getCurrentOrders().length,
+                          itemBuilder: (context, index) {
+                            return _buildOrderCard(_getCurrentOrders()[index]);
+                          },
+                        ),
+                  // Order History Tab
+                  _getPastOrders().isEmpty
+                      ? const Center(child: Text('Không có lịch sử đơn hàng'))
+                      : ListView.builder(
+                          padding: const EdgeInsets.only(top: 8),
+                          itemCount: _getPastOrders().length,
+                          itemBuilder: (context, index) {
+                            return _buildOrderCard(_getPastOrders()[index]);
+                          },
+                        ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

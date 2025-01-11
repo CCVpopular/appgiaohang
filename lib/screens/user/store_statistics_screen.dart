@@ -131,14 +131,28 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
     final shopRevenue = (totalRevenue * 0.7).floorToDouble();
 
     return CustomCard(
-      child: Padding(
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Theme.of(context).primaryColor.withOpacity(0.1),
+              Colors.white,
+            ],
+          ),
+        ),
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Bảng Thống Kê Tổng Quan',
-              style: Theme.of(context).textTheme.titleLarge,
+              'Thống Kê Tổng Quan',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).primaryColor,
+                  ),
             ),
             const SizedBox(height: 16),
             Row(
@@ -200,82 +214,96 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
         .reduce((a, b) => a > b ? a : b) * 1.2;
 
     return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Danh Sách Món Ăn Phổ Biến',
-              style: Theme.of(context).textTheme.titleLarge,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
             ),
-          ),
-          SizedBox(
-            height: 300,
-            child: BarChart(
-              BarChartData(
-                alignment: BarChartAlignment.spaceAround,
-                maxY: maxY,
-                titlesData: FlTitlesData(
-                  show: true,
-                  leftTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      reservedSize: 40,
-                    ),
-                  ),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        if (value < 0 || value >= popularItems.length) {
-                          return const SizedBox();
-                        }
-                        return Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: RotatedBox(
-                            quarterTurns: 1,
-                            child: Text(
-                              popularItems[value.toInt()]['name'] ?? '',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ),
-                        );
-                      },
-                      reservedSize: 60,
-                    ),
-                  ),
-                  rightTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                ),
-                gridData: FlGridData(
-                  show: true,
-                  drawVerticalLine: false,
-                ),
-                borderData: FlBorderData(
-                  show: true,
-                ),
-                barGroups: List.generate(
-                  popularItems.length,
-                  (index) => BarChartGroupData(
-                    x: index,
-                    barRods: [
-                      BarChartRodData(
-                        toY: double.parse((popularItems[index]['total_sold'] ?? '0').toString()),
-                        color: Theme.of(context).primaryColor,
-                        width: 20,
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Danh Sách Món Ăn Phổ Biến',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+            ),
+            SizedBox(
+              height: 300,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: maxY,
+                  titlesData: FlTitlesData(
+                    show: true,
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 40,
                       ),
-                    ],
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        getTitlesWidget: (value, meta) {
+                          if (value < 0 || value >= popularItems.length) {
+                            return const SizedBox();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8.0),
+                            child: RotatedBox(
+                              quarterTurns: 1,
+                              child: Text(
+                                popularItems[value.toInt()]['name'] ?? '',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          );
+                        },
+                        reservedSize: 60,
+                      ),
+                    ),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                  ),
+                  borderData: FlBorderData(
+                    show: true,
+                  ),
+                  barGroups: List.generate(
+                    popularItems.length,
+                    (index) => BarChartGroupData(
+                      x: index,
+                      barRods: [
+                        BarChartRodData(
+                          toY: double.parse((popularItems[index]['total_sold'] ?? '0').toString()),
+                          color: Theme.of(context).primaryColor,
+                          width: 20,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -305,39 +333,52 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
   Widget _buildPopularItems() {
     final popularItems = statistics['popular_items'] as List? ?? [];
     return CustomCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Text(
-              'Danh Sách Món Ăn Phổ Biến',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(15),
+          gradient: LinearGradient(
+            begin: Alignment.topRight,
+            end: Alignment.bottomLeft,
+            colors: [
+              Colors.white,
+              Theme.of(context).primaryColor.withOpacity(0.1),
+            ],
           ),
-          if (popularItems.isEmpty)
-            const Padding(
-              padding: EdgeInsets.all(16.0),
-              child: Text('Không có món ăn nào được bán chạy'),
-            )
-          else
-            ListView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: popularItems.length,
-              itemBuilder: (context, index) {
-                final item = popularItems[index];
-                return ListTile(
-                  title: Text(item['name'] ?? ''),
-                  subtitle: Text('Sold: ${item['total_sold'] ?? 0}'),
-                  trailing: Text(
-                    _formatCurrency(item['total_revenue']),
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                );
-              },
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                'Danh Sách Món Ăn Phổ Biến',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
             ),
-        ],
+            if (popularItems.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text('Không có món ăn nào được bán chạy'),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: popularItems.length,
+                itemBuilder: (context, index) {
+                  final item = popularItems[index];
+                  return ListTile(
+                    title: Text(item['name'] ?? ''),
+                    subtitle: Text('Sold: ${item['total_sold'] ?? 0}'),
+                    trailing: Text(
+                      _formatCurrency(item['total_revenue']),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  );
+                },
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -365,33 +406,46 @@ class _StoreStatisticsScreenState extends State<StoreStatisticsScreen> {
         final averageOrder = _parseNumber(stat['average_order_value']) / 1000;
 
         return CustomCard(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Tháng: ${stat['month'] ?? 'N/A'}',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                Text('Tổng đơn hàng: ${stat['total_orders'] ?? 0}'),
-                Text('Đơn hàng hoản thành: ${stat['completed_orders'] ?? 0}'),
-                Text('Đơn hàng bị huỷ: ${stat['cancelled_orders'] ?? 0}'),
-                Text('Tổng số món ăn: ${stat['total_items'] ?? 0}'),
-                Text('Đặt hàng trung bình: ${_formatCurrency(averageOrder)}'),
-                Text(
-                  'Số tiền đơn hàng: ${_formatCurrency(totalRevenue)}',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Text(
-                  'Số tiền nhận được sau khi chết khấu(70%): ${_formatCurrency(shopRevenue)}',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: Theme.of(context).primaryColor,
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-              ],
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+              gradient: LinearGradient(
+                begin: Alignment.centerLeft,
+                end: Alignment.centerRight,
+                colors: [
+                  Colors.white,
+                  Theme.of(context).primaryColor.withOpacity(0.1),
+                ],
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Tháng: ${stat['month'] ?? 'N/A'}',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  Text('Tổng đơn hàng: ${stat['total_orders'] ?? 0}'),
+                  Text('Đơn hàng hoản thành: ${stat['completed_orders'] ?? 0}'),
+                  Text('Đơn hàng bị huỷ: ${stat['cancelled_orders'] ?? 0}'),
+                  Text('Tổng số món ăn: ${stat['total_items'] ?? 0}'),
+                  Text('Đặt hàng trung bình: ${_formatCurrency(averageOrder)}'),
+                  Text(
+                    'Số tiền đơn hàng: ${_formatCurrency(totalRevenue)}',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  Text(
+                    'Số tiền nhận được sau khi chết khấu(70%): ${_formatCurrency(shopRevenue)}',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).primaryColor,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ],
+              ),
             ),
           ),
         );
