@@ -42,56 +42,48 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
 
-    // Màu nền
-    final backgroundColor = brightness == Brightness.dark
-        ? darkBackgroundColor ?? const Color.fromARGB(255, 117, 63, 25)
-        : lightBackgroundColor ?? const Color.fromARGB(255, 210, 134, 79);
+    // Updated color scheme
+    final gradientColors = brightness == Brightness.dark
+        ? [
+            const Color(0xFF8B4513),
+            const Color(0xFF6B371F),
+          ]
+        : [
+            const Color(0xFFE8A87C),
+            const Color(0xFFD4845F),
+          ];
 
-    // Màu chữ
     final textColor = brightness == Brightness.dark
-        ? darkTextColor ?? Colors.white
-        : lightTextColor ?? Colors.black;
+        ? Colors.white
+        : const Color(0xFF2D1810);
 
-    // Màu icon
-    final iconColor = brightness == Brightness.dark
-        ? darkIconColor ?? Colors.white
-        : lightIconColor ?? Colors.black;
+    final iconColor = textColor;
 
-    // Màu viền
     final borderColor = brightness == Brightness.dark
-        ? darkBorderColor ?? const Color.fromARGB(255, 211, 155, 103).withOpacity(0.7)
-        : lightBorderColor ?? Colors.black.withOpacity(0.7);
+        ? Colors.orange.withOpacity(0.3)
+        : const Color(0xFFB76E41).withOpacity(0.5);
 
     return PreferredSize(
       preferredSize: const Size.fromHeight(kToolbarHeight + 0),
       child: Container(
         decoration: BoxDecoration(
-          color: backgroundColor,
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: gradientColors,
+          ),
           borderRadius: borderRadius ??
               const BorderRadius.only(
-                topLeft: Radius.circular(38.0), // Bo tròn góc trên trái
-                topRight: Radius.circular(38.0), // Bo tròn góc trên phải
-                bottomLeft: Radius.circular(20.0), // Bo tròn góc duoi phải
-                bottomRight: Radius.circular(20.0), // Bo tròn góc duoi phải
+                bottomLeft: Radius.circular(25.0),
+                bottomRight: Radius.circular(25.0),
               ),
-          border: Border(
-            top: BorderSide(
+          boxShadow: [
+            BoxShadow(
               color: borderColor,
-              width: topBorderThickness,
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-            left: BorderSide(
-              color: borderColor,
-              width: leftBorderThickness,
-            ),
-            right: BorderSide(
-              color: borderColor,
-              width: rightBorderThickness,
-            ),
-            bottom: BorderSide(
-              color: borderColor,
-              width: bottomBorderThickness,
-            ),
-          ),
+          ],
         ),
         child: AppBar(
           title: Text(

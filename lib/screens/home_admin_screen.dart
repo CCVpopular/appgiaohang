@@ -24,7 +24,6 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
   }
 
   final List<Widget> _pages = [
-    //const Center(child: Text('Dashboard')),
     const UserManagementScreen(),
     const StoreApprovalScreen(),
     const ShipperManagementScreen(),
@@ -41,8 +40,6 @@ class _HomeAdminScreenState extends State<HomeAdminScreen> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
-
-            BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Tổng quan'),
             BottomNavigationBarItem(icon: Icon(Icons.people), label: 'Người dùng'),
             BottomNavigationBarItem(icon: Icon(Icons.store), label: 'Cửa hàng'),
             BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: 'Shipper'),

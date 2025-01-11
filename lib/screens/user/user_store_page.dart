@@ -38,13 +38,13 @@ class _UserStorePageState extends State<UserStorePage> {
   String _getStatusColor(String status) {
     switch (status.toLowerCase()) {
       case 'approved':
-        return '🟢 Approved';
+        return '🟢 Đã duyệt';
       case 'pending':
-        return '🟡 Pending';
+        return '🟡 Đang chờ duyệt';
       case 'rejected':
-        return '🔴 Rejected';
+        return '🔴 Đã từ chối';
       default:
-        return '⚪ Unknown';
+        return '⚪ Không xác định';
     }
   }
 
@@ -76,14 +76,21 @@ class _UserStorePageState extends State<UserStorePage> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.store_outlined, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
+          const Icon(Icons.store_outlined, size: 80, color: Colors.grey),
+          const SizedBox(height: 24),
           const Text(
-            'Chưa có cửa hàng nào được đăng ký',
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            'Bạn chưa có cửa hàng nào',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.grey,
+            ),
           ),
-          const SizedBox(height: 8),
-          const Text('Tap the + button to register a new store'),
+          const SizedBox(height: 12),
+          const Text(
+            'Nhấn nút + để đăng ký cửa hàng mới',
+            style: TextStyle(fontSize: 16, color: Colors.grey),
+          ),
         ],
       ),
     );
@@ -92,38 +99,71 @@ class _UserStorePageState extends State<UserStorePage> {
   Widget _buildStoreList() {
     return ListView.builder(
       itemCount: _stores.length,
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.all(12),
       itemBuilder: (context, index) {
         final store = _stores[index];
         return CustomCard(
-          elevation: 2,
-          margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 2),
-          child: Column(
-            children: [
-              ListTile(
-                title: Text(
-                  store['name'],
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 4),
-                    Text('📍 ${store['address']}'),
-                    Text('📞 ${store['phone_number']}'),
-                    Text(_getStatusColor(store['status'])),
-                  ],
-                ),
-                isThreeLine: true,
-                onTap: () {
-                  Navigator.pushNamed(
-                    context, 
-                    '/store-detail',
-                    arguments: store,
-                  );
-                },
+          elevation: 3,
+          margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 2),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(12),
+              gradient: LinearGradient(
+                colors: [Colors.blue.shade50, Colors.white],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
-            ],
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.all(16),
+              title: Text(
+                store['name'],
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              subtitle: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Text(
+                    '📍 ${store['address']}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    '📞 ${store['phone_number']}',
+                    style: const TextStyle(fontSize: 15),
+                  ),
+                  const SizedBox(height: 4),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4,
+                      horizontal: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey.shade300),
+                    ),
+                    child: Text(
+                      _getStatusColor(store['status']),
+                      style: const TextStyle(fontSize: 14),
+                    ),
+                  ),
+                ],
+              ),
+              isThreeLine: true,
+              onTap: () {
+                Navigator.pushNamed(
+                  context,
+                  '/store-detail',
+                  arguments: store,
+                );
+              },
+            ),
           ),
         );
       },
