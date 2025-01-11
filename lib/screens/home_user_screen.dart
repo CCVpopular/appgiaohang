@@ -42,10 +42,10 @@ class _HomeUserScreenState extends State<HomeUserScreen> {
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home',),
-            BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Orders'),
-            BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Notifications'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ',),
+            BottomNavigationBarItem(icon: Icon(Icons.list_alt), label: 'Đơn hàng'),
+            BottomNavigationBarItem(icon: Icon(Icons.notifications), label: 'Thông báo'),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Tài khoản'),
           ],
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
