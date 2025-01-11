@@ -55,18 +55,18 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
           SnackBar(
             content: Text(
               status == 'accepted' 
-                ? 'Order confirmed successfully' 
-                : 'Order rejected'
+                ? 'Đã xác nhận đơn hàng và thông báo cho khách hàng' 
+                : 'Đã từ chối đơn hàng và thông báo cho khách hàng'
             ),
             backgroundColor: status == 'accepted' ? Colors.green : Colors.red,
           ),
         );
       }
       
-      _loadOrders(); // Reload orders after review
+      _loadOrders(); 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error updating order: $e')),
+        SnackBar(content: Text('Lỗi cập nhật đơn hàng: $e')),
       );
     }
   }
@@ -74,7 +74,7 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title:'Store Orders'),
+      appBar:const CustomAppBar(title:'Đơn Hàng Cửa Hàng'),
       body: _isLoading
         ? const Center(child: CircularProgressIndicator())
         : ListView.builder(
@@ -89,12 +89,12 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
                 child: Column(
                   children: [
                     ListTile(
-                      title: Text('Order #${order['id']}'),
+                      title: Text('Đơn hàng #${order['id']}'),
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Status: ${status.toUpperCase()}',
+                            'Trạng thái: ${_getVietnameseStatus(status)}',
                             style: TextStyle(
                               color: status == 'confirmed' 
                                 ? Colors.green 
@@ -104,8 +104,8 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
                               fontWeight: FontWeight.bold
                             ),
                           ),
-                          Text('Total: \$${order['total_amount']}'),
-                          Text('Items: ${items.length}'),
+                          Text('Tổng tiền: ${order['total_amount']}đ'),
+                          Text('Số lượng món: ${items.length}'),
                         ],
                       ),
                       isThreeLine: true,
@@ -118,7 +118,7 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
                           children: [
                             TextButton(
                               onPressed: () => _reviewOrder(order['id'], 'rejected'),
-                              child: const Text('Reject'),
+                              child: const Text('Từ chối'),
                               style: TextButton.styleFrom(
                                 foregroundColor: Colors.red,
                               ),
@@ -126,7 +126,7 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
                             const SizedBox(width: 8),
                             ElevatedButton(
                               onPressed: () => _reviewOrder(order['id'], 'accepted'),
-                              child: const Text('Accept'),
+                              child: const Text('Xác nhận'),
                             ),
                           ],
                         ),
@@ -137,5 +137,18 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
             },
           ),
     );
+  }
+
+  String _getVietnameseStatus(String status) {
+    switch (status) {
+      case 'pending':
+        return 'ĐANG CHỜ';
+      case 'confirmed':
+        return 'ĐÃ XÁC NHẬN';
+      case 'cancelled':
+        return 'ĐÃ HỦY';
+      default:
+        return status.toUpperCase();
+    }
   }
 }

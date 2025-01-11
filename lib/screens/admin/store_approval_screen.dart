@@ -38,7 +38,7 @@ class _StoreApprovalScreenState extends State<StoreApprovalScreen> {
     } catch (e) {
       setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading stores: $e')),
+        SnackBar(content: Text('Lỗi khi tải danh sách cửa hàng: $e')),
       );
     }
   }
@@ -57,7 +57,7 @@ class _StoreApprovalScreenState extends State<StoreApprovalScreen> {
         });
         
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Store ${status} successfully')),
+          SnackBar(content: Text('Cửa hàng đã được ${status == 'approved' ? 'phê duyệt' : 'từ chối'}')),
         );
       }
     } catch (e) {
@@ -84,8 +84,8 @@ class _StoreApprovalScreenState extends State<StoreApprovalScreen> {
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Address: ${store['address']}'),
-                Text('Phone: ${store['phone_number']}'),
+                Text('Địa chỉ: ${store['address']}'),
+                Text('Số điện thoại: ${store['phone_number']}'),
               ],
             ),
             trailing: Row(

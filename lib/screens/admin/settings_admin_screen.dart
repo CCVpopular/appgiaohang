@@ -23,10 +23,11 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text('Đăng xuất'),
-          content: const Text('Bạn có chắc chắn đăng xuất?'),
+          content: const Text('Bạn có chắc chắn muốn đăng xuất?'),
           actions: [
             TextButton(
-              child: const Text('Huỷ'),
+              child: const Text('Hủy'),
+
               onPressed: () => Navigator.of(context).pop(),
             ),
             TextButton(
@@ -53,6 +54,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.person),
+              title: const Text('Hồ sơ quản trị'),
               title: const Text('Hồ sơ quản trị viên'),
               subtitle: const Text('Quản lý thông tin cá nhân'),
               trailing: const Icon(Icons.arrow_forward_ios),
@@ -66,8 +68,8 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             child: Column(
               children: [
                 CustomSwitchListTile(
-                  title: 'Dark Mode',
-                  subtitle: 'Bật hoặc tắt chế độ tối',
+                  title: 'Chế độ tối',
+                  subtitle: 'Bật/tắt giao diện tối',
                   value: themeProvider.isDarkMode,
                   onChanged: (value) {
                     themeProvider.toggleTheme();
@@ -90,7 +92,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.security),
-              title: const Text('Cài đặt bảo mật'),
+              title: const Text('Cài đặt bảo mật'),
               subtitle: const Text('Mật khẩu và xác thực'),
               trailing: const Icon(Icons.arrow_forward_ios),
               onTap: () {
@@ -101,7 +103,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.switch_account),
-              title: const Text('Chuyển sang người dùng'),
+              title: const Text('Chuyển sang giao diện người dùng'),
               onTap: () {
                 Navigator.pushNamedAndRemoveUntil(context, '/user_home', (route) => false);
               },
