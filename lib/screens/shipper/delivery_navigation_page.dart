@@ -306,8 +306,10 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        elevation: 2,
+        backgroundColor: Colors.white,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
         title: Column(
@@ -315,13 +317,20 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
           children: [
             Text(
               'Đơn hàng #${widget.order['id']}',
-              style: TextStyle(fontSize: 16),
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
             ),
             Text(
               _isNavigatingToStore
-                  ? 'Đang đến cửa hàng'
-                  : 'Đang đến khách hàng',
-              style: TextStyle(fontSize: 14),
+                  ? '🏪 Đang đến điểm lấy hàng'
+                  : '🏡 Đang đến điểm giao hàng',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -377,13 +386,32 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
               left: 16,
               right: 16,
               bottom: 180, // Above the bottom panel
-              child: ElevatedButton.icon(
-                icon: const Icon(Icons.delivery_dining),
-                label: const Text('Đã nhận hàng giao'),
-                onPressed: _startDelivery,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color.fromARGB(255, 168, 255, 197),
-                  padding: const EdgeInsets.symmetric(vertical: 12),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.delivery_dining),
+                  label: const Text(
+                    'Xác nhận đã lấy hàng',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                  onPressed: _startDelivery,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF4CAF50),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -397,11 +425,13 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.9),
-                  borderRadius: BorderRadius.circular(8),
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade400, Colors.green.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black26,
+                      color: Colors.green.withOpacity(0.3),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -409,15 +439,22 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.location_on, color: Colors.white),
-                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(Icons.location_on, color: Colors.white),
+                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       child: Text(
                         _proximityMessage,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 16,
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),

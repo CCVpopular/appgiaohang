@@ -211,61 +211,110 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
                     ],
                   ),
                 ),
-                OverflowBar(
-                  children: [
-                    if (order['status'] == 'preparing')
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.delivery_dining),
-                        label: const Text('Đã nhận hàng giao'),
-                        onPressed: () => _startDelivery(order),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(255, 168, 255, 197),
-                        ),
-                      ),
-                    if (order['status'] == 'delivering')
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.check_circle),
-                        label: const Text('Đã giao hàng'),
-                        onPressed: () => _completeDelivery(order),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.green,
-                          foregroundColor: Colors.white,
-                        ),
-                      ),
-                    if (order['status'] == 'delivering')
-                      ElevatedButton.icon(
-                        icon: const Icon(Icons.chat),
-                        label: const Text('Nhắn tin'),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChatScreen(
-                                orderId: order['id'],
-                                currentUserId: int.parse(userId!), // Add userId as class field
-                                otherUserId: order['user_id'],
-                                otherUserName: order['customer_name'],
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    children: [
+                      if (order['status'] == 'preparing')
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.delivery_dining, size: 24),
+                            label: const Text(
+                              'Đã nhận hàng giao',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () => _startDelivery(order),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.navigation),
-                      label: const Text('Chỉ đường'),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DeliveryNavigationPage(
-                              order: order,
+                          ),
+                        ),
+                      if (order['status'] == 'delivering')
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            icon: const Icon(Icons.check_circle, size: 24),
+                            label: const Text(
+                              'Đã giao hàng',
+                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                            ),
+                            onPressed: () => _completeDelivery(order),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFF4CAF50),
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
                             ),
                           ),
-                        );
-                      },
-                    ),
-                  ],
+                        ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.chat_bubble_outline),
+                              label: const Text('Nhắn tin'),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ChatScreen(
+                                      orderId: order['id'],
+                                      currentUserId: int.parse(userId!),
+                                      otherUserId: order['user_id'],
+                                      otherUserName: order['customer_name'],
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.blue[700],
+                                side: BorderSide(color: Colors.blue[700]!),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              icon: const Icon(Icons.navigation),
+                              label: const Text('Chỉ đường'),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => DeliveryNavigationPage(
+                                      order: order,
+                                    ),
+                                  ),
+                                );
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.blue[700],
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -276,42 +325,73 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
   }
 
   Widget _buildStatusChip(String status) {
-    Color color;
-    String text;
+    late final Color color;
+    late final String text;
+    late final IconData icon;
 
     switch (status) {
       case 'preparing':
-        color = Colors.blue;
-        text = 'Đang chuẩn bị';
+        color = const Color(0xFF2196F3);
+        text = 'Đang chờ lấy hàng';
+        icon = Icons.pending_actions;
         break;
       case 'delivering':
-        color = Colors.green;
-        text = 'Đang giao';
+        color = const Color(0xFF4CAF50);
+        text = 'Đang giao hàng';
+        icon = Icons.delivery_dining;
         break;
       default:
         color = Colors.grey;
         text = 'Không xác định';
+        icon = Icons.help_outline;
     }
 
-    return Chip(
-      label: Text(
-        text,
-        style: const TextStyle(color: Colors.white),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: color.withOpacity(0.5)),
       ),
-      backgroundColor: color,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 16, color: color),
+          const SizedBox(width: 4),
+          Text(
+            text,
+            style: TextStyle(color: color, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
     );
   }
 
   Widget _buildInfoRow(IconData icon, String text) {
-    return Row(
-      children: [
-        Icon(icon, size: 20, color: Colors.grey[600]),
-        const SizedBox(width: 8),
-        Text(
-          text,
-          style: const TextStyle(fontSize: 16),
-        ),
-      ],
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: Colors.grey[100],
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 20, color: Colors.grey[700]),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
