@@ -71,7 +71,7 @@ class _ShipperManagementScreenState extends State<ShipperManagementScreen> {
     }
 
     if (_pendingShippers.isEmpty) {
-      return const Center(child: Text('No pending shipper applications'));
+      return const Center(child: Text('Không có đơn đăng ký người gửi hàng nào đang chờ xử lý'));
     }
 
     return ListView.builder(
