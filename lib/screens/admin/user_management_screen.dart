@@ -157,7 +157,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(isEditing ? 'Edit User' : 'Create User'),
+        title: Text(isEditing ? 'Sửa người dùng' : 'Thêm người dùng mới'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -169,11 +169,11 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 ),
               TextField(
                 controller: nameController,
-                decoration: const InputDecoration(labelText: 'Full Name'),
+                decoration: const InputDecoration(labelText: 'Họ và tên'),
               ),
               TextField(
                 controller: phoneController,
-                decoration: const InputDecoration(labelText: 'Phone Number'),
+                decoration: const InputDecoration(labelText: 'Số điện thoại'),
               ),
               if (!isEditing)
                 TextField(
@@ -185,12 +185,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               DropdownButtonFormField<String>(
                 value: selectedRole,
                 items: const [
-                  DropdownMenuItem(value: 'user', child: Text('User')),
+                  DropdownMenuItem(value: 'user', child: Text('Người dùng')),
                   DropdownMenuItem(value: 'shipper', child: Text('Shipper')),
-                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                  DropdownMenuItem(value: 'admin', child: Text('Quản trị')),
                 ],
                 onChanged: (value) => selectedRole = value!,
-                decoration: const InputDecoration(labelText: 'Role'),
+                decoration: const InputDecoration(labelText: 'Vai trò'),
               ),
             ],
           ),
@@ -198,7 +198,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Hủy'),
           ),
           TextButton(
             onPressed: () async {
@@ -222,7 +222,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                 Navigator.pop(context);
               }
             },
-            child: Text(isEditing ? 'Save' : 'Create'),
+            child: Text(isEditing ? 'Lưu' : 'Tạo'),
           ),
         ],
       ),
@@ -255,7 +255,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               Expanded(
                 child: TextField(
                   decoration: const InputDecoration(
-                    hintText: 'Search users...',
+                    hintText: 'Tìm kiếm người dùng...',
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
                   ),
@@ -265,12 +265,12 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               const SizedBox(width: 8),
               DropdownButton<String>(
                 value: filterRole,
-                hint: const Text('Role'),
+                hint: const Text('Vai trò'),
                 items: const [
-                  DropdownMenuItem(value: null, child: Text('All')),
-                  DropdownMenuItem(value: 'user', child: Text('User')),
+                  DropdownMenuItem(value: null, child: Text('Tất cả')),
+                  DropdownMenuItem(value: 'user', child: Text('Người dùng')),
                   DropdownMenuItem(value: 'shipper', child: Text('Shipper')),
-                  DropdownMenuItem(value: 'admin', child: Text('Admin')),
+                  DropdownMenuItem(value: 'admin', child: Text('Quản trị')),
                 ],
                 onChanged: (value) => setState(() => filterRole = value),
               ),
@@ -278,7 +278,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
               ElevatedButton.icon(
                 onPressed: () => _showUserDialog(),
                 icon: const Icon(Icons.add),
-                label: const Text('Add User'),
+                label: const Text('Thêm người dùng'),
               ),
             ],
           ),
@@ -311,14 +311,14 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text('Role: ${user['role']}'),
+                                Text('Vai trò: ${user['role'] == 'user' ? 'Người dùng' : user['role'] == 'admin' ? 'Quản trị' : 'Shipper'}'),
                               ],
                             ),
                             const SizedBox(height: 8),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                const Text('Active Status:'),
+                                const Text('Trạng thái:'),
                                 Switch(
                                   value: user['is_active'] == 1,
                                   onChanged: (value) => 
@@ -333,7 +333,7 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                 TextButton.icon(
                                   onPressed: () => _showUserDialog(user),
                                   icon: const Icon(Icons.edit),
-                                  label: const Text('Edit'),
+                                  label: const Text('Sửa'),
                                 ),
                                 const SizedBox(width: 8),
                                 TextButton.icon(
@@ -343,8 +343,8 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
                                       ? Icons.lock 
                                       : Icons.lock_open),
                                   label: Text(user['is_active'] == 1 
-                                      ? 'Lock' 
-                                      : 'Unlock'),
+                                      ? 'Khóa' 
+                                      : 'Mở khóa'),
                                   style: TextButton.styleFrom(
                                     foregroundColor: user['is_active'] == 1 
                                         ? Colors.red 
