@@ -244,7 +244,7 @@ class _ProfilePageState extends State<ProfilePage> {
       alignment: Alignment.center,
       children: [
         Container(
-          height: 200,
+          height: 350, // Increased height
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin: Alignment.topRight,
@@ -256,23 +256,28 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
           ),
         ),
-        Column(
-          children: [
-            const CircleAvatar(
-              radius: 60,
-              backgroundColor: Colors.white,
-              child: Icon(Icons.person, size: 80, color: Colors.grey),
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 40), // Add top padding
+            child: Column(
+              children: [
+                const CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white,
+                  child: Icon(Icons.person, size: 80, color: Colors.grey),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  userData['fullName'] ?? '',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              userData['fullName'] ?? '',
-              style: const TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-          ],
+          ),
         ),
       ],
     );
