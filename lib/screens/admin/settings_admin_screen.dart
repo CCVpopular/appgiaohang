@@ -54,7 +54,6 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
           CustomCard(
             child: ListTile(
               leading: const Icon(Icons.person),
-              title: const Text('Hồ sơ quản trị'),
               title: const Text('Hồ sơ quản trị viên'),
               subtitle: const Text('Quản lý thông tin cá nhân'),
               trailing: const Icon(Icons.arrow_forward_ios),

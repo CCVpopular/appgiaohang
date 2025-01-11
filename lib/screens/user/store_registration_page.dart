@@ -62,11 +62,9 @@ class _StoreRegistrationPageState extends State<StoreRegistrationPage> {
   }
 
   void _selectAddress() async {
-    final result = await Navigator.pushNamed(
-      context, 
-      '/store-address-map'
-    ) as Map<String, dynamic>?;
-    
+    final result = await Navigator.pushNamed(context, '/store-address-map')
+        as Map<String, dynamic>?;
+
     if (result != null) {
       setState(() {
         selectedAddress = result['address'];
@@ -79,67 +77,129 @@ class _StoreRegistrationPageState extends State<StoreRegistrationPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title:'Register New Store'),
+      appBar: const CustomAppBar(title: 'Đăng Ký Cửa Hàng Mới'),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  children: [
-                    TextFormField(
-                      controller: _nameController,
-                      decoration:
-                          const InputDecoration(labelText: 'Store Name'),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? 'Please enter store name'
-                          : null,
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: InkWell(
-                        onTap: _selectAddress,
+          : Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Theme.of(context).primaryColor.withOpacity(0.1),
+                    Colors.white,
+                  ],
+                ),
+              ),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(20),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Card(
+                        elevation: 4,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Icon(Icons.location_on, 
-                                    color: Theme.of(context).primaryColor),
-                                  const SizedBox(width: 8),
-                                  Text('Store Address',
-                                    style: Theme.of(context).textTheme.titleMedium),
-                                ],
+                              TextFormField(
+                                controller: _nameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Tên Cửa Hàng',
+                                  prefixIcon: const Icon(Icons.store),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                validator: (value) => value?.isEmpty ?? true
+                                    ? 'Vui lòng nhập tên cửa hàng'
+                                    : null,
                               ),
-                              if (selectedAddress != null) ...[
-                                const SizedBox(height: 8),
-                                Text(selectedAddress!,
-                                  style: Theme.of(context).textTheme.bodyMedium),
-                              ],
+                              const SizedBox(height: 20),
+                              Card(
+                                elevation: 2,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                  side: BorderSide(
+                                    color: Theme.of(context)
+                                        .primaryColor
+                                        .withOpacity(0.5),
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: _selectAddress,
+                                  borderRadius: BorderRadius.circular(10),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(16),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(Icons.location_on,
+                                                color: Theme.of(context)
+                                                    .primaryColor),
+                                            const SizedBox(width: 8),
+                                            Text('Địa Chỉ Cửa Hàng',
+                                                style: Theme.of(context)
+                                                    .textTheme
+                                                    .titleMedium),
+                                          ],
+                                        ),
+                                        if (selectedAddress != null) ...[
+                                          const SizedBox(height: 8),
+                                          Text(selectedAddress!,
+                                              style: Theme.of(context)
+                                                  .textTheme
+                                                  .bodyMedium),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _phoneController,
+                                decoration: InputDecoration(
+                                  labelText: 'Số Điện Thoại',
+                                  prefixIcon: const Icon(Icons.phone),
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.phone,
+                                validator: (value) => value?.isEmpty ?? true
+                                    ? 'Vui lòng nhập số điện thoại'
+                                    : null,
+                              ),
                             ],
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration:
-                          const InputDecoration(labelText: 'Phone Number'),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) => value?.isEmpty ?? true
-                          ? 'Please enter phone number'
-                          : null,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _submitStore,
-                      child: const Text('Register Store'),
-                    ),
-                  ],
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _submitStore,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 15),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Đăng Ký Cửa Hàng',
+                          style: TextStyle(
+                              fontSize: 16, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

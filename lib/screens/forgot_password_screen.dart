@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import '../components/app_bar/custom_app_bar.dart';
 import '../components/buttons/custom_elevated_button.dart';
+import '../config/config.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
   const ForgotPasswordScreen({super.key});
@@ -23,7 +24,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   Future<void> _sendOTP() async {
     try {
       final response = await http.post(
-        Uri.parse('http://192.168.10.120:3000/auth/send-otp'),
+        Uri.parse('${Config.baseurl}/auth/send-otp'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({'email': _emailController.text}),
       );
@@ -51,7 +52,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       print('Sending reset password request...'); // Debug log
       final response = await http.post(
         Uri.parse(
-            'http://192.168.10.120:3000/auth/password/reset'), // Updated path
+            '${Config.baseurl}/auth/password/reset'), // Updated path
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'email': _emailController.text,

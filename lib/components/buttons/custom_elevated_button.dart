@@ -36,35 +36,42 @@ class CustomElevatedButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final brightness = Theme.of(context).brightness;
 
-    // Màu nền
-    final buttonBackgroundColor = brightness == Brightness.dark
-        ? backgroundColor ?? const Color.fromARGB(255, 117, 63, 25)
-        : backgroundColor ?? const Color.fromARGB(255, 210, 134, 79);
+    final gradientColors = brightness == Brightness.dark
+        ? [
+            const Color(0xFFD35400),
+            const Color(0xFFE67E22),
+          ]
+        : [
+            const Color(0xFFE67E22),
+            const Color(0xFFF39C12),
+          ];
 
-    // Màu chữ
-    final buttonTextColor = brightness == Brightness.dark
-        ? textColor ?? Colors.white // Màu chữ cho dark mode
-        : textColor ?? Colors.black; // Màu chữ cho light mode
-
-    // Màu viền
-    final buttonBorderColor = brightness == Brightness.dark
-        ? borderColor ?? const Color.fromARGB(255, 211, 155, 103).withOpacity(0.7)
-        : borderColor ?? Colors.black; // Màu viền cho light mode
-
-    return SizedBox(
+    return Container(
       width: width,
       height: height,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: gradientColors,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(borderRadius),
+        boxShadow: [
+          BoxShadow(
+            color: gradientColors[0].withOpacity(0.3),
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: ElevatedButton(
-        style: style ?? ElevatedButton.styleFrom(
-          backgroundColor: buttonBackgroundColor,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          shadowColor: Colors.transparent,
+          padding: padding ?? const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(borderRadius),
-            side: BorderSide(
-              color: buttonBorderColor, // Viền của nút
-              width: borderWidth,
-            ),
           ),
-          padding: padding ?? const EdgeInsets.symmetric(vertical: 16.0, horizontal: 20.0),
         ),
         onPressed: onPressed,
         child: Row(
@@ -79,7 +86,7 @@ class CustomElevatedButton extends StatelessWidget {
               text,
               style: textStyle ??
                   TextStyle(
-                    color: buttonTextColor,
+                    color: textColor ?? Colors.white,
                     fontSize: 16.0,
                     fontWeight: FontWeight.bold,
                   ),

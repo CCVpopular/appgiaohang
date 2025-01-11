@@ -129,7 +129,7 @@ class _CallScreenState extends State<CallScreen> {
         backgroundColor: Colors.black,
         body: Stack(
           children: [
-            // Main view (remote user)
+            // Main video views
             if (_isInCall) ...[
               if (_remoteUid != null)
                 AgoraVideoView(
@@ -137,22 +137,49 @@ class _CallScreenState extends State<CallScreen> {
                     rtcEngine: _callService.engine!,
                     canvas: VideoCanvas(uid: _remoteUid),
                     connection: RtcConnection(channelId: widget.channelName),
-                    useFlutterTexture: true, // Add this line
-                    useAndroidSurfaceView: true, // Add this line
+                    useFlutterTexture: true,
+                    useAndroidSurfaceView: true,
+                  ),
+                )
+              else
+                Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(color: Colors.white),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Đang kết nối...',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              // Local user view (smaller)
+
+              // Local video view
               Positioned(
-                top: 10,
-                right: 10,
+                top: 40,
+                right: 16,
                 width: 120,
-                height: 160,
+                height: 180,
                 child: Container(
                   decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white, width: 1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.white, width: 2),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.3),
+                        blurRadius: 10,
+                        spreadRadius: 2,
+                      ),
+                    ],
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(10),
                     child: AgoraVideoView(
                       controller: VideoViewController(
                         rtcEngine: _callService.engine!,
@@ -172,38 +199,56 @@ class _CallScreenState extends State<CallScreen> {
               bottom: 40,
               left: 0,
               right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildControlButton(
-                    icon: _callService.isMicOn ? Icons.mic : Icons.mic_off,
-                    onPressed: () {
-                      _callService.toggleMicrophone();
-                      setState(() {});
-                    },
+              child: Container(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.8),
+                      Colors.transparent,
+                    ],
                   ),
-                  _buildControlButton(
-                    icon: Icons.call_end,
-                    color: Colors.red,
-                    onPressed: _endCall, // Use the new method
-                  ),
-                  _buildControlButton(
-                    icon: _callService.isCameraOn
-                        ? Icons.videocam
-                        : Icons.videocam_off,
-                    onPressed: () {
-                      _callService.toggleCamera();
-                      setState(() {});
-                    },
-                  ),
-                  _buildControlButton(
-                    icon: Icons.switch_camera,
-                    onPressed: () {
-                      _callService.switchCamera();
-                      setState(() {});
-                    },
-                  ),
-                ],
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    _buildControlButton(
+                      icon: _callService.isMicOn ? Icons.mic : Icons.mic_off,
+                      label: _callService.isMicOn ? 'Tắt mic' : 'Bật mic',
+                      onPressed: () {
+                        _callService.toggleMicrophone();
+                        setState(() {});
+                      },
+                    ),
+                    _buildControlButton(
+                      icon: Icons.call_end,
+                      color: Colors.red,
+                      backgroundColor: Colors.red.shade100,
+                      label: 'Kết thúc',
+                      onPressed: _endCall,
+                    ),
+                    _buildControlButton(
+                      icon: _callService.isCameraOn
+                          ? Icons.videocam
+                          : Icons.videocam_off,
+                      label: _callService.isCameraOn ? 'Tắt camera' : 'Bật camera',
+                      onPressed: () {
+                        _callService.toggleCamera();
+                        setState(() {});
+                      },
+                    ),
+                    _buildControlButton(
+                      icon: Icons.switch_camera,
+                      label: 'Đổi camera',
+                      onPressed: () {
+                        _callService.switchCamera();
+                        setState(() {});
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -214,16 +259,42 @@ class _CallScreenState extends State<CallScreen> {
 
   Widget _buildControlButton({
     required IconData icon,
+    required String label,
     required VoidCallback onPressed,
     Color color = Colors.white,
+    Color backgroundColor = Colors.black54,
   }) {
-    return CircleAvatar(
-      backgroundColor: Colors.black54,
-      radius: 25,
-      child: IconButton(
-        icon: Icon(icon, color: color),
-        onPressed: onPressed,
-      ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: backgroundColor,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.2),
+                blurRadius: 8,
+                spreadRadius: 1,
+              ),
+            ],
+          ),
+          child: IconButton(
+            icon: Icon(icon, color: color, size: 28),
+            onPressed: onPressed,
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }

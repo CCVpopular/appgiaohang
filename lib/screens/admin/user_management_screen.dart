@@ -246,139 +246,177 @@ class _UserManagementScreenState extends State<UserManagementScreen> {
 
     final filteredUsers = getFilteredUsers();
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  decoration: const InputDecoration(
-                    hintText: 'Tìm kiếm người dùng...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (value) => setState(() => searchQuery = value),
+    return Scaffold(
+      body: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
                 ),
-              ),
-              const SizedBox(width: 8),
-              DropdownButton<String>(
-                value: filterRole,
-                hint: const Text('Vai trò'),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('Tất cả')),
-                  DropdownMenuItem(value: 'user', child: Text('Người dùng')),
-                  DropdownMenuItem(value: 'shipper', child: Text('Shipper')),
-                  DropdownMenuItem(value: 'admin', child: Text('Quản trị')),
-                ],
-                onChanged: (value) => setState(() => filterRole = value),
-              ),
-              const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () => _showUserDialog(),
-                icon: const Icon(Icons.add),
-                label: const Text('Thêm người dùng'),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: fetchUsers,
-            child: ListView.builder(
-              itemCount: filteredUsers.length,
-              itemBuilder: (context, index) {
-                final user = filteredUsers[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  child: ExpansionTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      child: Text(
-                        user['full_name']?[0]?.toUpperCase() ?? 'U',
-                        style: const TextStyle(color: Colors.white),
+              ],
+            ),
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        decoration: InputDecoration(
+                          hintText: 'Tìm kiếm theo tên hoặc email...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          filled: true,
+                          fillColor: Theme.of(context).colorScheme.surface,
+                        ),
+                        onChanged: (value) => setState(() => searchQuery = value),
                       ),
                     ),
-                    title: Text(user['full_name'] ?? 'N/A'),
-                    subtitle: Text(user['email']),
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Vai trò: ${user['role'] == 'user' ? 'Người dùng' : user['role'] == 'admin' ? 'Quản trị' : 'Shipper'}'),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text('Trạng thái:'),
-                                Switch(
-                                  value: user['is_active'] == 1,
-                                  onChanged: (value) => 
-                                      toggleUserActive(user['id'], value),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton.icon(
-                                  onPressed: () => _showUserDialog(user),
-                                  icon: const Icon(Icons.edit),
-                                  label: const Text('Sửa'),
-                                ),
-                                const SizedBox(width: 8),
-                                TextButton.icon(
-                                  onPressed: () => 
-                                      toggleUserActive(user['id'], !user['is_active']),
-                                  icon: Icon(user['is_active'] == 1 
-                                      ? Icons.lock 
-                                      : Icons.lock_open),
-                                  label: Text(user['is_active'] == 1 
-                                      ? 'Khóa' 
-                                      : 'Mở khóa'),
-                                  style: TextButton.styleFrom(
-                                    foregroundColor: user['is_active'] == 1 
-                                        ? Colors.red 
-                                        : Colors.green,
-                                  ),
-                                ),
-                                // const SizedBox(width: 8),
-                                // TextButton(
-                                //   onPressed: () => 
-                                //       updateUserStatus(user['id'], 'approved'),
-                                //   child: const Text('Approve'),
-                                // ),
-                                // const SizedBox(width: 8),
-                                // TextButton(
-                                //   onPressed: () => 
-                                //       updateUserStatus(user['id'], 'rejected'),
-                                //   style: TextButton.styleFrom(
-                                //     foregroundColor: Colors.red,
-                                //   ),
-                                //   child: const Text('Reject'),
-                                // ),
-                              ],
-                            ),
-                          ],
-                        ),
+                    const SizedBox(width: 16),
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Theme.of(context).colorScheme.outline),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    ],
+                      child: DropdownButton<String>(
+                        value: filterRole,
+                        hint: const Text('Phân loại'),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        underline: const SizedBox(),
+                        items: const [
+                          DropdownMenuItem(value: null, child: Text('Tất cả')),
+                          DropdownMenuItem(value: 'user', child: Text('Khách hàng')),
+                          DropdownMenuItem(value: 'shipper', child: Text('Người giao hàng')),
+                          DropdownMenuItem(value: 'admin', child: Text('Quản trị viên')),
+                        ],
+                        onChanged: (value) => setState(() => filterRole = value),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                FilledButton.icon(
+                  onPressed: () => _showUserDialog(),
+                  icon: const Icon(Icons.person_add),
+                  label: const Text('Thêm người dùng mới'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                   ),
-                );
-              },
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          Expanded(
+            child: RefreshIndicator(
+              onRefresh: fetchUsers,
+              child: ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: filteredUsers.length,
+                itemBuilder: (context, index) {
+                  final user = filteredUsers[index];
+                  return Card(
+                    elevation: 2,
+                    margin: const EdgeInsets.only(bottom: 12),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: ExpansionTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: Text(
+                          user['full_name']?[0]?.toUpperCase() ?? 'U',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onPrimary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        user['full_name'] ?? 'N/A',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        user['email'],
+                        style: Theme.of(context).textTheme.bodyMedium,
+                      ),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.secondaryContainer,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Text(
+                                  user['role'] == 'user' ? 'Khách hàng' :
+                                  user['role'] == 'admin' ? 'Quản trị viên' : 'Người giao hàng',
+                                  style: TextStyle(
+                                    color: Theme.of(context).colorScheme.onSecondaryContainer,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Trạng thái tài khoản',
+                                    style: Theme.of(context).textTheme.titleSmall,
+                                  ),
+                                  Switch(
+                                    value: user['is_active'] == 1,
+                                    onChanged: (value) => toggleUserActive(user['id'], value),
+                                  ),
+                                ],
+                              ),
+                              const Divider(),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  OutlinedButton.icon(
+                                    onPressed: () => _showUserDialog(user),
+                                    icon: const Icon(Icons.edit_outlined),
+                                    label: const Text('Chỉnh sửa'),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  FilledButton.icon(
+                                    onPressed: () => toggleUserActive(user['id'], !user['is_active']),
+                                    icon: Icon(user['is_active'] == 1 ? Icons.lock : Icons.lock_open),
+                                    label: Text(user['is_active'] == 1 ? 'Khóa' : 'Mở khóa'),
+                                    style: FilledButton.styleFrom(
+                                      backgroundColor: user['is_active'] == 1
+                                          ? Colors.red
+                                          : Colors.green,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

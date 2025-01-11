@@ -74,68 +74,139 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:const CustomAppBar(title:'Đơn Hàng Cửa Hàng'),
+      appBar: const CustomAppBar(title: 'Quản Lý Đơn Hàng'),
       body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : ListView.builder(
-            itemCount: _orders.length,
-            itemBuilder: (context, index) {
-              final order = _orders[index];
-              final items = order['items'];
-              final status = order['status'];
-              
-              return Card(
-                margin: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    ListTile(
-                      title: Text('Đơn hàng #${order['id']}'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Trạng thái: ${_getVietnameseStatus(status)}',
-                            style: TextStyle(
-                              color: status == 'confirmed' 
-                                ? Colors.green 
-                                : status == 'cancelled' 
-                                  ? Colors.red 
-                                  : Colors.black,
-                              fontWeight: FontWeight.bold
-                            ),
-                          ),
-                          Text('Tổng tiền: ${order['total_amount']}đ'),
-                          Text('Số lượng món: ${items.length}'),
-                        ],
+          ? const Center(child: CircularProgressIndicator())
+          : _orders.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: const [
+                      Icon(Icons.receipt_long, size: 80, color: Colors.grey),
+                      SizedBox(height: 16),
+                      Text(
+                        'Chưa có đơn hàng nào',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.grey,
+                        ),
                       ),
-                      isThreeLine: true,
-                    ),
-                    if (status == 'pending')
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: _orders.length,
+                  padding: const EdgeInsets.all(12),
+                  itemBuilder: (context, index) {
+                    final order = _orders[index];
+                    final items = order['items'];
+                    final status = order['status'];
+
+                    return Card(
+                      elevation: 3,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(12),
+                          gradient: LinearGradient(
+                            colors: [Colors.blue.shade50, Colors.white],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Column(
                           children: [
-                            TextButton(
-                              onPressed: () => _reviewOrder(order['id'], 'rejected'),
-                              child: const Text('Từ chối'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.red,
+                            ListTile(
+                              contentPadding: const EdgeInsets.all(16),
+                              title: Text(
+                                'Đơn hàng #${order['id']}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 4,
+                                      horizontal: 8,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                      border: Border.all(color: Colors.grey.shade300),
+                                    ),
+                                    child: Text(
+                                      'Trạng thái: ${_getVietnameseStatus(status)}',
+                                      style: TextStyle(
+                                        color: status == 'confirmed'
+                                            ? Colors.green
+                                            : status == 'cancelled'
+                                                ? Colors.red
+                                                : Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    'Tổng tiền: ${_formatCurrency(order['total_amount'])}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                  Text(
+                                    'Số lượng món: ${items.length}',
+                                    style: const TextStyle(fontSize: 16),
+                                  ),
+                                ],
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              onPressed: () => _reviewOrder(order['id'], 'accepted'),
-                              child: const Text('Xác nhận'),
-                            ),
+                            if (status == 'pending')
+                              Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.end,
+                                  children: [
+                                    TextButton(
+                                      onPressed: () =>
+                                          _reviewOrder(order['id'], 'rejected'),
+                                      style: TextButton.styleFrom(
+                                        foregroundColor: Colors.red,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      child: const Text('Từ chối'),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    ElevatedButton(
+                                      onPressed: () =>
+                                          _reviewOrder(order['id'], 'accepted'),
+                                      style: ElevatedButton.styleFrom(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 24,
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      child: const Text('Xác nhận'),
+                                    ),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
                       ),
-                  ],
+                    );
+                  },
                 ),
-              );
-            },
-          ),
     );
   }
 
@@ -150,5 +221,12 @@ class _StoreOrdersScreenState extends State<StoreOrdersScreen> {
       default:
         return status.toUpperCase();
     }
+  }
+
+  String _formatCurrency(dynamic amount) {
+    return '${amount.toString().replaceAllMapped(
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]}.',
+        )}đ';
   }
 }

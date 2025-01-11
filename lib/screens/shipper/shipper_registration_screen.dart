@@ -79,53 +79,146 @@ class _ShipperRegistrationScreenState extends State<ShipperRegistrationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Đăng ký tài xế'),
+        title: const Text('Đăng Ký Tài Xế',
+            style: TextStyle(fontWeight: FontWeight.bold)),
+        backgroundColor: Colors.blue,
+        elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(labelText: 'Họ và tên'),
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập họ tên' : null,
-              ),
-              TextFormField(
-                controller: _emailController,
-                decoration: const InputDecoration(labelText: 'Email'),
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập email' : null,
-              ),
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(labelText: 'Số điện thoại'),
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập số điện thoại' : null,
-              ),
-              TextFormField(
-                controller: _passwordController,
-                decoration: const InputDecoration(labelText: 'Mật khẩu'),
-                obscureText: true,
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập mật khẩu' : null,
-              ),
-              TextFormField(
-                controller: _vehicleTypeController,
-                decoration: const InputDecoration(labelText: 'Loại xe'),
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập loại xe' : null,
-              ),
-              TextFormField(
-                controller: _licensePlateController,
-                decoration: const InputDecoration(labelText: 'Biển số xe'),
-                validator: (value) => value?.isEmpty ?? true ? 'Vui lòng nhập biển số xe' : null,
-              ),
-              const SizedBox(height: 20),
-              CustomElevatedButton(
-                onPressed: _registerShipper,
-                text: 'Đăng ký',
-              ),
-            ],
+      body: Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.blue, Colors.white],
+            stops: [0.0, 0.3],
           ),
         ),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text(
+                  'Thông Tin Đăng Ký',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildTextField(
+                          controller: _nameController,
+                          label: 'Họ và tên',
+                          icon: Icons.person,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập họ tên' : null,
+                        ),
+                        _buildTextField(
+                          controller: _emailController,
+                          label: 'Email',
+                          icon: Icons.email,
+                          keyboardType: TextInputType.emailAddress,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập email' : null,
+                        ),
+                        _buildTextField(
+                          controller: _phoneController,
+                          label: 'Số điện thoại',
+                          icon: Icons.phone,
+                          keyboardType: TextInputType.phone,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập số điện thoại' : null,
+                        ),
+                        _buildTextField(
+                          controller: _passwordController,
+                          label: 'Mật khẩu',
+                          icon: Icons.lock,
+                          obscureText: true,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập mật khẩu' : null,
+                        ),
+                        _buildTextField(
+                          controller: _vehicleTypeController,
+                          label: 'Loại xe',
+                          icon: Icons.directions_bike,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập loại xe' : null,
+                        ),
+                        _buildTextField(
+                          controller: _licensePlateController,
+                          label: 'Biển số xe',
+                          icon: Icons.confirmation_number,
+                          validator: (value) => value?.isEmpty ?? true 
+                            ? 'Vui lòng nhập biển số xe' : null,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                CustomElevatedButton(
+                  onPressed: _registerShipper,
+                  text: 'Đăng Ký Ngay',
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required IconData icon,
+    bool obscureText = false,
+    TextInputType? keyboardType,
+    String? Function(String?)? validator,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: TextFormField(
+        controller: controller,
+        obscureText: obscureText,
+        keyboardType: keyboardType,
+        decoration: InputDecoration(
+          labelText: label,
+          prefixIcon: Icon(icon, color: Colors.blue),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: Colors.grey.shade300),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: const BorderSide(color: Colors.blue, width: 2),
+          ),
+          filled: true,
+          fillColor: Colors.grey.shade50,
+        ),
+        validator: validator,
       ),
     );
   }

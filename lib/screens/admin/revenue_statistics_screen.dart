@@ -113,7 +113,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blue.shade400, Colors.blue.shade700],
+            colors: [const Color.fromARGB(255, 245, 176, 66), const Color.fromARGB(255, 210, 133, 25)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -244,7 +244,7 @@ class _RevenueStatisticsScreenState extends State<RevenueStatisticsScreen> with 
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildRevenueSection('Vật phẩm lợi nhuận', 
+                _buildRevenueSection('Vật phẩm lợi nhuận',
                     statistics['itemRevenue'] ?? {}),
                 const SizedBox(height: 24),
                 _buildTransactionList(true),

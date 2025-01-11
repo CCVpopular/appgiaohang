@@ -213,6 +213,17 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ],
                     ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text("Bạn muốn trở thành tài xế?"),
+                        TextButton(
+                          onPressed: () =>
+                              Navigator.pushNamed(context, '/shipper-registration'),
+                          child: const Text('Đăng ký tài xế'),
+                        ),
+                      ],
+                    ),
                     TextButton(
                       onPressed: () =>
                           Navigator.pushNamed(context, '/forgot-password'),

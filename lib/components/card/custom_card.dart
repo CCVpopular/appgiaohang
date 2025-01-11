@@ -71,13 +71,42 @@ class CustomCard extends StatelessWidget {
       top: marginTop ?? (margin?.top ?? 10),
     );
 
+    final gradientColors = brightness == Brightness.dark
+        ? [
+            const Color(0xFF2C1810),
+            const Color(0xFF3D241C),
+          ]
+        : [
+            const Color(0xFFFFF3E0),
+            const Color(0xFFFFE0B2),
+          ];
+
     return Container(
       margin: effectiveMargin,
-      padding: padding ?? const EdgeInsets.all(5),
+      padding: padding ?? const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: borderRadius ?? BorderRadius.circular(12.0),
-        border: border,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: gradientColors,
+        ),
+        borderRadius: borderRadius ?? BorderRadius.circular(16.0),
+        boxShadow: [
+          BoxShadow(
+            color: brightness == Brightness.dark
+                ? Colors.black26
+                : Colors.orange.withOpacity(0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+            spreadRadius: 2,
+          ),
+        ],
+        border: Border.all(
+          color: brightness == Brightness.dark
+              ? Colors.orange.withOpacity(0.2)
+              : Colors.orange.withOpacity(0.3),
+          width: 1.5,
+        ),
       ),
       child: child,
     );
