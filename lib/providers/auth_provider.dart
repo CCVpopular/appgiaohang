@@ -1,5 +1,9 @@
 import 'package:shared_preferences/shared_preferences.dart';
 import '../utils/shared_prefs.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../config/config.dart';
 
 class AuthProvider {
   static Future<bool> isLoggedIn() async {
@@ -8,6 +12,30 @@ class AuthProvider {
   }
 
   static Future<void> logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getInt('userId');
+    final fcmToken = await FirebaseMessaging.instance.getToken();
+
+    // Notify backend about logout to cleanup FCM token
+    if (userId != null && fcmToken != null) {
+      try {
+        await http.post(
+          Uri.parse('${Config.baseurl}/auth/logout'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode({
+            'userId': userId,
+            'fcmToken': fcmToken,
+          }),
+        );
+      } catch (e) {
+        print('Error notifying backend about logout: $e');
+      }
+    }
+
+    // Delete the token from Firebase Messaging
+    await FirebaseMessaging.instance.deleteToken();
+    
+    // Clear local storage
     await SharedPrefs.clearAllData();
   }
 

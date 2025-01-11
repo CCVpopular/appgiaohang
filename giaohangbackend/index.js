@@ -11,8 +11,16 @@ import usersRoutes from './routes/users.js';
 import chatRoutes from './routes/chat.js';
 import transactionsRoutes from './routes/transactions.js';
 import earningsRoutes from './routes/earnings.js';
+import agoraRoutes from './routes/agora.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import admin from 'firebase-admin';
+import serviceAccount from './key/appgiaohangonline-firebase-adminsdk.json' assert { type: "json" };
+
+// Initialize Firebase Admin before other initializations
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 
 //Cau hinh ket noi database
 const dbConfig = {
@@ -109,6 +117,7 @@ app.use('/orders', ordersRoutes);
 app.use('/chat', chatRoutes);
 app.use('/transactions', transactionsRoutes);
 app.use('/earnings', earningsRoutes);
+app.use('/agora', agoraRoutes);
 
 // Update error handling middleware to exclude status-related errors
 app.use((err, req, res, next) => {
@@ -186,6 +195,34 @@ io.on('connection', (socket) => {
   // Handle new messages
   socket.on('new-message', (message) => {
     io.to(`chat-${message.orderId}`).emit('message-received', message);
+  });
+
+  // Handle video calls
+  socket.on('initiate-call', (data) => {
+    // Forward call request to receiver
+    io.emit(`call-to-${data.receiverId}`, {
+      channelName: data.channelName,
+      token: data.token,
+      callerId: data.callerId,
+      callerName: data.callerName
+    });
+  });
+
+  socket.on('call-accepted', (data) => {
+    // Notify caller that call was accepted
+    io.emit(`call-accepted-${data.callerId}`, {
+      channelName: data.channelName
+    });
+  });
+
+  socket.on('call-rejected', (data) => {
+    // Notify caller that call was rejected
+    io.emit(`call-rejected-${data.callerId}`, {});
+  });
+
+  socket.on('end-call', (data) => {
+    // Notify other participant that call ended
+    io.emit(`call-ended-${data.receiverId}`, {});
   });
 });
 

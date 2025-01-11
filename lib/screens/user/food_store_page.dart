@@ -131,10 +131,10 @@ class _FoodStorePageState extends State<FoodStorePage> {
                       return CustomCard(
                         child: ListTile(
                           leading: Image.asset(
-                            'assets/images/food_image.png', // Đường dẫn đến hình ảnh tĩnh
-                            width: 50, // Chiều rộng của hình ảnh
-                            height: 50, // Chiều cao của hình ảnh
-                            fit: BoxFit.cover, // Cách hình ảnh hiển thị trong khung
+                            'assets/images/food_image.png', 
+                            width: 50, 
+                            height: 50, 
+                            fit: BoxFit.cover,
                           ),
                           title: Text(food['name']),
                           subtitle: Text(food['description'] ?? ''),
