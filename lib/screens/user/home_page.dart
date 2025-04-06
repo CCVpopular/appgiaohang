@@ -32,16 +32,20 @@ class _HomePageState extends State<HomePage> {
       );
 
       if (response.statusCode == 200) {
+        if (mounted) {
+          setState(() {
+            stores = json.decode(response.body);
+            filteredStores = stores;
+            isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         setState(() {
-          stores = json.decode(response.body);
-          filteredStores = stores;
           isLoading = false;
         });
       }
-    } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
       // Handle error
     }
   }
@@ -52,8 +56,8 @@ class _HomePageState extends State<HomePage> {
         final storeName = store['name'].toString().toLowerCase();
         final storeAddress = store['address'].toString().toLowerCase();
         final searchLower = query.toLowerCase();
-        return storeName.contains(searchLower) || 
-               storeAddress.contains(searchLower);
+        return storeName.contains(searchLower) ||
+            storeAddress.contains(searchLower);
       }).toList();
     });
   }
@@ -86,7 +90,7 @@ class _HomePageState extends State<HomePage> {
               onChanged: _filterStores,
             ),
             const SizedBox(height: 20),
-            
+
             if (isLoading)
               const Center(child: CircularProgressIndicator())
             else if (filteredStores.isEmpty)

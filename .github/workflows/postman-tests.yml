@@ -1,0 +1,47 @@
+name: Run Local API Tests with Postman Cloud
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: cd foder
+        run: cd giaohangbackend
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Start server in background
+        run: |
+          nohup npm start &
+          sleep 5
+
+      - name: Install Postman CLI
+        run: |
+          curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | bash
+
+      - name: Install Postman Agent
+        run: |
+          curl -s https://dl.pstmn.io/agent/install.sh | bash
+
+      - name: Start Postman Agent
+        run: |
+          postman agent start
+
+      - name: Run Postman API Tests with API Key
+        run: |
+          postman login --with-api-key ${{ secrets.TOKENLOGIN }}
+          postman collection run ${{ secrets.TOKENCOL }}
+

@@ -3,6 +3,7 @@ import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'providers/theme_provider.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
@@ -50,10 +51,13 @@ void main() async {
   );
 }
 
-Future<void> checkAndRequestNotificationPermissions(BuildContext? context) async {
-  final notificationSettings = await FirebaseMessaging.instance.getNotificationSettings();
-  
-  if (notificationSettings.authorizationStatus == AuthorizationStatus.notDetermined ||
+Future<void> checkAndRequestNotificationPermissions(
+    BuildContext? context) async {
+  final notificationSettings =
+      await FirebaseMessaging.instance.getNotificationSettings();
+
+  if (notificationSettings.authorizationStatus ==
+          AuthorizationStatus.notDetermined ||
       notificationSettings.authorizationStatus == AuthorizationStatus.denied) {
     if (context != null) {
       // Show dialog
@@ -62,7 +66,8 @@ Future<void> checkAndRequestNotificationPermissions(BuildContext? context) async
         builder: (BuildContext context) {
           return AlertDialog(
             title: const Text('Bật thông báo'),
-            content: const Text('Bạn có muốn bật thông báo để nhận cập nhật về đơn hàng của bạn không?'),
+            content: const Text(
+                'Bạn có muốn bật thông báo để nhận cập nhật về đơn hàng của bạn không?'),
             actions: [
               TextButton(
                 child: const Text('Không'),
@@ -90,15 +95,15 @@ Future<void> checkAndRequestNotificationPermissions(BuildContext? context) async
 
 Future<void> _setup() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Firebase
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  
+
   // Initialize local notifications
   await NotificationService.initialize();
-  
+
   // Handle foreground messages
   FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     print("Foreground Message received: ${message.notification?.title}");
@@ -112,9 +117,11 @@ Future<void> _setup() async {
       sound: true,
     );
   }
-  
-  // Initialize Stripe
-  Stripe.publishableKey = Config.stripePublishableKey;
+
+  // Initialize Stripe only for mobile platforms (not on web)
+  if (!kIsWeb) {
+    Stripe.publishableKey = Config.stripePublishableKey;
+  }
 }
 
 class MainApp extends StatelessWidget {
@@ -134,7 +141,7 @@ class MainApp extends StatelessWidget {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             checkAndRequestNotificationPermissions(context);
           });
-          
+
           return FutureBuilder<bool>(
             future: AuthProvider.isLoggedIn(),
             builder: (context, snapshot) {
@@ -148,7 +155,8 @@ class MainApp extends StatelessWidget {
                 return FutureBuilder<String?>(
                   future: AuthProvider.getUserRole(),
                   builder: (context, roleSnapshot) {
-                    if (roleSnapshot.connectionState == ConnectionState.waiting) {
+                    if (roleSnapshot.connectionState ==
+                        ConnectionState.waiting) {
                       return const Scaffold(
                         body: Center(child: CircularProgressIndicator()),
                       );
