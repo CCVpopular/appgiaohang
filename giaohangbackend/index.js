@@ -2,6 +2,7 @@ import mysql from 'mysql2/promise';
 import express from 'express';
 import cors from 'cors';
 import { createTables } from './database/tables.js';
+import { insertSampleData } from './database/sampleData.js';
 import authRoutes from './routes/auth.js';
 import storesRoutes from './routes/stores.js';
 import foodsRoutes from './routes/foods.js';
@@ -15,8 +16,9 @@ import agoraRoutes from './routes/agora.js';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
 import admin from 'firebase-admin';
-import serviceAccount from './key/appgiaohangonline-firebase-adminsdk.json' assert { type: "json" };
-
+import fs from 'fs';
+// import serviceAccount from './key/appgiaohangonline-firebase-adminsdk.json' assert { type: "json" };
+const serviceAccount = JSON.parse(fs.readFileSync('./key/appgiaohangonline-firebase-adminsdk.json', 'utf8'));
 // Initialize Firebase Admin before other initializations
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
@@ -51,6 +53,9 @@ const initializeDatabase = async () => {
     
     // Initialize tables
     await createTables(pool);
+    
+    // Insert sample data
+    await insertSampleData(pool);
     
     return pool;
   } catch (error) {
