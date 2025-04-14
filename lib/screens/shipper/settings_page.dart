@@ -1,5 +1,5 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
-import '../../providers/auth_provider.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -18,7 +18,7 @@ class SettingsPage extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                await AuthProvider.logout();
+                await AuthController.logout();
                 Navigator.pop(context);
                 Navigator.pushNamedAndRemoveUntil(
                     context, '/user_home', (route) => false);

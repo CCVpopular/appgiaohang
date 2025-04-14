@@ -1,8 +1,8 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
-import '../../providers/auth_provider.dart';
 
 class EarningsPage extends StatefulWidget {
   const EarningsPage({super.key});
@@ -21,7 +21,7 @@ class _EarningsPageState extends State<EarningsPage> {
   }
 
   Future<void> _loadEarnings() async {
-    final userId = await AuthProvider.getUserId();
+    final userId = await AuthController.getUserId();
     if (userId != null) {
       setState(() {
         _earningsFuture = _fetchEarnings(userId);
@@ -162,7 +162,7 @@ class _EarningsPageState extends State<EarningsPage> {
 
   Future<List<dynamic>> _fetchCompletedOrders() async {
     try {
-      final userId = await AuthProvider.getUserId();
+      final userId = await AuthController.getUserId();
       if (userId == null) throw Exception('User not logged in');
 
       final response = await http.get(

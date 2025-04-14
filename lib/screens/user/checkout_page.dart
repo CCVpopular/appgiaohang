@@ -1,3 +1,4 @@
+import 'package:appgiaohang/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -8,8 +9,6 @@ import '../../components/buttons/custom_elevated_button.dart';
 import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
-import '../../providers/cart_provider.dart';
-import '../../providers/auth_provider.dart';
 import '../../services/stripe_service.dart';
 import '../../utils/shared_prefs.dart';
 
@@ -323,7 +322,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
         throw Exception('Failed to create order: ${response.body}');
       }
 
-      await CartProvider.clearCart();
+      await CartController.clearCart();
       if (!mounted) return;
 
       Navigator.popUntil(context, (route) => route.isFirst);

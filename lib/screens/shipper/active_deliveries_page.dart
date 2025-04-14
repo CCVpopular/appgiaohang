@@ -1,8 +1,8 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
-import '../../providers/auth_provider.dart';
 import '../chat_screen.dart';
 import './delivery_navigation_page.dart';
 
@@ -25,7 +25,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
   Future<void> _loadActiveOrders() async {
     setState(() => _isLoading = true);
     try {
-      final id = await AuthProvider.getUserId();
+      final id = await AuthController.getUserId();
       userId = id?.toString();
       if (userId == null) return;
 
@@ -49,7 +49,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
 
   Future<void> _startDelivery(Map<String, dynamic> order) async {
     try {
-      final shipperId = await AuthProvider.getUserId();
+      final shipperId = await AuthController.getUserId();
       if (shipperId == null) throw Exception('Not authenticated');
 
       final response = await http.put(
@@ -78,7 +78,7 @@ class _ActiveDeliveriesPageState extends State<ActiveDeliveriesPage> {
 
   Future<void> _completeDelivery(Map<String, dynamic> order) async {
     try {
-      final shipperId = await AuthProvider.getUserId();
+      final shipperId = await AuthController.getUserId();
       if (shipperId == null) throw Exception('Not authenticated');
 
       final response = await http.put(

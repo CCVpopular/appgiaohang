@@ -1,9 +1,9 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
+import 'package:appgiaohang/controllers/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/switch_list_tile/custom_switch_list_tile.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/theme_provider.dart';
 
 class UserSettingsPage extends StatefulWidget {
   const UserSettingsPage({super.key});
@@ -26,8 +26,8 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
   }
 
   Future<void> _checkUserStatus() async {
-    final userId = await AuthProvider.getUserId();
-    final userRole = await AuthProvider.getUserRole();
+    final userId = await AuthController.getUserId();
+    final userRole = await AuthController.getUserRole();
     setState(() {
       showLogout = userId != null;
       isAdmin = userRole == 'admin';
@@ -49,7 +49,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
             TextButton(
               child: const Text('Logout'),
               onPressed: () async {
-                await AuthProvider.logout();
+                await AuthController.logout();
                 if (!mounted) return;
                 Navigator.of(context)
                     .pushNamedAndRemoveUntil('/user_home', (route) => false);
@@ -89,7 +89,7 @@ class _UserSettingsPageState extends State<UserSettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeController>(context);
 
     return Scaffold(
       appBar: const CustomAppBar(title: 'Cài đặt'),

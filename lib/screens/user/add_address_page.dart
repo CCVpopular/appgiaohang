@@ -1,4 +1,5 @@
 import 'package:appgiaohang/config/config.dart';
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
@@ -8,7 +9,6 @@ import 'dart:convert';
 
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/buttons/custom_elevated_button.dart';
-import '../../providers/auth_provider.dart';
 
 class AddAddressPage extends StatefulWidget {
   const AddAddressPage({super.key});
@@ -112,7 +112,7 @@ class _AddAddressPageState extends State<AddAddressPage> {
     if (!_formKey.currentState!.validate()) return;
 
     try {
-      final userId = await AuthProvider.getUserId();
+      final userId = await AuthController.getUserId();
       if (userId == null) {
         throw Exception('User not logged in');
       }

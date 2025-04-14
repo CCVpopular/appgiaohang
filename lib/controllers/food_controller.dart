@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/config.dart';
 
-class FoodProvider {
+class FoodController {
   static Future<Map<String, dynamic>> createFood(Map<String, dynamic> foodData) async {
     final response = await http.post(
       Uri.parse('${Config.baseurl}/foods'),
@@ -50,4 +50,4 @@ class FoodProvider {
       throw Exception('Failed to delete food');
     }
   }
-}
+} 

@@ -1,3 +1,4 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,7 +6,6 @@ import '../components/app_bar/custom_app_bar.dart';
 import '../components/buttons/custom_elevated_button.dart';
 import '../config/config.dart';
 import '../main.dart';
-import '../providers/auth_provider.dart';
 import '../utils/shared_prefs.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 
@@ -51,7 +51,7 @@ class _LoginScreenState extends State<LoginScreen> {
           await SharedPrefs.saveUserId(userData['id']); // Add this line
 
           // Save user data
-          await AuthProvider.saveUserData(userData);
+          await AuthController.saveUserData(userData);
           
           // Check and request notification permissions after login
           await checkAndRequestNotificationPermissions(context);

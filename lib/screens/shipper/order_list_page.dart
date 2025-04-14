@@ -1,8 +1,8 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
-import '../../providers/auth_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -61,7 +61,7 @@ class _OrderListPageState extends State<OrderListPage> {
 
   Future<void> _acceptOrder(int orderId) async {
     try {
-      final userId = await AuthProvider.getUserId();
+      final userId = await AuthController.getUserId();
       if (userId == null) return;
 
       final response = await http.post(

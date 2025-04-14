@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../config/config.dart';
-import 'auth_provider.dart';
+import 'auth_controller.dart';
 
-class StoreProvider {
+class StoreController {
   static Future<Map<String, dynamic>> registerStore(Map<String, dynamic> storeData) async {
     final response = await http.post(
       Uri.parse('${Config.baseurl}/stores'),
@@ -43,7 +43,7 @@ class StoreProvider {
   }
 
   static Future<List<Map<String, dynamic>>> getUserStores() async {
-    final userId = await AuthProvider.getUserId();
+    final userId = await AuthController.getUserId();
     if (userId == null) throw Exception('User not logged in');
     
     final response = await http.get(
@@ -57,4 +57,4 @@ class StoreProvider {
     }
     throw Exception('Failed to fetch stores');
   }
-}
+} 

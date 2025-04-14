@@ -1,10 +1,9 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
+import 'package:appgiaohang/controllers/theme_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../components/card/custom_card.dart';
 import '../../components/switch_list_tile/custom_switch_list_tile.dart';
-import '../../providers/auth_provider.dart';
-import '../../../providers/auth_provider.dart';
-import '../../providers/theme_provider.dart';
 
 class SettingsAdminScreen extends StatefulWidget {
   const SettingsAdminScreen({super.key});
@@ -33,7 +32,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
             TextButton(
               child: const Text('Đăng xuất'),
               onPressed: () async {
-                await AuthProvider.logout();
+                await AuthController.logout();
                 if (!mounted) return;
                 Navigator.of(context).pushNamedAndRemoveUntil('/user_home', (route) => false);
               },
@@ -46,7 +45,7 @@ class _SettingsAdminScreenState extends State<SettingsAdminScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeController>(context);
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: ListView(

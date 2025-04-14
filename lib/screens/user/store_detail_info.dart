@@ -1,7 +1,7 @@
 
+import 'package:appgiaohang/controllers/store_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
-import '../../providers/store_provider.dart';
 
 class StoreDetailInfo extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -45,7 +45,7 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
         'phone_number': _phoneController.text,
       };
 
-      await StoreProvider.updateStore(widget.store['id'], storeData);
+      await StoreController.updateStore(widget.store['id'], storeData);
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(
@@ -65,7 +65,7 @@ class _StoreDetailInfoState extends State<StoreDetailInfo> {
     final newStatus = !_isStoreActive();
     
     try {
-      await StoreProvider.toggleStoreStatus(widget.store['id'], newStatus);
+      await StoreController.toggleStoreStatus(widget.store['id'], newStatus);
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(

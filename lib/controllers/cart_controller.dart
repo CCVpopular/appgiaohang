@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/cart_item.dart';
 
-class CartProvider {
+class CartController {
   static const String _cartKey = 'shopping_cart';
   static final _cartController = StreamController<int>.broadcast();
   static Stream<int> get cartStream => _cartController.stream;
@@ -64,4 +64,4 @@ class CartProvider {
     await prefs.setString(_cartKey, cartJson);
     _cartController.add(cart.fold(0, (sum, item) => sum + item.quantity));
   }
-}
+} 

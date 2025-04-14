@@ -1,8 +1,8 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../../config/config.dart';
-import '../../providers/auth_provider.dart';
 
 class ActiveOrdersScreen extends StatefulWidget {
   const ActiveOrdersScreen({super.key});
@@ -21,7 +21,7 @@ class _ActiveOrdersScreenState extends State<ActiveOrdersScreen> {
   }
 
   Future<void> _fetchOrders() async {
-    final userId = await AuthProvider.getUserId();
+    final userId = await AuthController.getUserId();
     if (userId != null) {
       setState(() {
         _ordersFuture = _getActiveOrders(userId);

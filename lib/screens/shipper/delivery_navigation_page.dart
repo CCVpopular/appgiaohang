@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:vietmap_flutter_navigation/vietmap_flutter_navigation.dart';
 import 'package:geolocator/geolocator.dart';
@@ -8,7 +9,6 @@ import 'dart:async';
 import 'package:http/http.dart' as http;
 
 import '../../config/config.dart';
-import '../../providers/auth_provider.dart';
 
 class DeliveryNavigationPage extends StatefulWidget {
   final Map<String, dynamic> order;
@@ -237,7 +237,7 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
 
   Future<void> _startDelivery() async {
     try {
-      final shipperId = await AuthProvider.getUserId();
+      final shipperId = await AuthController.getUserId();
       if (shipperId == null) throw Exception('Not authenticated');
 
       final response = await http.put(
@@ -274,7 +274,7 @@ class _DeliveryNavigationPageState extends State<DeliveryNavigationPage> {
 
   Future<void>  _completeDelivery() async {
     try {
-      final shipperId = await AuthProvider.getUserId();
+      final shipperId = await AuthController.getUserId();
       if (shipperId == null) throw Exception('Not authenticated');
 
       final response = await http.put(

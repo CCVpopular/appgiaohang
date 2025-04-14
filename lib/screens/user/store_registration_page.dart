@@ -1,7 +1,7 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
+import 'package:appgiaohang/controllers/store_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
-import '../../providers/auth_provider.dart';
-import '../../providers/store_provider.dart';
 
 class StoreRegistrationPage extends StatefulWidget {
   const StoreRegistrationPage({super.key});
@@ -31,7 +31,7 @@ class _StoreRegistrationPageState extends State<StoreRegistrationPage> {
     setState(() => _isLoading = true);
 
     try {
-      final userId = await AuthProvider.getUserId();
+      final userId = await AuthController.getUserId();
       if (userId == null) {
         throw Exception('User not logged in');
       }
@@ -45,7 +45,7 @@ class _StoreRegistrationPageState extends State<StoreRegistrationPage> {
         'longitude': longitude,
       };
 
-      await StoreProvider.registerStore(storeData);
+      await StoreController.registerStore(storeData);
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(

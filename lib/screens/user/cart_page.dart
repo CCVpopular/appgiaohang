@@ -1,8 +1,8 @@
+import 'package:appgiaohang/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/buttons/custom_elevated_button.dart';
 import '../../models/cart_item.dart';
-import '../../providers/cart_provider.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -21,7 +21,7 @@ class _CartPageState extends State<CartPage> {
   }
 
   Future<void> _loadCart() async {
-    final items = await CartProvider.getCart();
+    final items = await CartController.getCart();
     setState(() {
       cartItems = items;
     });
@@ -47,7 +47,7 @@ class _CartPageState extends State<CartPage> {
             IconButton(
               icon: const Icon(Icons.delete),
               onPressed: () async {
-                await CartProvider.clearCart();
+                await CartController.clearCart();
                 _loadCart();
               },
             ),
@@ -68,7 +68,7 @@ class _CartPageState extends State<CartPage> {
                       IconButton(
                         icon: const Icon(Icons.remove),
                         onPressed: () async {
-                          await CartProvider.updateQuantity(
+                          await CartController.updateQuantity(
                               item.foodId, item.quantity - 1);
                           _loadCart();
                         },
@@ -77,7 +77,7 @@ class _CartPageState extends State<CartPage> {
                       IconButton(
                         icon: const Icon(Icons.add),
                         onPressed: () async {
-                          await CartProvider.updateQuantity(
+                          await CartController.updateQuantity(
                               item.foodId, item.quantity + 1);
                           _loadCart();
                         },

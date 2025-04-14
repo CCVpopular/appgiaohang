@@ -1,3 +1,4 @@
+import 'package:appgiaohang/controllers/cart_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -5,7 +6,6 @@ import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/card/custom_card.dart';
 import '../../config/config.dart';
 import '../../models/cart_item.dart';
-import '../../providers/cart_provider.dart';
 
 class FoodStorePage extends StatefulWidget {
   final Map<String, dynamic> store;
@@ -26,7 +26,7 @@ class _FoodStorePageState extends State<FoodStorePage> {
     super.initState();
     fetchFoods();
     updateCartCount();
-    CartProvider.cartStream.listen((_) => updateCartCount());
+    CartController.cartStream.listen((_) => updateCartCount());
   }
 
   Future<void> fetchFoods() async {
@@ -49,20 +49,20 @@ class _FoodStorePageState extends State<FoodStorePage> {
   }
 
   Future<void> updateCartCount() async {
-    final count = await CartProvider.getCartCount();
+    final count = await CartController.getCartCount();
     setState(() {
       cartCount = count;
     });
   }
 
   Future<bool> _onWillPop() async {
-    await CartProvider.clearCart();
+    await CartController.clearCart();
     return true;
   }
 
   @override
   void dispose() {
-    CartProvider.clearCart();
+    CartController.clearCart();
     super.dispose();
   }
 
@@ -155,7 +155,7 @@ class _FoodStorePageState extends State<FoodStorePage> {
                                     storeId: widget.store['id'],
                                     storeName: widget.store['name'],
                                   );
-                                  await CartProvider.addToCart(cartItem);
+                                  await CartController.addToCart(cartItem);
                                 },
                               ),
                             ],

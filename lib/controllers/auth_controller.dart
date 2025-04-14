@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/config.dart';
 
-class AuthProvider {
+class AuthController {
   static Future<bool> isLoggedIn() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.containsKey('userId');
@@ -55,4 +55,4 @@ class AuthProvider {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getString('role');
   }
-}
+} 

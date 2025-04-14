@@ -1,8 +1,7 @@
-
+import 'package:appgiaohang/controllers/food_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/buttons/custom_elevated_button.dart';
-import '../../providers/food_provider.dart';
 
 class AddFoodPage extends StatefulWidget {
   final int storeId;
@@ -22,7 +21,7 @@ class _AddFoodPageState extends State<AddFoodPage> {
   Future<void> _submitForm() async {
     if (_formKey.currentState!.validate()) {
       try {
-        await FoodProvider.createFood({
+        await FoodController.createFood({
           'name': _nameController.text,
           'description': _descriptionController.text,
           'price': double.parse(_priceController.text),

@@ -1,7 +1,7 @@
 //quản lý trạng thái Dark/Light Mode
 import 'package:flutter/material.dart';
 
-class ThemeProvider extends ChangeNotifier {
+class ThemeController extends ChangeNotifier {
   bool _isDarkMode = false;
 
   bool get isDarkMode => _isDarkMode;
@@ -12,4 +12,4 @@ class ThemeProvider extends ChangeNotifier {
     _isDarkMode = !_isDarkMode;
     notifyListeners();
   }
-}
+} 

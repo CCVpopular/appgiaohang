@@ -1,7 +1,7 @@
+import 'package:appgiaohang/controllers/food_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/card/custom_card.dart';
-import '../../providers/food_provider.dart';
 
 class StoreFoodManagement extends StatefulWidget {
   final int storeId;
@@ -22,12 +22,12 @@ class _StoreFoodManagementState extends State<StoreFoodManagement> {
   }
 
   void _loadFoods() {
-    _foodsFuture = FoodProvider.getStoreFoods(widget.storeId);
+    _foodsFuture = FoodController.getStoreFoods(widget.storeId);
   }
 
   Future<void> _deleteFood(int foodId) async {
     try {
-      await FoodProvider.deleteFood(foodId);
+      await FoodController.deleteFood(foodId);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Food deleted successfully')),
       );
@@ -78,7 +78,7 @@ class _StoreFoodManagementState extends State<StoreFoodManagement> {
           TextButton(
             onPressed: () async {
               try {
-                await FoodProvider.updateFood(
+                await FoodController.updateFood(
                   food['id'],
                   {
                     'name': nameController.text,

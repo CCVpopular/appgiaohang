@@ -1,7 +1,7 @@
+import 'package:appgiaohang/controllers/store_controller.dart';
 import 'package:flutter/material.dart';
 import '../../components/app_bar/custom_app_bar.dart';
 import '../../components/card/custom_card.dart';
-import '../../providers/store_provider.dart';
 import 'store_orders_screen.dart';
 
 class UserStorePage extends StatefulWidget {
@@ -24,7 +24,7 @@ class _UserStorePageState extends State<UserStorePage> {
   Future<void> _loadStores() async {
     setState(() => _isLoading = true);
     try {
-      final stores = await StoreProvider.getUserStores();
+      final stores = await StoreController.getUserStores();
       setState(() => _stores = stores);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

@@ -1,3 +1,4 @@
+import 'package:appgiaohang/controllers/auth_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -6,7 +7,6 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import '../components/app_bar/custom_app_bar.dart';
 import '../components/bottom_navigation_bar/custom_bottom_navigation_bar.dart';
 import '../config/config.dart';
-import '../providers/auth_provider.dart';
 import 'shipper/settings_page.dart';
 import 'shipper/order_list_page.dart';
 import 'shipper/active_deliveries_page.dart';
@@ -82,7 +82,7 @@ class _HomeShipperScreenState extends State<HomeShipperScreen> {
 
   Future<void> _loadActiveDelivery() async {
     try {
-      final userId = await AuthProvider.getUserId();
+      final userId = await AuthController.getUserId();
       if (userId == null) return;
 
       final response = await http.get(

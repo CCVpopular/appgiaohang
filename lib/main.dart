@@ -1,9 +1,10 @@
 import 'package:appgiaohang/config/config.dart';
+import 'package:appgiaohang/controllers/auth_controller.dart';
+import 'package:appgiaohang/controllers/theme_controller.dart';
 import 'package:appgiaohang/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
-import 'providers/theme_provider.dart';
 import 'screens/forgot_password_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -24,7 +25,6 @@ import 'screens/user/store_registration_page.dart';
 import 'screens/user/store_statistics_screen.dart';
 import 'screens/user/user_settings_page.dart';
 import 'screens/admin/settings_admin_screen.dart';
-import 'providers/auth_provider.dart';
 import 'screens/user/user_store_page.dart';
 import 'screens/admin/store_approval_screen.dart';
 import 'screens/user/food_store_page.dart';
@@ -44,7 +44,7 @@ void main() async {
   await _setup();
   runApp(
     ChangeNotifierProvider(
-      create: (_) => ThemeProvider(),
+      create: (_) => ThemeController(),
       child: const MainApp(),
     ),
   );
@@ -105,7 +105,7 @@ Future<void> _setup() async {
     NotificationService.showNotification(message);
   });
 
-  if (await AuthProvider.isLoggedIn()) {
+  if (await AuthController.isLoggedIn()) {
     await FirebaseMessaging.instance.requestPermission(
       alert: true,
       badge: true,
@@ -122,7 +122,7 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
+    final themeProvider = Provider.of<ThemeController>(context);
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       themeMode: themeProvider.themeMode,
@@ -136,7 +136,7 @@ class MainApp extends StatelessWidget {
           });
           
           return FutureBuilder<bool>(
-            future: AuthProvider.isLoggedIn(),
+            future: AuthController.isLoggedIn(),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Scaffold(
@@ -146,7 +146,7 @@ class MainApp extends StatelessWidget {
 
               if (snapshot.data == true) {
                 return FutureBuilder<String?>(
-                  future: AuthProvider.getUserRole(),
+                  future: AuthController.getUserRole(),
                   builder: (context, roleSnapshot) {
                     if (roleSnapshot.connectionState == ConnectionState.waiting) {
                       return const Scaffold(
